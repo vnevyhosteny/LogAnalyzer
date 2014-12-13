@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "MainViewController.h"
 
 @interface AppDelegate ()
 
@@ -14,12 +15,29 @@
 
 @implementation AppDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+//------------------------------------------------------------------------------
+- (void) applicationDidFinishLaunching:(NSNotification *)aNotification
+{
+//    CGRect displayFrame = [[NSScreen deepestScreen] frame];
+//    CGRect windowFrame  = [NSApplication sharedApplication].mainWindow.frame;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
 }
 
+//------------------------------------------------------------------------------
+- (BOOL) application:(NSApplication *)sender openFile:(NSString *)path
+{
+    if ( [path length] && ( [[path pathExtension] rangeOfString:@"log" options:NSCaseInsensitiveSearch].location != NSNotFound ) ) {
+        [self.mainViewDelegate appendLogFromFile:path];
+    }
+    return YES;
+}
+
+//------------------------------------------------------------------------------
+- (void) applicationDidChangeScreenParameters:(NSNotification *)notification
+{
+    [self.mainViewDelegate reloadLog];
+}
 @end

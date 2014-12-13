@@ -9,21 +9,17 @@
 /* Begin PBXBuildFile section */
 		19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */; };
 		19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDC1A33A3CE00F88F53 /* main.m */; };
-		19C4EBE01A33A3CE00F88F53 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDF1A33A3CE00F88F53 /* ViewController.m */; };
+		19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */; };
 		19C4EBE21A33A3CE00F88F53 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19C4EBE11A33A3CE00F88F53 /* Images.xcassets */; };
 		19C4EBE51A33A3CE00F88F53 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 19C4EBE31A33A3CE00F88F53 /* Main.storyboard */; };
-		19C4EBF11A33A3CE00F88F53 /* LogAnalyzerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBF01A33A3CE00F88F53 /* LogAnalyzerTests.m */; };
+		19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBFB1A344AD100F88F53 /* LogTableView.m */; };
+		19C4EC001A344FE000F88F53 /* DataProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBFF1A344FE000F88F53 /* DataProvider.m */; };
+		19C4EC041A345D4100F88F53 /* LogItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EC031A345D4100F88F53 /* LogItem.m */; };
+		19E53FFD1A35EF0B0062B586 /* LogItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */; };
+		19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BB71A3B29D700183F56 /* WindowManager.m */; };
+		19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */; };
+		19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		19C4EBEB1A33A3CE00F88F53 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 19C4EBCC1A33A3CE00F88F53 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 19C4EBD31A33A3CE00F88F53;
-			remoteInfo = LogAnalyzer;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,13 +27,25 @@
 		19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		19C4EBDC1A33A3CE00F88F53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		19C4EBDE1A33A3CE00F88F53 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		19C4EBDF1A33A3CE00F88F53 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		19C4EBDE1A33A3CE00F88F53 /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		19C4EBE11A33A3CE00F88F53 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		19C4EBE41A33A3CE00F88F53 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		19C4EBEA1A33A3CE00F88F53 /* LogAnalyzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LogAnalyzerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		19C4EBEF1A33A3CE00F88F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		19C4EBF01A33A3CE00F88F53 /* LogAnalyzerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerTests.m; sourceTree = "<group>"; };
+		19C4EBFA1A344AD100F88F53 /* LogTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTableView.h; sourceTree = "<group>"; };
+		19C4EBFB1A344AD100F88F53 /* LogTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTableView.m; sourceTree = "<group>"; };
+		19C4EBFD1A344C3E00F88F53 /* Protocols.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Protocols.h; sourceTree = "<group>"; };
+		19C4EBFE1A344FE000F88F53 /* DataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataProvider.h; sourceTree = "<group>"; };
+		19C4EBFF1A344FE000F88F53 /* DataProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataProvider.m; sourceTree = "<group>"; };
+		19C4EC021A345D4100F88F53 /* LogItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogItem.h; sourceTree = "<group>"; };
+		19C4EC031A345D4100F88F53 /* LogItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogItem.m; sourceTree = "<group>"; };
+		19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogItemViewController.h; sourceTree = "<group>"; };
+		19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogItemViewController.m; sourceTree = "<group>"; };
+		19EB4BB61A3B29D700183F56 /* WindowManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowManager.h; sourceTree = "<group>"; };
+		19EB4BB71A3B29D700183F56 /* WindowManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowManager.m; sourceTree = "<group>"; };
+		19EB4BB91A3B2E1800183F56 /* LogAnalyzerWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogAnalyzerWindowController.h; sourceTree = "<group>"; };
+		19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindowController.m; sourceTree = "<group>"; };
+		19EB4BBC1A3B3A2F00183F56 /* LogAnalyzerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogAnalyzerWindow.h; sourceTree = "<group>"; };
+		19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindow.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,21 +56,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		19C4EBE71A33A3CE00F88F53 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		19B85C591A3B5116005C85FC /* Windows */ = {
+			isa = PBXGroup;
+			children = (
+				19EB4BBC1A3B3A2F00183F56 /* LogAnalyzerWindow.h */,
+				19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */,
+				19EB4BB91A3B2E1800183F56 /* LogAnalyzerWindowController.h */,
+				19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */,
+				19EB4BB61A3B29D700183F56 /* WindowManager.h */,
+				19EB4BB71A3B29D700183F56 /* WindowManager.m */,
+			);
+			name = Windows;
+			sourceTree = "<group>";
+		};
+		19B85C5A1A3B513C005C85FC /* LogBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */,
+				19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */,
+				19C4EBFA1A344AD100F88F53 /* LogTableView.h */,
+				19C4EBFB1A344AD100F88F53 /* LogTableView.m */,
+				19C4EBDE1A33A3CE00F88F53 /* MainViewController.h */,
+				19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */,
+			);
+			name = LogBrowser;
+			sourceTree = "<group>";
+		};
 		19C4EBCB1A33A3CE00F88F53 = {
 			isa = PBXGroup;
 			children = (
 				19C4EBD61A33A3CE00F88F53 /* LogAnalyzer */,
-				19C4EBED1A33A3CE00F88F53 /* LogAnalyzerTests */,
 				19C4EBD51A33A3CE00F88F53 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -71,7 +97,6 @@
 			isa = PBXGroup;
 			children = (
 				19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */,
-				19C4EBEA1A33A3CE00F88F53 /* LogAnalyzerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,13 +104,13 @@
 		19C4EBD61A33A3CE00F88F53 /* LogAnalyzer */ = {
 			isa = PBXGroup;
 			children = (
+				19C4EC081A34D4AF00F88F53 /* UI */,
+				19C4EC011A345D1D00F88F53 /* Data */,
 				19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */,
 				19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */,
-				19C4EBDE1A33A3CE00F88F53 /* ViewController.h */,
-				19C4EBDF1A33A3CE00F88F53 /* ViewController.m */,
 				19C4EBE11A33A3CE00F88F53 /* Images.xcassets */,
-				19C4EBE31A33A3CE00F88F53 /* Main.storyboard */,
 				19C4EBD71A33A3CE00F88F53 /* Supporting Files */,
+				19C4EBFD1A344C3E00F88F53 /* Protocols.h */,
 			);
 			path = LogAnalyzer;
 			sourceTree = "<group>";
@@ -99,21 +124,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		19C4EBED1A33A3CE00F88F53 /* LogAnalyzerTests */ = {
+		19C4EC011A345D1D00F88F53 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				19C4EBF01A33A3CE00F88F53 /* LogAnalyzerTests.m */,
-				19C4EBEE1A33A3CE00F88F53 /* Supporting Files */,
+				19C4EBFE1A344FE000F88F53 /* DataProvider.h */,
+				19C4EBFF1A344FE000F88F53 /* DataProvider.m */,
+				19C4EC021A345D4100F88F53 /* LogItem.h */,
+				19C4EC031A345D4100F88F53 /* LogItem.m */,
 			);
-			path = LogAnalyzerTests;
+			name = Data;
 			sourceTree = "<group>";
 		};
-		19C4EBEE1A33A3CE00F88F53 /* Supporting Files */ = {
+		19C4EC081A34D4AF00F88F53 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				19C4EBEF1A33A3CE00F88F53 /* Info.plist */,
+				19B85C5A1A3B513C005C85FC /* LogBrowser */,
+				19B85C591A3B5116005C85FC /* Windows */,
+				19C4EBE31A33A3CE00F88F53 /* Main.storyboard */,
 			);
-			name = "Supporting Files";
+			name = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,24 +165,6 @@
 			productReference = 19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */;
 			productType = "com.apple.product-type.application";
 		};
-		19C4EBE91A33A3CE00F88F53 /* LogAnalyzerTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 19C4EBF71A33A3CE00F88F53 /* Build configuration list for PBXNativeTarget "LogAnalyzerTests" */;
-			buildPhases = (
-				19C4EBE61A33A3CE00F88F53 /* Sources */,
-				19C4EBE71A33A3CE00F88F53 /* Frameworks */,
-				19C4EBE81A33A3CE00F88F53 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				19C4EBEC1A33A3CE00F88F53 /* PBXTargetDependency */,
-			);
-			name = LogAnalyzerTests;
-			productName = LogAnalyzerTests;
-			productReference = 19C4EBEA1A33A3CE00F88F53 /* LogAnalyzerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -165,10 +176,6 @@
 				TargetAttributes = {
 					19C4EBD31A33A3CE00F88F53 = {
 						CreatedOnToolsVersion = 6.1.1;
-					};
-					19C4EBE91A33A3CE00F88F53 = {
-						CreatedOnToolsVersion = 6.1.1;
-						TestTargetID = 19C4EBD31A33A3CE00F88F53;
 					};
 				};
 			};
@@ -186,7 +193,6 @@
 			projectRoot = "";
 			targets = (
 				19C4EBD31A33A3CE00F88F53 /* LogAnalyzer */,
-				19C4EBE91A33A3CE00F88F53 /* LogAnalyzerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -201,13 +207,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		19C4EBE81A33A3CE00F88F53 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -215,29 +214,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				19C4EBE01A33A3CE00F88F53 /* ViewController.m in Sources */,
+				19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */,
 				19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */,
+				19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */,
+				19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */,
+				19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */,
 				19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		19C4EBE61A33A3CE00F88F53 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				19C4EBF11A33A3CE00F88F53 /* LogAnalyzerTests.m in Sources */,
+				19C4EC001A344FE000F88F53 /* DataProvider.m in Sources */,
+				19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */,
+				19E53FFD1A35EF0B0062B586 /* LogItemViewController.m in Sources */,
+				19C4EC041A345D4100F88F53 /* LogItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		19C4EBEC1A33A3CE00F88F53 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 19C4EBD31A33A3CE00F88F53 /* LogAnalyzer */;
-			targetProxy = 19C4EBEB1A33A3CE00F88F53 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		19C4EBE31A33A3CE00F88F53 /* Main.storyboard */ = {
@@ -349,42 +339,6 @@
 			};
 			name = Release;
 		};
-		19C4EBF81A33A3CE00F88F53 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = LogAnalyzerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LogAnalyzer.app/Contents/MacOS/LogAnalyzer";
-			};
-			name = Debug;
-		};
-		19C4EBF91A33A3CE00F88F53 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = LogAnalyzerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LogAnalyzer.app/Contents/MacOS/LogAnalyzer";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -404,14 +358,7 @@
 				19C4EBF61A33A3CE00F88F53 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-		};
-		19C4EBF71A33A3CE00F88F53 /* Build configuration list for PBXNativeTarget "LogAnalyzerTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				19C4EBF81A33A3CE00F88F53 /* Debug */,
-				19C4EBF91A33A3CE00F88F53 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Protocols.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
-
-
+@property (nonatomic, weak) id<MainViewControllerDelegate>  mainViewDelegate;
 @end
 
