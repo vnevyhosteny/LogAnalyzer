@@ -22,16 +22,22 @@ typedef enum { FILTER_SEARCH = 0,
 @property (nonatomic, readonly) NSArray       *filteredData;
 
 @property (nonatomic, readonly) NSUInteger     matchedRowsCount;
+@property (nonatomic, readonly) NSUInteger     currentMatchedRow;
 @property (nonatomic, readonly) NSIndexSet    *matchedRowsIndexSet;
 @property (nonatomic, readonly) NSIndexSet    *unmatchedRowsIndexSet;
-@property (nonatomic, readonly) NSUInteger     firstMatchedRow;
+@property (nonatomic, readonly) NSUInteger     firstMatchedRowIndex;
+@property (nonatomic, readonly) NSUInteger     currentMatchedRowIndex;
+@property (nonatomic, readonly) NSUInteger     lastMatchedRowIndex;
 
 - (void) appendLogFromFile:(NSString*)fileName completion:(void (^)(NSError*))completion;
 - (void) invalidateDataWithCompletion:(void (^)(void))completion;
 - (void) removeAllMatchedItemsWithCompletion:(void (^)(void))completion;
-- (void) removeAllUnmatchedItemsWithCompletion:(void (^)(void))completion;
+- (void) toggleMatchedWithCompletion:(void (^)(void))completion;
 
 - (void) writeMatchedLogItems:(BOOL)matched toPasteboard:(NSPasteboard *)pboard;
 - (void) pasteLogItems:(NSArray*)logItems;
+
+- (NSUInteger) nextMatchedRowIndex;
+- (NSUInteger) previousMatchedRowIndex;
 
 @end

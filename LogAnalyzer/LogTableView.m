@@ -70,6 +70,7 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
 //------------------------------------------------------------------------------
 - (NSDragOperation) draggingEntered:(id <NSDraggingInfo>)sender
 {
+    [self.mainViewDelegate startActivityIndicatorWithMessage:@"Drag proceeds ..."];
     if ((NSDragOperationGeneric & [sender draggingSourceOperationMask]) == NSDragOperationGeneric) {
         //this means that the sender is offering the type of operation we want
         //return that we want the NSDragOperationGeneric operation that they
@@ -84,14 +85,12 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
         //to tell them we aren't interested
         return NSDragOperationNone;
     }
-
 }
 
 //------------------------------------------------------------------------------
 - (void) draggingExited:(id <NSDraggingInfo>)sender
 {
-    //we aren't particularily interested in this so we will do nothing
-    //this is one of the methods that we do not have to implement
+//    [self.mainViewDelegate stopActivityIndicator];
 }
 
 //------------------------------------------------------------------------------
@@ -116,7 +115,7 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
 //------------------------------------------------------------------------------
 - (BOOL) prepareForDragOperation:(id <NSDraggingInfo>)sender
 {
-    return YES;
+    return [self.mainViewDelegate isDragAndDropEnabled];
 }
 
 //------------------------------------------------------------------------------
@@ -165,8 +164,21 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
 - (void) draggingSession:(NSDraggingSession *)session
         willBeginAtPoint:(NSPoint)screenPoint
 {
-    //NSLog( @"Drag will begin at point [%f,%f]", screenPoint.x, screenPoint.y );
+    [self.mainViewDelegate startActivityIndicatorWithMessage:@"Drag proceeds ..."];
 }
+
+//------------------------------------------------------------------------------
+//- (BOOL) ignoreModifierKeysForDraggingSession:(NSDraggingSession *)session
+//{
+//    NSArray *draggedItems = session.draggingPasteboard.pasteboardItems;
+//    if ( [draggedItems count] ) {
+//        LogItem *logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[[draggedItems firstObject] dataForType:LogItemPasteboardType]];
+//        return !logItem.matchFilter;
+//    }
+//    else {
+//        return YES;
+//    }
+//}
 
 //------------------------------------------------------------------------------
 - (void) draggingSession:(NSDraggingSession *)session
@@ -177,12 +189,20 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
     NSMutableArray *aux          = [NSMutableArray new];
     
     if ( [draggedItems count] ) {
-        for ( __weak NSPasteboardItem *item in draggedItems ) {
-            [aux addObject:(LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[item dataForType:LogItemPasteboardType]]];
+        LogItem *logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[[draggedItems firstObject] dataForType:LogItemPasteboardType]];
+        if ( logItem.matchFilter ) {
+            for ( __weak NSPasteboardItem *item in draggedItems ) {
+                logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[item dataForType:LogItemPasteboardType]];
+                [logItem setMatchFilter:NO];
+                [aux addObject:logItem];
+            }
         }
     }
     
+    [session.draggingPasteboard clearContents];
+    
     if ( ![aux count] ) {
+        [self.mainViewDelegate stopActivityIndicator];
         return;
     }
     
@@ -197,6 +217,8 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
     else {
         [self.mainViewDelegate createNewWindowWithLogItems:aux atPoint:screenPoint];
     }
+    
+    [self.mainViewDelegate stopActivityIndicator];
 }
 
 

@@ -16,6 +16,11 @@
 - (void) textDidSelected:(LogItemViewController*)controller;
 - (void) reloadLog;
 - (void) createNewWindowWithLogItems:(NSArray*)logItems atPoint:(NSPoint)point;
+- (BOOL) isDragAndDropEnabled;
+- (void) startActivityIndicator;
+- (void) startActivityIndicatorWithMessage:(NSString*)message;
+- (void) stopActivityIndicator;
+
 @end
 
 #endif

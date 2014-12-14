@@ -27,29 +27,75 @@
 #pragma mark -
 #pragma mark Getters And Setters
 //------------------------------------------------------------------------------
+- (NSArray*) filteredDataWithOriginalData
+{
+    @synchronized( self ) {
+        if ( ![self->_filteredData count] ) {
+            
+            self->_matchedRowsCount       = 0;
+            self->_currentMatchedRow      = NSNotFound;
+            self->_firstMatchedRowIndex   = NSNotFound;
+            self->_currentMatchedRowIndex = NSNotFound;
+            self->_lastMatchedRowIndex    = NSNotFound;
+            
+            self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
+            NSUInteger index    = 0;
+            
+            for ( __weak LogItem *logItem in self->_filteredData ) {
+                if ( logItem.matchFilter ) {
+                    
+                    self->_matchedRowsCount++;
+                    self->_lastMatchedRowIndex = index;
+                    
+                    if ( self->_firstMatchedRowIndex == NSNotFound ) {
+                        self->_firstMatchedRowIndex   = index;
+                        self->_currentMatchedRowIndex = index;
+                        self->_currentMatchedRow      = 0;
+                    }
+                }
+                
+                index++;
+            }
+        }
+        
+        return self->_filteredData;
+    }
+}
+
+
+//------------------------------------------------------------------------------
 - (NSArray*) filteredData
 {
     @synchronized( self ) {
         if ( ![self->_filteredData count] ) {
             
-            self->_matchedRowsCount = 0;
-            self->_firstMatchedRow  = NSNotFound;
+            self->_matchedRowsCount       = 0;
+            self->_currentMatchedRow      = NSNotFound;
+            self->_firstMatchedRowIndex   = NSNotFound;
+            self->_currentMatchedRowIndex = NSNotFound;
+            self->_lastMatchedRowIndex    = NSNotFound;
             
             if ( [self.filter.text length] ) {
                 
                 if ( self.filterType == FILTER_SEARCH ) {
-                    self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
                     NSUInteger index    = 0;
-                    for ( __weak LogItem *logItem in self->_filteredData ) {
+                    for ( __weak LogItem *logItem in self->_originalData ) {
                         logItem.matchFilter = ( [logItem.text rangeOfString:self.filter.text options:NSCaseInsensitiveSearch].location != NSNotFound );
                         if ( logItem.matchFilter ) {
+                            
                             self->_matchedRowsCount++;
+                            self->_lastMatchedRowIndex = index;
+                            
+                            if ( self->_firstMatchedRowIndex == NSNotFound ) {
+                                self->_firstMatchedRowIndex   = index;
+                                self->_currentMatchedRowIndex = index;
+                                self->_currentMatchedRow      = 0;
+                            }
                         }
-                        if ( self->_firstMatchedRow == NSNotFound ) {
-                            self->_firstMatchedRow = index;
-                        }
+                        
                         index++;
                     }
+                    self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
                 }
                 else {
                     NSMutableString *predicateFormat = [[NSMutableString alloc] init];
@@ -60,14 +106,22 @@
                     
                     NSPredicate *predicate = ( [arguments count] ? [NSPredicate predicateWithFormat:predicateFormat argumentArray:arguments] : nil );
                     self->_filteredData    = ( predicate
-                                              ?
-                                              [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES]
-                                              :
-                                              [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES]
-                                              );
+                                               ?
+                                               [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES]
+                                               :
+                                               [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES]
+                                             );
+                    
+                    for ( __weak LogItem *logItem in self->_filteredData ) {
+                        logItem.matchFilter = NO;
+                    }
+                        
                     self->_matchedRowsCount = [self->_filteredData count];
                     if ( self->_matchedRowsCount ) {
-                        self->_firstMatchedRow = 0;
+                        self->_firstMatchedRowIndex   = 0;
+                        self->_currentMatchedRowIndex = 0;
+                        self->_currentMatchedRow      = 0;
+                        self->_lastMatchedRowIndex    = self->_matchedRowsCount;
                     }
                 }
             }
@@ -207,23 +261,45 @@
 - (void) removeAllMatchedItemsWithCompletion:(void (^)(void))completion
 {
     dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^{
-        if ( [self->_filteredData count] ) {
+        @synchronized( self ) {
             NSMutableArray *aux = [NSMutableArray new];
-            for ( __weak LogItem *logItem in self->_filteredData ) {
+            for ( __weak LogItem *logItem in self->_originalData ) {
                 if ( !logItem.matchFilter ) {
                     [aux addObject:logItem];
                 }
             }
-            
-            if ( [aux count] ) {
-                @synchronized( self ) {
-                    self->_originalData = [NSArray arrayWithArray:aux];
-                    self->_filteredData = nil;
-                }
-            }
+            self->_originalData = [[NSArray alloc] initWithArray:aux];
+            self->_filteredData = nil;
+            [self filteredDataWithOriginalData];
         }
         
-        self.filter.text = nil;
+        if ( completion ) {
+            completion();
+        }
+    });
+}
+
+
+//------------------------------------------------------------------------------
+- (void) toggleMatchedWithCompletion:(void (^)(void))completion
+{
+    if ( self.filterType == FILTER_FILTER ) {
+        if ( completion ) {
+            completion();
+        }
+        return;
+    }
+    
+    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^{
+        
+        @synchronized( self ) {
+            for ( __weak LogItem *logItem in self->_originalData ) {
+                logItem.matchFilter = !logItem.matchFilter;
+            }
+            
+            self->_filteredData           = nil;
+            [self filteredDataWithOriginalData];
+        }
         
         if ( completion ) {
             completion();
@@ -232,32 +308,55 @@
 }
 
 //------------------------------------------------------------------------------
-- (void) removeAllUnmatchedItemsWithCompletion:(void (^)(void))completion
+- (NSUInteger) nextMatchedRowIndex
 {
-    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^{
-        if ( [self->_filteredData count] ) {
-            NSMutableArray *aux = [NSMutableArray new];
-            for ( __weak LogItem *logItem in self->_filteredData ) {
-                if ( logItem.matchFilter ) {
-                    logItem.matchFilter = NO;
-                    [aux addObject:logItem];
-                }
-            }
-            
-            if ( [aux count] ) {
-                @synchronized( self ) {
-                    self->_originalData = [NSArray arrayWithArray:aux];
-                    self->_filteredData = nil;
-                }
-            }
+    if ( self->_currentMatchedRowIndex == NSNotFound ) {
+        return self->_currentMatchedRowIndex;
+    }
+    
+    NSUInteger index = self->_currentMatchedRowIndex + 1;
+    LogItem   *logItem;
+    
+    while ( ( index < [self->_filteredData count] ) && ( index <= self->_lastMatchedRowIndex ) ) {
+        logItem = [self->_filteredData objectAtIndex:index];
+        if ( logItem.matchFilter ) {
+            self->_currentMatchedRowIndex = index;
+            self->_currentMatchedRow++;
+            return index;
         }
-        
-        self.filter.text = nil;
-        
-        if ( completion ) {
-            completion();
+        index++;
+    }
+    
+    self->_currentMatchedRowIndex = self->_lastMatchedRowIndex;
+    return self->_currentMatchedRowIndex;
+}
+
+//------------------------------------------------------------------------------
+- (NSUInteger) previousMatchedRowIndex
+{
+    if ( self->_currentMatchedRowIndex == 0 ) {
+        self->_currentMatchedRowIndex = NSNotFound;
+        return self->_currentMatchedRowIndex;
+    }
+    else if ( self->_currentMatchedRowIndex == NSNotFound ) {
+        return self->_currentMatchedRowIndex;
+    }
+    
+    NSUInteger index = self->_currentMatchedRowIndex - 1;
+    LogItem   *logItem;
+    
+    while ( ( index > 0 ) && ( index >= self->_firstMatchedRowIndex ) ) {
+        logItem = [self->_filteredData objectAtIndex:index];
+        if ( logItem.matchFilter ) {
+            self->_currentMatchedRowIndex = index;
+            self->_currentMatchedRow--;
+            return index;
         }
-    });
+        index--;
+    }
+    
+    self->_currentMatchedRowIndex = self->_firstMatchedRowIndex;
+    return self->_currentMatchedRowIndex;
 }
 
 

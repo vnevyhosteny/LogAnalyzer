@@ -31,6 +31,7 @@ static NSString *const LogFontFamily                = @"Menlo";
 {
     BOOL      _isSearchingInProgress;
     NSString *_currentFilterText;
+    BOOL      _logTableLoading;
 }
 
 @property (weak) IBOutlet LogTableView           *logTableView;
@@ -39,6 +40,10 @@ static NSString *const LogFontFamily                = @"Menlo";
 @property (weak) IBOutlet NSScrollView           *logTableScrollView;
 @property (weak) IBOutlet NSTextField            *infoLabel;
 @property (weak) IBOutlet NSButton               *toggleFilterModeButton;
+@property (weak) IBOutlet NSView                 *topBarBaseView;
+@property (weak) IBOutlet NSButton               *toggleMatchedButton;
+@property (weak) IBOutlet NSButton               *arrowUpButton;
+@property (weak) IBOutlet NSButton               *arrowDownButton;
 
 @property (weak) IBOutlet NSTextField            *matchedCountLabel;
 @property (weak) IBOutlet NSButton               *removeMatchedButton;
@@ -46,10 +51,12 @@ static NSString *const LogFontFamily                = @"Menlo";
 @property (nonatomic, readonly) NSArray          *data;
 @property (nonatomic, readonly) DataProvider     *dataProvider;
 
-- (IBAction)toggleFilterMode:(NSButton *)sender;
-- (IBAction)removeMatchedAction:(NSButton *)sender;
-- (IBAction)toggleMatchedAction:(NSButton *)sender;
+- (IBAction) toggleFilterMode:(NSButton *)sender;
+- (IBAction) removeMatchedAction:(NSButton *)sender;
+- (IBAction) toggleMatchedAction:(NSButton *)sender;
 
+- (IBAction)arrowUpAction:(NSButton *)sender;
+- (IBAction)arrowDownAction:(NSButton *)sender;
 
 
 @end
@@ -65,6 +72,13 @@ static NSString *const LogFontFamily                = @"Menlo";
     if ( [self.searchField acceptsFirstResponder] ) {
         [self.searchField resignFirstResponder];
     }
+    
+    CALayer *viewLayer = [CALayer layer];
+    [viewLayer setBackgroundColor:CGColorCreateGenericRGB( 255.0f, 255.0f, 255.0f, 1.0f )]; //RGB plus Alpha Channel
+    [self.topBarBaseView setWantsLayer:YES]; // view's backing store is using a Core Animation Layer
+    [self.topBarBaseView setLayer:viewLayer];
+
+    
     [self.logTableView becomeFirstResponder];
     [self.logTableView setTarget:self];
     [self.logTableView setDoubleAction:@selector(doubleClick:)];
@@ -74,7 +88,7 @@ static NSString *const LogFontFamily                = @"Menlo";
     self->_currentFilterText                                                    = nil;
     
     self.removeMatchedButton.enabled                                            = NO;
-    
+    self->_logTableLoading                                                      = NO;
     [self.removeMatchedButton setToolTip:@"Remove all matched items."];
 }
 
@@ -88,6 +102,7 @@ static NSString *const LogFontFamily                = @"Menlo";
 - (void) viewDidAppear
 {
     [self.logTableView becomeFirstResponder];
+    [self updateStatus];
 }
 
 //------------------------------------------------------------------------------
@@ -132,6 +147,8 @@ static NSString *const LogFontFamily                = @"Menlo";
     dispatch_async( dispatch_get_main_queue(), ^{
         [self.activityIndicator startAnimation:nil];
         [self.infoLabel setStringValue:message];
+        [self.activityIndicator setNeedsDisplay:YES];
+        [self.infoLabel setNeedsDisplay:YES];
     });
 }
 
@@ -141,6 +158,8 @@ static NSString *const LogFontFamily                = @"Menlo";
     dispatch_async( dispatch_get_main_queue(), ^{
         [self.activityIndicator stopAnimation:nil];
         [self.infoLabel setStringValue:@""];
+        [self.activityIndicator setNeedsDisplay:YES];
+        [self.infoLabel setNeedsDisplay:YES];
     });
 }
 
@@ -193,44 +212,30 @@ static NSString *const LogFontFamily                = @"Menlo";
 #pragma mark -
 #pragma mark Actions
 //------------------------------------------------------------------------------
-- (IBAction)filterModeChanged:(NSSegmentedControl *)sender
-{
-    switch ( sender.selectedSegment ) {
-        case 0:
-            self.dataProvider.filterType = FILTER_SEARCH;
-            break;
-            
-        case 1:
-            self.dataProvider.filterType = FILTER_FILTER;
-            break;
-            
-        default:;
-    }
-    
-    [self.dataProvider invalidateDataWithCompletion:^{
-        [self reloadLog];
-    }];
-}
-
-
-//------------------------------------------------------------------------------
-- (IBAction)toggleFilterMode:(NSButton *)sender
+- (IBAction) toggleFilterMode:(NSButton *)sender
 {
     switch ( sender.state ) {
         case NSOnState:
-            self.dataProvider.filterType = FILTER_FILTER;
+            self.dataProvider.filterType = FILTER_SEARCH;
             [sender setImage:[NSImage imageNamed:@"ButtonFilterOn"]];
             break;
             
         case NSOffState:
-            self.dataProvider.filterType = FILTER_SEARCH;
+            self.dataProvider.filterType = FILTER_FILTER;
             [sender setImage:[NSImage imageNamed:@"ButtonFilterOff"]];
             break;
             
         default:;
     }
+    
+    [self startActivityIndicatorWithMessage:@"Switching mode ..."];
+    [self.dataProvider invalidateDataWithCompletion:^{
+        [self reloadLog];
+        [self stopActivityIndicator];
+    }];
 }
 
+//------------------------------------------------------------------------------
 - (IBAction) removeMatchedAction:(NSButton *)sender
 {
     [self startActivityIndicatorWithMessage:@"Reloading ..."];
@@ -240,7 +245,34 @@ static NSString *const LogFontFamily                = @"Menlo";
     }];
 }
 
-- (IBAction)toggleMatchedAction:(NSButton *)sender {
+//------------------------------------------------------------------------------
+- (IBAction) toggleMatchedAction:(NSButton *)sender
+{
+    [self startActivityIndicatorWithMessage:@"Toggle matched ..."];
+    [self.dataProvider toggleMatchedWithCompletion:^{
+        [self reloadLog];
+        [self stopActivityIndicator];
+    }];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) arrowUpAction:(NSButton *)sender
+{
+    NSUInteger index = [self.dataProvider previousMatchedRowIndex];
+    if ( index != NSNotFound ) {
+        [self.logTableView scrollRowToVisible:index];
+        [self updateStatus];
+    }
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) arrowDownAction:(NSButton *)sender
+{
+    NSUInteger index = [self.dataProvider nextMatchedRowIndex];
+    if ( index != NSNotFound ) {
+        [self.logTableView scrollRowToVisible:index + 1];
+        [self updateStatus];
+    }
 }
 
 #pragma mark -
@@ -348,7 +380,10 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     forTableColumn:(NSTableColumn *)aTableColumn
                row:(NSInteger)rowIndex
 {
-    [self stopActivityIndicator];
+    if ( self->_logTableLoading ) {
+        [self stopActivityIndicator];
+        self->_logTableLoading = NO;
+    }
 }
 
 
@@ -420,9 +455,12 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) reloadLog
 {
     dispatch_async( dispatch_get_main_queue(), ^{
+        self->_logTableLoading = YES;
+        
         if ( [self.data count] ) {
             [self startActivityIndicatorWithMessage:@"Reloading ..."];
         }
+        
         [self.logTableView reloadData];
         [self updateStatus];
     });
@@ -451,6 +489,11 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     [windowController.mainWiewController reloadLog];
 }
 
+//------------------------------------------------------------------------------
+- (BOOL) isDragAndDropEnabled
+{
+    return ( self.dataProvider.filterType == FILTER_SEARCH );
+}
 
 #pragma mark -
 #pragma mark NSTextViewDelagate Methods
@@ -484,8 +527,8 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self reloadLog];
         dispatch_async( dispatch_get_main_queue(), ^{
             
-            if ( self.dataProvider.firstMatchedRow != NSNotFound ) {
-                [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRow + 1];
+            if ( self.dataProvider.firstMatchedRowIndex != NSNotFound ) {
+                [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex + 1];
             }
             
             //[self.logTableView selectRowIndexes:self.dataProvider.matchedRowsIndexSet byExtendingSelection:NO];
@@ -514,8 +557,15 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) updateStatus
 {
     dispatch_async( dispatch_get_main_queue(), ^{
-        [self.matchedCountLabel setStringValue:[NSString stringWithFormat:@"Matched: %lu", (unsigned long)self.dataProvider.matchedRowsCount]];
-        self.removeMatchedButton.enabled   = ( self.dataProvider.matchedRowsCount > 0 );
+        NSUInteger index = ( ( self.dataProvider.currentMatchedRow != NSNotFound ) ? self.dataProvider.currentMatchedRow + 1 : 0 );
+        [self.matchedCountLabel setStringValue:[NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]]];
+        
+        BOOL matchedRowsFound               = ( self.dataProvider.matchedRowsCount > 0 );
+        self.removeMatchedButton.enabled    = matchedRowsFound;
+        self.toggleMatchedButton.enabled    = matchedRowsFound;
+        self.toggleFilterModeButton.enabled = matchedRowsFound;
+        self.arrowDownButton.enabled        = matchedRowsFound;
+        self.arrowUpButton.enabled          = matchedRowsFound;
     });
 }
 

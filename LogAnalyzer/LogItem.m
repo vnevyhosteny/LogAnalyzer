@@ -47,6 +47,7 @@ NSString *const kMatchFilter          = @"matchFilter";
 {
     if ( ( self = [super init] ) ) {
         self->_originalRowId = ((NSNumber*)[decoder decodeObjectForKey:kOriginalRowId]).integerValue;
+        self.matchFilter     = ((NSNumber*)[decoder decodeObjectForKey:kMatchFilter]).boolValue;
         self.text            = [decoder decodeObjectForKey:kText];
     }
     return self;
@@ -57,6 +58,7 @@ NSString *const kMatchFilter          = @"matchFilter";
 {
     [coder encodeObject:[NSNumber numberWithUnsignedInteger:self.originalRowId] forKey:kOriginalRowId];
     [coder encodeObject:self.text forKey:kText];
+    [coder encodeObject:[NSNumber numberWithBool:self.matchFilter] forKey:kMatchFilter];
 }
 
 #pragma mark -
