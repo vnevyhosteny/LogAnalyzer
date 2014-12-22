@@ -28,16 +28,26 @@ typedef enum { FILTER_SEARCH = 0,
 @property (nonatomic, readonly) NSUInteger     firstMatchedRowIndex;
 @property (nonatomic, readonly) NSUInteger     currentMatchedRowIndex;
 @property (nonatomic, readonly) NSUInteger     lastMatchedRowIndex;
+@property (nonatomic, readwrite) BOOL          isSearching;
+@property (nonatomic, readwrite) NSUInteger    rowFrom;
+@property (nonatomic, readwrite) NSUInteger    rowTo;
+@property (nonatomic, readonly) NSString      *originalLogFileName;
 
 - (void) appendLogFromFile:(NSString*)fileName completion:(void (^)(NSError*))completion;
 - (void) invalidateDataWithCompletion:(void (^)(void))completion;
 - (void) removeAllMatchedItemsWithCompletion:(void (^)(void))completion;
 - (void) toggleMatchedWithCompletion:(void (^)(void))completion;
+- (void) matchFilteredDataWithCompletion:(void(^)( BOOL completed ))completion;
 
 - (void) writeMatchedLogItems:(BOOL)matched toPasteboard:(NSPasteboard *)pboard;
-- (void) pasteLogItems:(NSArray*)logItems;
+- (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion;
 
 - (NSUInteger) nextMatchedRowIndex;
 - (NSUInteger) previousMatchedRowIndex;
+
+- (void) markRowsFromToWithCompletion:(void (^)(void))completion;
+- (void) removeFromToMarksWithCompletion:(void (^)(void))completion;
+- (BOOL) saveOriginalData;
+- (BOOL) saveFilteredDataToURL:(NSURL*)url;
 
 @end

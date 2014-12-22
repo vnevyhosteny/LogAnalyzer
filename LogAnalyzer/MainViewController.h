@@ -15,13 +15,12 @@ extern NSString *const kLogItem;
 @interface MainViewController : NSViewController <NSTableViewDataSource,
                                                   NSTableViewDelegate,
                                                   MainViewControllerDelegate,
-                                                  NSTextViewDelegate
+                                                  NSTextViewDelegate,
+                                                  NSWindowDelegate
                                                  >
 
-+ (NSFont*) logFontRegular;
-+ (NSFont*) logFontBold;
 - (void) appendLogFromFile:(NSString*)fileName;
-- (void) pasteLogItems:(NSArray*)logItems;
+- (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion;
 - (void) reloadLog;
 
 @end

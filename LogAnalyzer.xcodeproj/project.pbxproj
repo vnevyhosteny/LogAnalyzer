@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		191AEA7D1A42AE1E00736A1A /* LogTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA7C1A42AE1E00736A1A /* LogTableCell.m */; };
+		191AEA801A42F88300736A1A /* LogTablePopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA7F1A42F88300736A1A /* LogTablePopup.m */; };
+		191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */; };
+		191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */; };
 		19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */; };
 		19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDC1A33A3CE00F88F53 /* main.m */; };
 		19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */; };
@@ -15,6 +19,7 @@
 		19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBFB1A344AD100F88F53 /* LogTableView.m */; };
 		19C4EC001A344FE000F88F53 /* DataProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBFF1A344FE000F88F53 /* DataProvider.m */; };
 		19C4EC041A345D4100F88F53 /* LogItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EC031A345D4100F88F53 /* LogItem.m */; };
+		19D2D9831A471BE300802498 /* ToggleButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 19D2D9821A471BE300802498 /* ToggleButton.m */; };
 		19E53FFD1A35EF0B0062B586 /* LogItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */; };
 		19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BB71A3B29D700183F56 /* WindowManager.m */; };
 		19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */; };
@@ -22,6 +27,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		191AEA7B1A42AE1E00736A1A /* LogTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTableCell.h; sourceTree = "<group>"; };
+		191AEA7C1A42AE1E00736A1A /* LogTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTableCell.m; sourceTree = "<group>"; };
+		191AEA7E1A42F88300736A1A /* LogTablePopup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTablePopup.h; sourceTree = "<group>"; };
+		191AEA7F1A42F88300736A1A /* LogTablePopup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTablePopup.m; sourceTree = "<group>"; };
+		191AEA821A44102100736A1A /* NSFont+LogAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFont+LogAnalyzer.h"; sourceTree = "<group>"; };
+		191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFont+LogAnalyzer.m"; sourceTree = "<group>"; };
+		191AEA851A4411D100736A1A /* NSColor+LogAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSColor+LogAnalyzer.h"; sourceTree = "<group>"; };
+		191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+LogAnalyzer.m"; sourceTree = "<group>"; };
 		19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19C4EBD81A33A3CE00F88F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -38,6 +51,8 @@
 		19C4EBFF1A344FE000F88F53 /* DataProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataProvider.m; sourceTree = "<group>"; };
 		19C4EC021A345D4100F88F53 /* LogItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogItem.h; sourceTree = "<group>"; };
 		19C4EC031A345D4100F88F53 /* LogItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogItem.m; sourceTree = "<group>"; };
+		19D2D9811A471BE300802498 /* ToggleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToggleButton.h; sourceTree = "<group>"; };
+		19D2D9821A471BE300802498 /* ToggleButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToggleButton.m; sourceTree = "<group>"; };
 		19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogItemViewController.h; sourceTree = "<group>"; };
 		19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogItemViewController.m; sourceTree = "<group>"; };
 		19EB4BB61A3B29D700183F56 /* WindowManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowManager.h; sourceTree = "<group>"; };
@@ -59,6 +74,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		191AEA811A440DA100736A1A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				191AEA821A44102100736A1A /* NSFont+LogAnalyzer.h */,
+				191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */,
+				191AEA851A4411D100736A1A /* NSColor+LogAnalyzer.h */,
+				191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 		19B85C591A3B5116005C85FC /* Windows */ = {
 			isa = PBXGroup;
 			children = (
@@ -77,10 +103,16 @@
 			children = (
 				19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */,
 				19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */,
+				191AEA7B1A42AE1E00736A1A /* LogTableCell.h */,
+				191AEA7C1A42AE1E00736A1A /* LogTableCell.m */,
+				191AEA7E1A42F88300736A1A /* LogTablePopup.h */,
+				191AEA7F1A42F88300736A1A /* LogTablePopup.m */,
 				19C4EBFA1A344AD100F88F53 /* LogTableView.h */,
 				19C4EBFB1A344AD100F88F53 /* LogTableView.m */,
 				19C4EBDE1A33A3CE00F88F53 /* MainViewController.h */,
 				19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */,
+				19D2D9811A471BE300802498 /* ToggleButton.h */,
+				19D2D9821A471BE300802498 /* ToggleButton.m */,
 			);
 			name = LogBrowser;
 			sourceTree = "<group>";
@@ -104,6 +136,7 @@
 		19C4EBD61A33A3CE00F88F53 /* LogAnalyzer */ = {
 			isa = PBXGroup;
 			children = (
+				191AEA811A440DA100736A1A /* Extensions */,
 				19C4EC081A34D4AF00F88F53 /* UI */,
 				19C4EC011A345D1D00F88F53 /* Data */,
 				19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */,
@@ -215,11 +248,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */,
+				191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */,
 				19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */,
 				19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */,
+				191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */,
 				19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */,
+				191AEA801A42F88300736A1A /* LogTablePopup.m in Sources */,
 				19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */,
 				19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */,
+				19D2D9831A471BE300802498 /* ToggleButton.m in Sources */,
+				191AEA7D1A42AE1E00736A1A /* LogTableCell.m in Sources */,
 				19C4EC001A344FE000F88F53 /* DataProvider.m in Sources */,
 				19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */,
 				19E53FFD1A35EF0B0062B586 /* LogItemViewController.m in Sources */,

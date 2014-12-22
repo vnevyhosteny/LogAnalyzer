@@ -8,6 +8,7 @@
 
 #import "LogItemViewController.h"
 #import "MainViewController.h"
+#import "NSFont+LogAnalyzer.h"
 
 @interface LogItemViewController ()
 {
@@ -42,7 +43,7 @@
 {
     self->_isInitializing = YES;
     
-    [self.textView setFont:[MainViewController logFontRegular]];
+    [self.textView setFont:[NSFont logTableRegularFont]];
     [self.textView setString:self.logItem.text];
     [self setTitle:[NSString stringWithFormat:@"Item at row:%lu", self.logItem.originalRowId + 1]];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

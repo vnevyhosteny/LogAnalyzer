@@ -13,6 +13,7 @@
 NSString *const kMainStoryboard                     = @"Main";
 NSString *const kMainViewController                 = @"MainViewController";
 
+//==============================================================================
 @interface WindowManager()
 {
     NSMutableArray *_windows;
@@ -24,8 +25,8 @@ NSString *const kMainViewController                 = @"MainViewController";
 //------------------------------------------------------------------------------
 + (instancetype) sharedInstance
 {
-    static WindowManager *__manager__ = nil;
-    static dispatch_once_t __once_token__ = 0;
+    static WindowManager   *__manager__    = nil;
+    static dispatch_once_t  __once_token__ = 0;
     dispatch_once( &__once_token__, ^{
         __manager__ = [WindowManager new];
     });
@@ -70,7 +71,7 @@ NSString *const kMainViewController                 = @"MainViewController";
 {
     LogAnalyzerWindowController *windowController = [[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateInitialController];
     [windowController.window setTitle:title];
-    [windowController.mainWiewController pasteLogItems:logItems];
+    [windowController.mainWiewController pasteLogItems:logItems withCompletion:nil];
     [self->_windows addObject:windowController];
     
     return windowController;

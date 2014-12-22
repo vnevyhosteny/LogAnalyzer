@@ -9,12 +9,17 @@
 #import <Cocoa/Cocoa.h>
 #import "Protocols.h"
 
+extern NSString *const LogTableRowClickedNotification;
+extern NSString *const kClickedRow;
+
 //==============================================================================
 @interface LogTableView : NSTableView <NSDraggingDestination,
                                        NSDraggingSource
                                       >
 
 @property (nonatomic, weak) id<MainViewControllerDelegate> mainViewDelegate;
+@property (nonatomic, readonly) NSInteger                  clickedRowAtMouseDown;
+           
 
 - (instancetype) initWithCoder:(NSCoder *)coder;
 

@@ -43,6 +43,8 @@
 	<string>Copyright © 2014 Vladimír Nevyhoštěný. All rights reserved.</string>
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
+	<key>CFBundleDisplayName</key>
+	<string>Log Analyzer</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

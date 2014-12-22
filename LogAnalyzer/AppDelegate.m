@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 #import "MainViewController.h"
+#import "WindowManager.h"
+#import "LogAnalyzerWindowController.h"
 
 @interface AppDelegate ()
 
@@ -22,7 +24,9 @@
 //    CGRect windowFrame  = [NSApplication sharedApplication].mainWindow.frame;
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
+//------------------------------------------------------------------------------
+- (void)applicationWillTerminate:(NSNotification *)aNotification
+{
     // Insert code here to tear down your application
 }
 
@@ -36,8 +40,49 @@
 }
 
 //------------------------------------------------------------------------------
+- (IBAction) openLogFile:(NSMenuItem *)sender
+{
+    [self.mainViewDelegate openLogFile];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) newLogWindow:(NSMenuItem *)sender
+{
+    LogAnalyzerWindowController *windowController = [[WindowManager sharedInstance] createNewWindowWithLogItems:nil title:@"Log Analyzer"];
+    
+    [windowController.window makeKeyAndOrderFront:self];
+    [windowController.mainWiewController reloadLog];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) saveLogFile:(NSMenuItem *)sender
+{
+    [self.mainViewDelegate saveLogFile];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) saveLogFileAs:(NSMenuItem *)sender
+{
+    [self.mainViewDelegate saveLogFileAs];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) markFirstRow:(NSMenuItem *)sender
+{
+    [self.mainViewDelegate markFirstRow];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) markLastRow:(NSMenuItem *)sender
+{
+    [self.mainViewDelegate markLastRow];
+}
+
+//------------------------------------------------------------------------------
 - (void) applicationDidChangeScreenParameters:(NSNotification *)notification
 {
     [self.mainViewDelegate reloadLog];
 }
+
+
 @end

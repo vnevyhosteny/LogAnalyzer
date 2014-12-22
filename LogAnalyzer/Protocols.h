@@ -9,7 +9,11 @@
 #ifndef LogAnalyzer_Protocols_h
 #define LogAnalyzer_Protocols_h
 
+#import "LogItem.h"
+
+
 @class LogItemViewController;
+@class LogTablePopup;
 
 @protocol MainViewControllerDelegate <NSObject>
 - (void) appendLogFromFile:(NSString*)fileName;
@@ -20,6 +24,16 @@
 - (void) startActivityIndicator;
 - (void) startActivityIndicatorWithMessage:(NSString*)message;
 - (void) stopActivityIndicator;
+- (void) openLogFile;
+- (void) saveLogFile;
+- (void) saveLogFileAs;
+- (void) clickedRowAtIndex:(NSInteger)rowIndex atPoint:(NSPoint)point;
+
+- (void) popup:(LogTablePopup*)popup didSelectMarkFromWithLogItem:(LogItem*)logItem;
+- (void) popup:(LogTablePopup*)popup didSelectMarkToWithItem:(LogItem*)logItem;
+
+- (void) markFirstRow;
+- (void) markLastRow;
 
 @end
 

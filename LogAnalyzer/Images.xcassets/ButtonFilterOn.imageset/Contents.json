@@ -7,11 +7,12 @@
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "FilterOn@3x.png"
+      "filename" : "FilterOn@2x.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "FilterOn@3x-1.png"
     }
   ],
   "info" : {

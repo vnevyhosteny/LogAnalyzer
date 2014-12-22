@@ -12,15 +12,25 @@
 #import "WindowManager.h"
 #import "MainViewController.h"
 
+@interface LogTableView()
+{
+    NSDate *_lastMouseDown;
+}
+@end
+
 @implementation LogTableView
 
-static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
+static NSString *const kPrivateDragUTI         = @"cz.nefa.DragAndDrop";
+NSString *const LogTableRowClickedNotification = @"LogTableRowClickedNotification";
+NSString *const kClickedRow                    = @"ClickedRow";
 
 //------------------------------------------------------------------------------
 - (instancetype) initWithCoder:(NSCoder *)coder
 {
     if ( ( self = [super initWithCoder:coder] ) ) {
         [self registerForDraggedTypes:@[NSFilenamesPboardType, LogItemPasteboardType]];
+        self->_clickedRowAtMouseDown = -1;
+        self->_lastMouseDown         = nil;
     }
     return self;
 }
@@ -185,17 +195,16 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
             endedAtPoint:(NSPoint)screenPoint
                operation:(NSDragOperation)operation
 {
-    NSArray        *draggedItems = session.draggingPasteboard.pasteboardItems;
-    NSMutableArray *aux          = [NSMutableArray new];
+    NSArray        *draggedItems   = session.draggingPasteboard.pasteboardItems;
+    NSMutableArray *aux            = [NSMutableArray new];
+    
     
     if ( [draggedItems count] ) {
-        LogItem *logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[[draggedItems firstObject] dataForType:LogItemPasteboardType]];
-        if ( logItem.matchFilter ) {
-            for ( __weak NSPasteboardItem *item in draggedItems ) {
-                logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[item dataForType:LogItemPasteboardType]];
-                [logItem setMatchFilter:NO];
-                [aux addObject:logItem];
-            }
+        LogItem *logItem;
+        for ( __weak NSPasteboardItem *item in draggedItems ) {
+            logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[item dataForType:LogItemPasteboardType]];
+            [logItem setMatchFilter:NO];
+            [aux addObject:logItem];
         }
     }
     
@@ -211,8 +220,9 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
     MainViewController *mainController = ( [controller isKindOfClass:[MainViewController class]] ? (MainViewController*)controller : nil );
     
     if ( mainController ) {
-        [mainController pasteLogItems:aux];
-        [mainController reloadLog];
+        [mainController pasteLogItems:aux withCompletion:^{
+            [mainController reloadLog];
+        }];
     }
     else {
         [self.mainViewDelegate createNewWindowWithLogItems:aux atPoint:screenPoint];
@@ -221,5 +231,15 @@ static NSString *const kPrivateDragUTI = @"cz.nefa.DragAndDrop";
     [self.mainViewDelegate stopActivityIndicator];
 }
 
-
+//------------------------------------------------------------------------------
+- (void) mouseDown:(NSEvent *)event
+{
+    NSPoint eventLocation        = [event locationInWindow];
+    NSPoint localPoint           = [self convertPoint:eventLocation toView:nil];
+    
+    self->_clickedRowAtMouseDown = [self rowAtPoint:localPoint];
+    [self.mainViewDelegate clickedRowAtIndex:self->_clickedRowAtMouseDown atPoint:localPoint];
+    
+    [super mouseDown:event];
+}
 @end
