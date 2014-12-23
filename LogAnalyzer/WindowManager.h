@@ -13,9 +13,13 @@
 extern NSString *const kMainStoryboard;
 extern NSString *const kMainViewController;
 
-
+//==============================================================================
 @interface WindowManager : NSObject
+@property (nonatomic, readwrite) LogAnalyzerWindowController *activeWindowController;
+@property (nonatomic, readwrite) LogAnalyzerWindowController *sourceWindowController;
+
 + (instancetype) sharedInstance;
+
 - (LogAnalyzerWindowController*) createNewWindowWithLogItems:(NSArray*)logItems title:(NSString*)title;
 - (void) removeWindowController:(LogAnalyzerWindowController*)controller;
 - (LogAnalyzerWindowController*) controllerWithWindow:(LogAnalyzerWindow*)window;

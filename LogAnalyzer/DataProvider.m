@@ -148,6 +148,19 @@
 }
 
 //------------------------------------------------------------------------------
+- (void) updateMatchCountersAndIndexesWithOriginalData
+{
+    [self resetMatchCountersAndIndexes];
+    
+    if ( [self->_originalData count] ) {
+        NSUInteger index = 0;
+        for ( __weak LogItem *logItem in self->_originalData ) {
+            [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index++];
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 - (NSArray*) filteredData
 {
     @synchronized( self ) {
@@ -163,15 +176,15 @@
                         logItem.matchFilter = ( [self.filter.text length] && ( [logItem.text rangeOfString:self.filter.text options:NSCaseInsensitiveSearch].location != NSNotFound ) );
                         [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index++];
                     }
-                    self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
+                    self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
                 }
                 else {
                     NSPredicate *predicate = ( [self.filter.text length] ? [NSPredicate predicateWithFormat:@"((text LIKE [cd] %@))" argumentArray:@[[NSString stringWithFormat:@"*%@*", self.filter.text]]] : nil );
                     self->_filteredData    = ( predicate
                                                ?
-                                               [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES]
+                                               [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:NO]
                                                :
-                                               [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES]
+                                               [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO]
                                              );
                     
                     for ( __weak LogItem *logItem in self->_filteredData ) {
@@ -188,12 +201,29 @@
                 }
             }
             else {
-                self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
+                self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
             }
         }
         
         return self->_filteredData;
     }
+}
+
+//------------------------------------------------------------------------------
+- (NSArray*) matchedData
+{
+    NSPredicate    *predicate = [NSPredicate predicateWithFormat:@"((matchFilter == %d))" argumentArray:@[@YES]];
+    NSMutableArray *result;
+    
+    @synchronized( self ) {
+        result = [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES];
+    }
+    
+    for ( __weak LogItem *logItem in result ) {
+        logItem.matchFilter = NO;
+    }
+    
+    return result;
 }
 
 
@@ -205,7 +235,7 @@
             
             [self resetMatchCountersAndIndexes];
             
-            self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
+            self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
             NSUInteger index    = 0;
             
             for ( __weak LogItem *logItem in self->_filteredData ) {
@@ -593,7 +623,7 @@
     
     dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        NSMutableArray *aux  = [NSMutableArray new];
+        NSMutableArray *aux  = [NSMutableArray arrayWithCapacity:[self->_originalData count]];
         NSDictionary   *dict = nil;
         
         @synchronized( self ) {
@@ -633,7 +663,7 @@
             }];
             
             self->_filteredData = nil;
-            [self resetMatchCountersAndIndexes];
+            [self filteredDataWithOriginalData];
             
             if ( completion ) {
                 completion();

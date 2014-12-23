@@ -93,6 +93,23 @@
                                                 <action selector="markLastRow:" target="Voe-Tx-rLC" id="DLZ-2D-72E"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="G73-9P-vxh"/>
+                                        <menuItem title="Copy" enabled="NO" keyEquivalent="c" id="YmG-RJ-fGl">
+                                            <connections>
+                                                <action selector="copyAction:" target="Voe-Tx-rLC" id="mY0-at-t39"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Paste" enabled="NO" keyEquivalent="v" id="18x-b3-fTh">
+                                            <connections>
+                                                <action selector="pasteAction:" target="Voe-Tx-rLC" id="7Ak-Tr-w9D"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="nYm-zn-ftx"/>
+                                        <menuItem title="Find" keyEquivalent="f" id="uIR-sF-Aa7">
+                                            <connections>
+                                                <action selector="findAction:" target="Voe-Tx-rLC" id="8F6-C0-QiS"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -235,7 +252,7 @@
                                         <constraints>
                                             <constraint firstAttribute="width" constant="195" id="PDY-0j-0vq"/>
                                         </constraints>
-                                        <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="left" placeholderString="Filter text" usesSingleLineMode="YES" bezelStyle="round" id="Ik8-dv-K5I">
+                                        <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="left" placeholderString="Filter text" usesSingleLineMode="YES" bezelStyle="round" id="Ik8-dv-K5I">
                                             <font key="font" size="11" name="Menlo-Regular"/>
                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>

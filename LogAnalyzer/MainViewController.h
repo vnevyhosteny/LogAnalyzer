@@ -8,10 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Protocols.h"
+#import "DataProvider.h"
 
 extern NSString *const kRowId;
 extern NSString *const kLogItem;
 
+//==============================================================================
 @interface MainViewController : NSViewController <NSTableViewDataSource,
                                                   NSTableViewDelegate,
                                                   MainViewControllerDelegate,
@@ -19,9 +21,20 @@ extern NSString *const kLogItem;
                                                   NSWindowDelegate
                                                  >
 
+@property (nonatomic, readonly) DataProvider     *dataProvider;
+
 - (void) appendLogFromFile:(NSString*)fileName;
 - (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion;
 - (void) reloadLog;
+
+- (void) markFirstRow;
+- (void) markLastRow;
+
+- (void) openLogFile;
+- (void) saveLogFile;
+- (void) saveLogFileAs;
+
+- (void) find;
 
 @end
 

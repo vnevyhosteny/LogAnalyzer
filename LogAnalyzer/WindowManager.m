@@ -38,7 +38,7 @@ NSString *const kMainViewController                 = @"MainViewController";
 {
     if ( ( self = [super init] ) ) {
         self->_windows = [NSMutableArray new];
-        [self->_windows addObject:[NSApplication sharedApplication].mainWindow.windowController];
+        //[self->_windows addObject:[NSApplication sharedApplication].mainWindow.windowController];
     }
     return self;
 }
@@ -71,7 +71,7 @@ NSString *const kMainViewController                 = @"MainViewController";
 {
     LogAnalyzerWindowController *windowController = [[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateInitialController];
     [windowController.window setTitle:title];
-    [windowController.mainWiewController pasteLogItems:logItems withCompletion:nil];
+    [windowController.mainViewController pasteLogItems:logItems withCompletion:nil];
     [self->_windows addObject:windowController];
     
     return windowController;
@@ -86,4 +86,14 @@ NSString *const kMainViewController                 = @"MainViewController";
     }
 }
 
+#pragma mark -
+#pragma mark Getters And Setters
+//------------------------------------------------------------------------------
+- (void) setActiveWindowController:(LogAnalyzerWindowController *)newValue
+{
+    self->_activeWindowController = newValue;
+    if ( [self->_windows indexOfObject:newValue] == NSNotFound ) {
+        [self->_windows addObject:newValue];
+    }
+}
 @end

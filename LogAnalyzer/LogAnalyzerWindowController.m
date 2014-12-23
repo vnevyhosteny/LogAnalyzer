@@ -7,7 +7,7 @@
 //
 
 #import "LogAnalyzerWindowController.h"
-
+#import "WindowManager.h"
 
 @interface LogAnalyzerWindowController ()
 
@@ -22,9 +22,15 @@
 }
 
 //------------------------------------------------------------------------------
-- (MainViewController*) mainWiewController
+- (MainViewController*) mainViewController
 {
     return (MainViewController*)self.contentViewController;
+}
+
+//------------------------------------------------------------------------------
+- (void) setActive
+{
+    [WindowManager sharedInstance].activeWindowController = self;
 }
 
 @end

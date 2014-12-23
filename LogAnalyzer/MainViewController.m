@@ -11,7 +11,7 @@
 
 #import "MainViewController.h"
 #import "LogTableView.h"
-#import "DataProvider.h"
+
 #import "LogItem.h"
 #import "LogItemViewController.h"
 #import "AppDelegate.h"
@@ -44,7 +44,7 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 
 @property (weak) IBOutlet LogTableView           *logTableView;
 @property (weak) IBOutlet NSSearchField          *searchField;
-@property (weak) IBOutlet NSProgressIndicator *activityIndicator;
+@property (weak) IBOutlet NSProgressIndicator    *activityIndicator;
 @property (weak) IBOutlet NSScrollView           *logTableScrollView;
 @property (weak) IBOutlet NSTextField            *infoLabel;
 @property (weak) IBOutlet NSButton               *toggleFilterModeButton;
@@ -57,7 +57,6 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 @property (weak) IBOutlet NSButton               *removeMatchedButton;
 
 @property (nonatomic, readonly) NSArray          *data;
-@property (nonatomic, readonly) DataProvider     *dataProvider;
 
 - (IBAction) toggleFilterMode:(NSButton *)sender;
 - (IBAction) removeMatchedAction:(NSButton *)sender;
@@ -117,6 +116,8 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
     
     [self setSaveEnabled:NO];
     [self setMarkFirstAndLastEnabled:NO];
+    [self setCopyEnabled:NO];
+    [self setPasteEnabled:NO];
     
     self.view.window.delegate                                                   = self;
 }
@@ -137,7 +138,7 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 - (void) viewDidAppear
 {
     [super viewDidAppear];
-    [self.logTableView becomeFirstResponder];
+    [self.view.window makeFirstResponder:self.logTableView];
     [self updateStatus];
 }
 
@@ -172,6 +173,14 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 - (void) windowDidBecomeMain:(NSNotification *)notification
 {
     [self setSaveEnabled:( [self.dataProvider.originalLogFileName length] > 0 )];
+    
+    LogAnalyzerWindowController *windowController = (LogAnalyzerWindowController*)self.view.window.windowController;
+    [windowController setActive];
+    
+    [self updateStatus];
+    
+    LogAnalyzerWindowController *sourceController = [WindowManager sharedInstance].sourceWindowController;
+    [self  setPasteEnabled:( sourceController && ( sourceController != windowController ) )];
 }
 
 #pragma mark -
@@ -222,6 +231,8 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
     return self->_dataProvider;
 }
 
+#pragma mark -
+#pragma mark Enable/Disable Menu Items
 //------------------------------------------------------------------------------
 - (void) setMarkFirstAndLastEnabled:(BOOL)enabled
 {
@@ -245,9 +256,37 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 }
 
 //------------------------------------------------------------------------------
+- (void) setCopyEnabled:(BOOL)enabled
+{
+    dispatch_async( dispatch_get_main_queue(), ^{
+        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
+        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Copy"];
+        [menuItem setEnabled:enabled];
+    });
+}
+
+//------------------------------------------------------------------------------
+- (void) setPasteEnabled:(BOOL)enabled
+{
+    dispatch_async( dispatch_get_main_queue(), ^{
+        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
+        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Paste"];
+        [menuItem setEnabled:enabled];
+    });
+}
+
+
+
+//------------------------------------------------------------------------------
 - (BOOL) isDragAndDropEnabled
 {
     return YES;//( self.dataProvider.filterType == FILTER_SEARCH );
+}
+
+//------------------------------------------------------------------------------
+- (void) find
+{
+    [self.view.window makeFirstResponder:self.searchField];
 }
 
 #pragma mark -
@@ -373,6 +412,10 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [cell setTextColor:( isMarked ? [NSColor logTableMarkedColor] : [NSColor logTableLineNumberColor])];
         
         [cell setAlignment:NSRightTextAlignment];
+        
+        if ( isMarked ) {
+            [cell setImage:[NSImage imageNamed:@"ButtonMarkFrom"]];
+        }
     }
     
     else if ( [[tableColumn.headerCell stringValue] isEqualToString:kLogItem] ) {
@@ -588,7 +631,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     [windowController.window setFrameOrigin:point];
     
     [windowController.window makeKeyAndOrderFront:self];
-    [windowController.mainWiewController reloadLog];
+    [windowController.mainViewController reloadLog];
 }
 
 
@@ -596,8 +639,6 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) clickedRowAtIndex:(NSInteger)rowIndex atPoint:(NSPoint)point
 {
     if ( ( point.x < 50.0f ) && ( rowIndex >= 0 ) ) {
-//        [self.searchField setStringValue:@""];
-//        self.dataProvider.filter.text = nil;
         LogTablePopup *popup          = (LogTablePopup*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogTablePopup];
         popup.logItem                 = [self.data objectAtIndex:rowIndex];
         popup.mainViewDelegate        = self;
@@ -806,14 +847,24 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 {
     dispatch_async( dispatch_get_main_queue(), ^{
         NSUInteger index = ( ( self.dataProvider.currentMatchedRow != NSNotFound ) ? self.dataProvider.currentMatchedRow + 1 : 0 );
-        [self.matchedCountLabel setStringValue:[NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]]];
+        [self.matchedCountLabel setStringValue:( ( self.dataProvider.filterType == FILTER_SEARCH )
+                                                 ?
+                                                 [NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]]
+                                                 :
+                                                 [NSString stringWithFormat:@"matched 0/0, total %lu", (unsigned long)[self.dataProvider.filteredData count]]
+                                               )
+        ];
         
         BOOL matchedRowsFound               = ( self.dataProvider.matchedRowsCount > 0 );
-        self.removeMatchedButton.enabled    = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
-        self.toggleMatchedButton.enabled    = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
+        BOOL dataTransferEnabled            = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
+        
+        self.removeMatchedButton.enabled    = dataTransferEnabled;
+        self.toggleMatchedButton.enabled    = dataTransferEnabled;
         self.toggleFilterModeButton.enabled = matchedRowsFound;
-        self.arrowDownButton.enabled        = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
-        self.arrowUpButton.enabled          = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
+        self.arrowDownButton.enabled        = dataTransferEnabled;
+        self.arrowUpButton.enabled          = dataTransferEnabled;
+        
+        [self setCopyEnabled:dataTransferEnabled];
     });
 }
 

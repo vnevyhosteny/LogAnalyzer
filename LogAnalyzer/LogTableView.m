@@ -196,10 +196,11 @@ NSString *const kClickedRow                    = @"ClickedRow";
                operation:(NSDragOperation)operation
 {
     NSArray        *draggedItems   = session.draggingPasteboard.pasteboardItems;
-    NSMutableArray *aux            = [NSMutableArray new];
+    NSUInteger      count          = [draggedItems count];
+    NSMutableArray *aux            = nil;
     
-    
-    if ( [draggedItems count] ) {
+    if ( count > 0 ) {
+        aux = [NSMutableArray arrayWithCapacity:count];
         LogItem *logItem;
         for ( __weak NSPasteboardItem *item in draggedItems ) {
             logItem = (LogItem*)[NSKeyedUnarchiver unarchiveObjectWithData:[item dataForType:LogItemPasteboardType]];
@@ -216,7 +217,7 @@ NSString *const kClickedRow                    = @"ClickedRow";
     }
     
     NSInteger           windowNumber   = [NSWindow windowNumberAtPoint:screenPoint belowWindowWithWindowNumber:0];
-    id                  controller     = [[[WindowManager sharedInstance] controllerWithWindowNumber:windowNumber] mainWiewController];
+    id                  controller     = [[[WindowManager sharedInstance] controllerWithWindowNumber:windowNumber] mainViewController];
     MainViewController *mainController = ( [controller isKindOfClass:[MainViewController class]] ? (MainViewController*)controller : nil );
     
     if ( mainController ) {

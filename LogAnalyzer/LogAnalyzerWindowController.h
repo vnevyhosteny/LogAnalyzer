@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "MainViewController.h"
 
-
+//==============================================================================
 @interface LogAnalyzerWindowController : NSWindowController
-@property (nonatomic, readonly) MainViewController *mainWiewController;
+@property (nonatomic, readonly) MainViewController *mainViewController;
+- (void) setActive;
 @end

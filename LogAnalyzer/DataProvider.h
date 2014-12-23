@@ -20,6 +20,7 @@ typedef enum { FILTER_SEARCH = 0,
 @property (nonatomic, readwrite) FilterType    filterType;
 @property (nonatomic, readonly) NSArray       *originalData;
 @property (nonatomic, readonly) NSArray       *filteredData;
+@property (nonatomic, readonly) NSArray       *matchedData;
 
 @property (nonatomic, readonly) NSUInteger     matchedRowsCount;
 @property (nonatomic, readonly) NSUInteger     currentMatchedRow;

@@ -17,6 +17,8 @@
 
 @implementation AppDelegate
 
+#define ActiveViewController() [[[WindowManager sharedInstance] activeWindowController] mainViewController]
+
 //------------------------------------------------------------------------------
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -42,7 +44,7 @@
 //------------------------------------------------------------------------------
 - (IBAction) openLogFile:(NSMenuItem *)sender
 {
-    [self.mainViewDelegate openLogFile];
+    [ActiveViewController() openLogFile];
 }
 
 //------------------------------------------------------------------------------
@@ -51,32 +53,61 @@
     LogAnalyzerWindowController *windowController = [[WindowManager sharedInstance] createNewWindowWithLogItems:nil title:@"Log Analyzer"];
     
     [windowController.window makeKeyAndOrderFront:self];
-    [windowController.mainWiewController reloadLog];
+    [windowController.mainViewController reloadLog];
 }
 
 //------------------------------------------------------------------------------
 - (IBAction) saveLogFile:(NSMenuItem *)sender
 {
-    [self.mainViewDelegate saveLogFile];
+    [ActiveViewController() saveLogFile];
 }
 
 //------------------------------------------------------------------------------
 - (IBAction) saveLogFileAs:(NSMenuItem *)sender
 {
-    [self.mainViewDelegate saveLogFileAs];
+    [ActiveViewController() saveLogFileAs];
 }
 
 //------------------------------------------------------------------------------
 - (IBAction) markFirstRow:(NSMenuItem *)sender
 {
-    [self.mainViewDelegate markFirstRow];
+    [ActiveViewController() markFirstRow];
 }
 
 //------------------------------------------------------------------------------
 - (IBAction) markLastRow:(NSMenuItem *)sender
 {
-    [self.mainViewDelegate markLastRow];
+    [ActiveViewController() markLastRow];
 }
+
+//------------------------------------------------------------------------------
+- (IBAction) copyAction:(NSMenuItem *)sender
+{
+    [WindowManager sharedInstance].sourceWindowController = [WindowManager sharedInstance].activeWindowController;
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) pasteAction:(NSMenuItem *)sender
+{
+    LogAnalyzerWindowController *sourceWindowController = [WindowManager sharedInstance].sourceWindowController;
+    LogAnalyzerWindowController *activeWindowController = [WindowManager sharedInstance].activeWindowController;
+    
+    if ( sourceWindowController && activeWindowController ) {
+        [activeWindowController.mainViewController pasteLogItems:sourceWindowController.mainViewController.dataProvider.matchedData withCompletion:^{
+            [activeWindowController.mainViewController reloadLog];
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [activeWindowController.window setTitle:sourceWindowController.mainViewController.dataProvider.filter.text];
+            });
+        }];
+    }
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) findAction:(NSMenuItem *)sender
+{
+    [ActiveViewController() find];
+}
+
 
 //------------------------------------------------------------------------------
 - (void) applicationDidChangeScreenParameters:(NSNotification *)notification
