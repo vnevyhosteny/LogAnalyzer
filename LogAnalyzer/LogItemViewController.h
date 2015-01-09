@@ -9,9 +9,10 @@
 #import <Cocoa/Cocoa.h>
 #import "LogItem.h"
 #import "Protocols.h"
+#import "LogTextView.h"
 
 @interface LogItemViewController : NSViewController <NSTextViewDelegate>
-@property (unsafe_unretained) IBOutlet NSTextView          *textView;
+@property (unsafe_unretained) IBOutlet LogTextView         *textView;
 @property (nonatomic, weak) LogItem                        *logItem;
 @property (nonatomic, weak) id<MainViewControllerDelegate>  mainViewDelegate;
 @end

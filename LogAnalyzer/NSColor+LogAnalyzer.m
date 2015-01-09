@@ -67,7 +67,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:10.0f/FullColor green:50.0f/FullColor blue:255.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:10.0f/FullColor green:150.0f/FullColor blue:255.0f/FullColor alpha:1.0f];
     });
     return __color__;
 }

@@ -17,6 +17,7 @@
 
 @protocol MainViewControllerDelegate <NSObject>
 - (void) appendLogFromFile:(NSString*)fileName;
+- (void) appendLogFromText:(NSString*)logText;
 - (void) textDidSelected:(LogItemViewController*)controller;
 - (void) reloadLog;
 - (void) createNewWindowWithLogItems:(NSArray*)logItems atPoint:(NSPoint)point;
@@ -24,11 +25,12 @@
 - (void) startActivityIndicator;
 - (void) startActivityIndicatorWithMessage:(NSString*)message;
 - (void) stopActivityIndicator;
-
+- (void) deleteRow:(NSUInteger)row;
 - (void) clickedRowAtIndex:(NSInteger)rowIndex atPoint:(NSPoint)point;
 
 - (void) popup:(LogTablePopup*)popup didSelectMarkFromWithLogItem:(LogItem*)logItem;
 - (void) popup:(LogTablePopup*)popup didSelectMarkToWithItem:(LogItem*)logItem;
+- (void) showLogItemPopupAtRow:(NSInteger)row;
 
 @end
 

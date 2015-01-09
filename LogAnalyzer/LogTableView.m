@@ -6,11 +6,14 @@
 //  Copyright (c) 2014 Vladimír Nevyhoštěný. All rights reserved.
 //
 
+
 #import "LogTableView.h"
 #import "LogItem.h"
 #import "LogAnalyzerWindow.h"
 #import "WindowManager.h"
 #import "MainViewController.h"
+
+@import Carbon;
 
 @interface LogTableView()
 {
@@ -28,7 +31,7 @@ NSString *const kClickedRow                    = @"ClickedRow";
 - (instancetype) initWithCoder:(NSCoder *)coder
 {
     if ( ( self = [super initWithCoder:coder] ) ) {
-        [self registerForDraggedTypes:@[NSFilenamesPboardType, LogItemPasteboardType]];
+        [self registerForDraggedTypes:@[NSFilenamesPboardType, NSStringPboardType, NSHTMLPboardType, LogItemPasteboardType]];
         self->_clickedRowAtMouseDown = -1;
         self->_lastMouseDown         = nil;
     }
@@ -61,7 +64,7 @@ NSString *const kClickedRow                    = @"ClickedRow";
         //the pasteboard was able to give us some meaningful data
         if ( [desiredType isEqualToString:NSFilenamesPboardType] ) {
             //we have a list of file names in an NSData object
-            NSArray  *fileArray = [paste propertyListForType:@"NSFilenamesPboardType"];
+            NSArray  *fileArray = [paste propertyListForType:NSFilenamesPboardType];
             NSString *path      = ( [fileArray count] ? [fileArray firstObject] : nil );
             return ( ( [path length] && ( [[path pathExtension] rangeOfString:@"log" options:NSCaseInsensitiveSearch].location != NSNotFound ) ) ? path : nil );
         }
@@ -74,6 +77,30 @@ NSString *const kClickedRow                    = @"ClickedRow";
     
     return nil;
 }
+
+//------------------------------------------------------------------------------
+- (NSString*) stringWithDraggingInfo:(id <NSDraggingInfo>)sender
+{
+    NSPasteboard *paste       = [sender draggingPasteboard];
+    NSArray      *types       = [NSArray arrayWithObjects:NSStringPboardType, nil];
+    NSString     *desiredType = [paste availableTypeFromArray:types];
+    NSData       *carriedData = [paste dataForType:desiredType];
+    
+    if ( [carriedData length] ) {
+        //the pasteboard was able to give us some meaningful data
+        if ( [desiredType isEqualToString:NSStringPboardType] ) {
+            return [paste stringForType:NSStringPboardType];
+        }
+        else {
+            //this can't happen
+            NSAssert(NO, @"This can't happen");
+            return nil;
+        }
+    }
+    
+    return nil;
+}
+
 
 #pragma mark -
 #pragma mark NSDraggingDestination Methods
@@ -136,6 +163,10 @@ NSString *const kClickedRow                    = @"ClickedRow";
         NSString *path = [self fileNameWithDraggingInfo:sender];
         if ( [path length] ) {
             [self.mainViewDelegate appendLogFromFile:path];
+        }
+        else {
+            NSString *logText = [self stringWithDraggingInfo:sender];
+            [self.mainViewDelegate appendLogFromText:logText];
         }
         
         [self setNeedsDisplay:YES];    //redraw us with the new image
@@ -243,4 +274,25 @@ NSString *const kClickedRow                    = @"ClickedRow";
     
     [super mouseDown:event];
 }
+
+
+//------------------------------------------------------------------------------
+- (void) keyDown:(NSEvent*)event
+{
+    if ( event.keyCode == kVK_Return ) {
+        NSInteger row = self.selectedRow;
+        if ( row >= 0 ) {
+            [self.mainViewDelegate showLogItemPopupAtRow:row];
+        }
+    }
+    else if ( event.keyCode == kVK_Delete ) {
+        NSInteger row = self.selectedRow;
+        if ( row >= 0 ) {
+            [self.mainViewDelegate deleteRow:row];
+        }
+    }
+    
+    [super keyDown:event];
+}
+
 @end

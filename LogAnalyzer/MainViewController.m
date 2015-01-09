@@ -30,7 +30,15 @@ NSString *const kLogItem                            = @"LogItem";
 NSString *const kLogTablePopup                      = @"LogTablePopup";
 
 NSString *const kLogItemViewController              = @"LogItemViewController";
-
+NSString *const kMenuItemEdit                       = @"Edit";
+NSString *const kMenuItemFile                       = @"File";
+NSString *const kMarkFirstRow                       = @"Mark first row";
+NSString *const kMarkLastRow                        = @"Mark last row";
+NSString *const kNextMatchedRow                     = @"Next matched row";
+NSString *const kPreviousMatchedRow                 = @"Previous matched row";
+NSString *const kMenuItemSave                       = @"Save";
+NSString *const kMenuItemCopy                       = @"Copy";
+NSString *const kMenuItemPaste                      = @"Paste";
 
 //==============================================================================
 @interface MainViewController()
@@ -108,18 +116,48 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
     
     static dispatch_once_t onceToken = 0;
     dispatch_once( &onceToken, ^{
-        NSMenu *fileMenu    = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"File"] submenu];
+        NSMenu *fileMenu    = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:kMenuItemFile] submenu];
         [fileMenu setAutoenablesItems:NO];
-        fileMenu    = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
+        fileMenu    = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:kMenuItemEdit] submenu];
         [fileMenu setAutoenablesItems:NO];
     });
     
     [self setSaveEnabled:NO];
     [self setMarkFirstAndLastEnabled:NO];
+    [self setMoveNextPrevEnabled:NO];
     [self setCopyEnabled:NO];
     [self setPasteEnabled:NO];
     
     self.view.window.delegate                                                   = self;
+    
+    // Search menu ...
+    
+    NSMenu *searchMenu = [[NSMenu alloc] initWithTitle:@"Search Menu"];
+    [searchMenu setAutoenablesItems:YES];
+    
+    NSMenuItem *recentsTitleItem = [[NSMenuItem alloc] initWithTitle:@"Recent Searches" action:nil keyEquivalent:@""];
+    [recentsTitleItem setTag:NSSearchFieldRecentsTitleMenuItemTag];
+    [searchMenu insertItem:recentsTitleItem atIndex:0];
+    
+    NSMenuItem *norecentsTitleItem = [[NSMenuItem alloc] initWithTitle:@"No recent searches" action:nil keyEquivalent:@""];
+    [norecentsTitleItem setTag:NSSearchFieldNoRecentsMenuItemTag];
+    [searchMenu insertItem:norecentsTitleItem atIndex:1];
+    
+    NSMenuItem *recentsItem = [[NSMenuItem alloc] initWithTitle:@"Recents" action:nil keyEquivalent:@""];
+    [recentsItem setTag:NSSearchFieldRecentsMenuItemTag];
+    [searchMenu insertItem:recentsItem atIndex:2];
+    
+    NSMenuItem *separatorItem = (NSMenuItem*)[NSMenuItem separatorItem];
+    [separatorItem setTag:NSSearchFieldRecentsTitleMenuItemTag];
+    [searchMenu insertItem:separatorItem atIndex:3];
+    
+    NSMenuItem *clearItem = [[NSMenuItem alloc] initWithTitle:@"Clear" action:nil keyEquivalent:@""];
+    [clearItem setTag:NSSearchFieldClearRecentsMenuItemTag];
+    [searchMenu insertItem:clearItem atIndex:4];
+    
+    id searchCell = [self.searchField cell];
+    [searchCell setMaximumRecents:20];
+    [searchCell setSearchMenuTemplate:searchMenu];
 }
 
 
@@ -159,7 +197,14 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 //------------------------------------------------------------------------------
 - (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion
 {
-    [self.dataProvider pasteLogItems:logItems withCompletion:completion];
+    void(^pasteCompletion)() = ^{
+        [self stopActivityIndicator];
+        if ( completion ) {
+            completion();
+        }
+    };
+    [self startActivityIndicatorWithMessage:@"Paste in process ..."];
+    [self.dataProvider pasteLogItems:logItems withCompletion:pasteCompletion];
 }
 
 #pragma mark -
@@ -234,45 +279,45 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
 #pragma mark -
 #pragma mark Enable/Disable Menu Items
 //------------------------------------------------------------------------------
-- (void) setMarkFirstAndLastEnabled:(BOOL)enabled
+- (void) setMenuItemByTitle:(NSString*)menuTitle inSubmenuByTitle:(NSString*)submenuTitle enabled:(BOOL)enabled
 {
     dispatch_async( dispatch_get_main_queue(), ^{
-        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
-        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Mark first row"];
-        [menuItem setEnabled:enabled];
-        menuItem  = [fileMenu itemWithTitle:@"Mark last row"];
+        NSMenu     *subMenu   = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:submenuTitle] submenu];
+        NSMenuItem *menuItem  = [subMenu itemWithTitle:menuTitle];
         [menuItem setEnabled:enabled];
     });
+}
+
+//------------------------------------------------------------------------------
+- (void) setMarkFirstAndLastEnabled:(BOOL)enabled
+{
+    [self setMenuItemByTitle:kMarkFirstRow inSubmenuByTitle:kMenuItemEdit enabled:enabled];
+    [self setMenuItemByTitle:kMarkLastRow inSubmenuByTitle:kMenuItemEdit enabled:enabled];
+}
+
+//------------------------------------------------------------------------------
+- (void) setMoveNextPrevEnabled:(BOOL)enabled
+{
+    [self setMenuItemByTitle:kNextMatchedRow inSubmenuByTitle:kMenuItemEdit enabled:enabled];
+    [self setMenuItemByTitle:kPreviousMatchedRow inSubmenuByTitle:kMenuItemEdit enabled:enabled];
 }
 
 //------------------------------------------------------------------------------
 - (void) setSaveEnabled:(BOOL)enabled
 {
-    dispatch_async( dispatch_get_main_queue(), ^{
-        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"File"] submenu];
-        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Save"];
-        [menuItem setEnabled:enabled];
-    });
+    [self setMenuItemByTitle:kMenuItemSave inSubmenuByTitle:kMenuItemFile enabled:enabled];
 }
 
 //------------------------------------------------------------------------------
 - (void) setCopyEnabled:(BOOL)enabled
 {
-    dispatch_async( dispatch_get_main_queue(), ^{
-        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
-        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Copy"];
-        [menuItem setEnabled:enabled];
-    });
+    [self setMenuItemByTitle:kMenuItemCopy inSubmenuByTitle:kMenuItemEdit enabled:enabled];
 }
 
 //------------------------------------------------------------------------------
 - (void) setPasteEnabled:(BOOL)enabled
 {
-    dispatch_async( dispatch_get_main_queue(), ^{
-        NSMenu     *fileMenu  = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Edit"] submenu];
-        NSMenuItem *menuItem  = [fileMenu itemWithTitle:@"Paste"];
-        [menuItem setEnabled:enabled];
-    });
+    [self setMenuItemByTitle:kMenuItemPaste inSubmenuByTitle:kMenuItemEdit enabled:enabled];
 }
 
 
@@ -334,34 +379,6 @@ NSString *const kLogItemViewController              = @"LogItemViewController";
         [self reloadLog];
         [self stopActivityIndicator];
     }];
-}
-
-//------------------------------------------------------------------------------
-- (IBAction) arrowUpAction:(NSButton *)sender
-{
-    NSUInteger index = [self.dataProvider previousMatchedRowIndex];
-    if ( index != NSNotFound ) {
-        if ( ( index > 0 ) && ( index < self.dataProvider.lastMatchedRowIndex ) ) {
-            index--;
-        }
-        [self.logTableView scrollRowToVisible:index];
-        [self reloadVisibleRowsOnly];
-        [self updateStatus];
-    }
-}
-
-//------------------------------------------------------------------------------
-- (IBAction) arrowDownAction:(NSButton *)sender
-{
-    NSUInteger index = [self.dataProvider nextMatchedRowIndex];
-    if ( index != NSNotFound ) {
-        if ( index < [self.data count] - 1 ) {
-            index++;
-        }
-        [self.logTableView scrollRowToVisible:index];
-        [self reloadVisibleRowsOnly];
-        [self updateStatus];
-    }
 }
 
 #pragma mark -
@@ -432,16 +449,25 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             [cell setTextColor:[NSColor logTableMarkedColor]];
         }
         else {
-            [cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor logTablePlainTextColor])];
+            if ( [tableView selectedRow] == row ) {
+                //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
+                [cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && ( self.view.window.firstResponder == self.logTableView ) ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
+            }
+            else {
+                //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor logTablePlainTextColor])];
+                [cell setTextColor:( logItem.matchFilter ? [NSColor logTableMatchedColor] : [NSColor logTablePlainTextColor])];
+            }
         }
     }
     
-    if ( logItem.matchFilter && ( row == self.dataProvider.currentMatchedRowIndex ) ) {
-        [cell setFont:[NSFont logTableBoldFont]];
-    }
-    else {
-        [cell setFont:[NSFont logTableRegularFont]];
-    }
+//    if ( logItem.matchFilter && ( row == self.dataProvider.currentMatchedRowIndex ) ) {
+//        [cell setFont:[NSFont logTableBoldFont]];
+//    }
+//    else {
+//        [cell setFont:[NSFont logTableRegularFont]];
+//    }
+    
+    [cell setFont:[NSFont logTableRegularFont]];
     
     [cell setEditable:NO];
     [cell setEnabled:NO];
@@ -501,19 +527,49 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     }
 }
 
+//------------------------------------------------------------------------------
+- (void) showLogItemPopupAtRow:(NSInteger)row
+{
+    [self startActivityIndicator];
+    
+    LogItemViewController *controller = (LogItemViewController*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogItemViewController];
+    controller.logItem                = (LogItem*)[self.dataProvider.filteredData objectAtIndex:row];
+    controller.mainViewDelegate       = self;
+    [self presentViewControllerAsModalWindow:controller];
+    
+    [self stopActivityIndicator];
+}
+
+//------------------------------------------------------------------------------
+- (void) deleteRow:(NSUInteger)row
+{
+    [self startActivityIndicatorWithMessage:@"Deleting row ..."];
+    [self.dataProvider deleteRow:row];
+    [self reloadLog];
+    [self updateStatus];
+    [self stopActivityIndicator];
+}
+
+
 #pragma mark -
 #pragma mark NSTableViewDelegate Methods
 //------------------------------------------------------------------------------
 - (void) doubleClick:(id)object
 {
-    [self startActivityIndicator];
-    NSInteger              row        = [self.logTableView clickedRow];
+    NSInteger row = [self.logTableView clickedRow];
     [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-    LogItemViewController *controller = (LogItemViewController*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogItemViewController];
-    controller.logItem                = (LogItem*)[self.dataProvider.filteredData objectAtIndex:row];
-    controller.mainViewDelegate       = self;
-    [self presentViewControllerAsModalWindow:controller];
-    [self stopActivityIndicator];
+    [self showLogItemPopupAtRow:row];
+}
+
+//------------------------------------------------------------------------------
+- (void) tableViewSelectionDidChange:(NSNotification *)aNotification
+{
+    NSInteger row = self.logTableView.selectedRow;
+    [self setMarkFirstAndLastEnabled:( ( row >= 0 ) && [self.data count] )];
+    if ( row >= 0 ) {
+        [self.dataProvider setCurrentMatchedRowIndex:row];
+    }
+    [self updateStatus];
 }
 
 //------------------------------------------------------------------------------
@@ -583,14 +639,36 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 }
 
 //------------------------------------------------------------------------------
+- (void) appendLogFromText:(NSString*)logText
+{
+    dispatch_async( dispatch_get_main_queue(), ^{
+        //[self.view.window setTitle:[fileName lastPathComponent]];
+    });
+    
+    [self startActivityIndicatorWithMessage:@"Pasting text ..."];
+    [self.dataProvider appendLogFromText:logText completion:^(NSError *error) {
+        if ( !error ) {
+            [self reloadLog];
+            [self setSaveEnabled:YES];
+        }
+    }];
+}
+
+
+
+//------------------------------------------------------------------------------
 - (void) textDidSelected:(LogItemViewController*)controller
 {
-    NSRange range = controller.textView.selectedRange;
-    if ( ( range.location != NSNotFound ) && ( range.length > 0 ) ) {
-        [self.searchField setStringValue:[controller.textView.string substringWithRange:range]];
+    if ( controller ) {
+        NSRange range = controller.textView.selectedRange;
+        if ( ( range.location != NSNotFound ) && ( range.length > 0 ) ) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self.searchField setStringValue:[controller.textView.string substringWithRange:range]];
+                [self.searchField becomeFirstResponder];
+                [self fireSearchProcess];
+            });
+        }
         [self dismissViewController:controller];
-        [self.searchField becomeFirstResponder];
-        [self fireSearchProcess];
     }
 }
 
@@ -663,6 +741,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self updateStatus];
                 [self stopActivityIndicator];
                 [self setMarkFirstAndLastEnabled:YES];
+                [self setMoveNextPrevEnabled:YES];
             }];
         }
         else {
@@ -672,12 +751,18 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self updateStatus];
                 [self stopActivityIndicator];
                 [self setMarkFirstAndLastEnabled:NO];
+                [self setMoveNextPrevEnabled:NO];
             }];
         }
     }
     else {
         [self reloadVisibleRowsOnly];
         [self updateStatus];
+    }
+    
+    NSUInteger row = [self.data indexOfObject:logItem];
+    if ( row != NSNotFound ) {
+        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
     }
 }
 
@@ -697,6 +782,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self updateStatus];
                 [self stopActivityIndicator];
                 [self setMarkFirstAndLastEnabled:YES];
+                [self setMoveNextPrevEnabled:YES];
             }];
         }
         else {
@@ -706,6 +792,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self updateStatus];
                 [self stopActivityIndicator];
                 [self setMarkFirstAndLastEnabled:NO];
+                [self setMoveNextPrevEnabled:NO];
             }];
         }
     }
@@ -716,25 +803,75 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             [self updateStatus];
             [self stopActivityIndicator];
             [self setMarkFirstAndLastEnabled:NO];
+            [self setMoveNextPrevEnabled:NO];
         }];
+    }
+    
+    NSUInteger row = [self.data indexOfObject:logItem];
+    if ( row != NSNotFound ) {
+        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+        self.dataProvider.currentMatchedRowIndex = row;
     }
 }
 
 //------------------------------------------------------------------------------
 - (void) markFirstRow
 {
-    if ( self.dataProvider.currentMatchedRowIndex != NSNotFound ) {
+    [self.view.window makeFirstResponder:self.logTableView];
+    
+    if ( ( self.logTableView.selectedRow >= 0 ) && [self.data count] ) {
+        [self popup:nil didSelectMarkFromWithLogItem:(LogItem*)[self.data objectAtIndex:self.logTableView.selectedRow]];
+    }
+    else if ( self.dataProvider.currentMatchedRowIndex != NSNotFound ) {
         [self popup:nil didSelectMarkFromWithLogItem:(LogItem*)[self.dataProvider.filteredData objectAtIndex:self.dataProvider.currentMatchedRowIndex]];
     }
+    
+    [self.searchField setStringValue:@""];
+    self.dataProvider.filter.text = nil;
 }
 
 //------------------------------------------------------------------------------
 - (void) markLastRow
 {
-    if ( self.dataProvider.currentMatchedRowIndex != NSNotFound ) {
+    [self.view.window makeFirstResponder:self.logTableView];
+    
+    if ( ( self.logTableView.selectedRow >= 0 ) && [self.data count] ) {
+        [self popup:nil didSelectMarkToWithItem:(LogItem*)[self.data objectAtIndex:self.logTableView.selectedRow]];
+    }
+    else if ( self.dataProvider.currentMatchedRowIndex != NSNotFound ) {
         [self popup:nil didSelectMarkToWithItem:(LogItem*)[self.dataProvider.filteredData objectAtIndex:self.dataProvider.currentMatchedRowIndex]];
     }
+    
+    [self.searchField setStringValue:@""];
+    self.dataProvider.filter.text = nil;
 }
+
+//------------------------------------------------------------------------------
+- (void) moveToPreviousMatchedRow
+{
+    NSUInteger index = [self.dataProvider previousMatchedRowIndex];
+    if ( index != NSNotFound ) {
+        [self.view.window makeFirstResponder:self.logTableView];
+        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:NO];
+        [self.logTableView scrollRowToVisible:index];
+        [self reloadVisibleRowsOnly];
+        [self updateStatus];
+    }
+}
+
+//------------------------------------------------------------------------------
+- (void) moveToNextMatchedRow
+{
+    NSUInteger index = [self.dataProvider nextMatchedRowIndex];
+    if ( index != NSNotFound ) {
+        [self.view.window makeFirstResponder:self.logTableView];
+        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:NO];
+        [self.logTableView scrollRowToVisible:index];
+        [self reloadVisibleRowsOnly];
+        [self updateStatus];
+    }
+}
+
 
 #pragma mark -
 #pragma mark Searching Methods
@@ -768,8 +905,11 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self reloadLog];
         dispatch_async( dispatch_get_main_queue(), ^{
             
-            if ( self.dataProvider.firstMatchedRowIndex != NSNotFound ) {
-                [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex + 1];
+            BOOL found = ( self.dataProvider.firstMatchedRowIndex != NSNotFound );
+            
+            if ( found ) {
+                [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex];
+                [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:self.dataProvider.firstMatchedRowIndex] byExtendingSelection:NO];
             }
             
             //[self.logTableView selectRowIndexes:self.dataProvider.matchedRowsIndexSet byExtendingSelection:NO];
@@ -780,7 +920,10 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self stopActivityIndicator];
             }
             
-            [self setMarkFirstAndLastEnabled:( self.dataProvider.firstMatchedRowIndex != NSNotFound )];
+            
+            [self setMarkFirstAndLastEnabled:found];
+            [self setMoveNextPrevEnabled:found];
+            
             self->_isSearchingInProgress = NO;
         });
     }];
@@ -803,16 +946,24 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     
     [self.dataProvider matchFilteredDataWithCompletion:^( BOOL completed ){
         if ( completed ) {
+            BOOL found = ( self.dataProvider.firstMatchedRowIndex != NSNotFound );
             dispatch_async( dispatch_get_main_queue(), ^{
                 [self reloadLog];
                 [self stopActivityIndicator];
+                if ( found ) {
+                    [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex];
+                    [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:self.dataProvider.firstMatchedRowIndex] byExtendingSelection:NO];
+                }
             });
-            [self setMarkFirstAndLastEnabled:( self.dataProvider.firstMatchedRowIndex != NSNotFound )];
+            
+            [self setMarkFirstAndLastEnabled:found];
+            [self setMoveNextPrevEnabled:found];
         }
         else {
             [self updateStatus];
             [self stopActivityIndicator];
             [self setMarkFirstAndLastEnabled:NO];
+            [self setMoveNextPrevEnabled:NO];
         }
     }];
 }
@@ -846,14 +997,41 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) updateStatus
 {
     dispatch_async( dispatch_get_main_queue(), ^{
-        NSUInteger index = ( ( self.dataProvider.currentMatchedRow != NSNotFound ) ? self.dataProvider.currentMatchedRow + 1 : 0 );
-        [self.matchedCountLabel setStringValue:( ( self.dataProvider.filterType == FILTER_SEARCH )
-                                                 ?
-                                                 [NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]]
-                                                 :
-                                                 [NSString stringWithFormat:@"matched 0/0, total %lu", (unsigned long)[self.dataProvider.filteredData count]]
-                                               )
-        ];
+        NSUInteger selectedIndex = ( ( self.logTableView.selectedRow >= 0 ) ? self.logTableView.selectedRow : NSNotFound );
+        NSUInteger index;
+        
+        if ( selectedIndex != NSNotFound ) {
+            NSNumber *auxIndex = (NSNumber*)[self.dataProvider.matchedRowsIndexDict valueForKey:[NSString stringWithFormat:@"%lu", selectedIndex]];
+            index              = ( auxIndex ? [auxIndex unsignedIntegerValue] : NSNotFound );
+        }
+        else {
+            index = NSNotFound;
+        }
+        
+        NSString *label;
+        if ( self.dataProvider.filterType == FILTER_SEARCH ) {
+            if ( index == NSNotFound ) {
+                if ( selectedIndex == NSNotFound ) {
+                    label = [NSString stringWithFormat:@"total %lu", (unsigned long)[self.dataProvider.filteredData count]];
+                }
+                else {
+                    label = [NSString stringWithFormat:@"row %lu, total %lu", (unsigned long)selectedIndex + 1, (unsigned long)[self.dataProvider.filteredData count]];
+                }
+            }
+            else {
+                label = [NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index + 1, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]];
+            }
+        }
+        else {
+            if ( selectedIndex == NSNotFound ) {
+                label = [NSString stringWithFormat:@"total %lu",  (unsigned long)[self.dataProvider.filteredData count]];
+            }
+            else {
+                label = [NSString stringWithFormat:@"row %lu, total %lu", (unsigned long)selectedIndex + 1, (unsigned long)[self.dataProvider.filteredData count]];
+            }
+        }
+        
+        [self.matchedCountLabel setStringValue:label];
         
         BOOL matchedRowsFound               = ( self.dataProvider.matchedRowsCount > 0 );
         BOOL dataTransferEnabled            = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
@@ -867,5 +1045,6 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self setCopyEnabled:dataTransferEnabled];
     });
 }
+
 
 @end

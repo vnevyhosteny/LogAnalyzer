@@ -9,23 +9,31 @@
 #import "LogItemViewController.h"
 #import "MainViewController.h"
 #import "NSFont+LogAnalyzer.h"
+#import "LogTextView.h"
 
+//==============================================================================
 @interface LogItemViewController ()
 {
-    BOOL _isInitializing;
+    BOOL              _isInitializing;
 }
 @end
 
+//==============================================================================
 @implementation LogItemViewController
 
 //------------------------------------------------------------------------------
 - (void) awakeFromNib
 {
-    
+    self.textView.closeCompletion = ^{ [self.mainViewDelegate textDidSelected:self]; };
 }
 
 //------------------------------------------------------------------------------
-- (void)viewDidLoad
+- (void) dealloc
+{
+}
+
+//------------------------------------------------------------------------------
+- (void) viewDidLoad
 {
     [super viewDidLoad];
 }
@@ -46,19 +54,12 @@
     [self.textView setFont:[NSFont logTableRegularFont]];
     [self.textView setString:self.logItem.text];
     [self setTitle:[NSString stringWithFormat:@"Item at row:%lu", self.logItem.originalRowId + 1]];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self->_isInitializing = NO;
     });
 }
 
-#pragma mark -
-#pragma mark NSTextViewDelegate Methods
-//------------------------------------------------------------------------------
-- (void) textViewDidChangeSelection:(NSNotification *)notification
-{
-    if ( !self->_isInitializing ) {
-        [self.mainViewDelegate textDidSelected:self];
-    }
-}
+
 
 @end

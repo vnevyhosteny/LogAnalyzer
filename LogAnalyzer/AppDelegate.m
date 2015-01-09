@@ -81,6 +81,19 @@
 }
 
 //------------------------------------------------------------------------------
+- (IBAction)moveToNextMatchedRow:(NSMenuItem *)sender
+{
+    [ActiveViewController() moveToNextMatchedRow];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction)moveToPreviousMatchedRow:(NSMenuItem *)sender
+{
+    [ActiveViewController() moveToPreviousMatchedRow];
+}
+
+
+//------------------------------------------------------------------------------
 - (IBAction) copyAction:(NSMenuItem *)sender
 {
     [WindowManager sharedInstance].sourceWindowController = [WindowManager sharedInstance].activeWindowController;
@@ -89,14 +102,14 @@
 //------------------------------------------------------------------------------
 - (IBAction) pasteAction:(NSMenuItem *)sender
 {
-    LogAnalyzerWindowController *sourceWindowController = [WindowManager sharedInstance].sourceWindowController;
-    LogAnalyzerWindowController *activeWindowController = [WindowManager sharedInstance].activeWindowController;
+    MainViewController *sourceController = [[[WindowManager sharedInstance] sourceWindowController] mainViewController];
+    MainViewController *activeController = [[[WindowManager sharedInstance] activeWindowController] mainViewController];
     
-    if ( sourceWindowController && activeWindowController ) {
-        [activeWindowController.mainViewController pasteLogItems:sourceWindowController.mainViewController.dataProvider.matchedData withCompletion:^{
-            [activeWindowController.mainViewController reloadLog];
+    if ( sourceController && activeController ) {
+        [activeController pasteLogItems:sourceController.dataProvider.matchedData withCompletion:^{
+            [activeController reloadLog];
             dispatch_async( dispatch_get_main_queue(), ^{
-                [activeWindowController.window setTitle:sourceWindowController.mainViewController.dataProvider.filter.text];
+                [activeController.view.window setTitle:sourceController.dataProvider.filter.text];
             });
         }];
     }

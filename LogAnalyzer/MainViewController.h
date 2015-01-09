@@ -29,6 +29,10 @@ extern NSString *const kLogItem;
 
 - (void) markFirstRow;
 - (void) markLastRow;
+- (void) moveToPreviousMatchedRow;
+- (void) moveToNextMatchedRow;
+
+
 
 - (void) openLogFile;
 - (void) saveLogFile;

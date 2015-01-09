@@ -19,19 +19,25 @@
 //==============================================================================
 @implementation DataProvider
 
-@synthesize originalData = _originalData;
-@synthesize filteredData = _filteredData;
+@synthesize originalData          = _originalData;
+@synthesize filteredData          = _filteredData;
+@synthesize matchedRowsIndexSet   = _matchedRowsIndexSet;
+@synthesize unmatchedRowsIndexSet = _unmatchedRowsIndexSet;
+@synthesize matchedRowsIndexDict  = _matchedRowsIndexDict;
 
 //------------------------------------------------------------------------------
 - (instancetype) init
 {
     if ( ( self = [super init] ) ) {
-        self->_filter              = [LogItem new];
-        self->_filterType          = FILTER_SEARCH;
-        self->_sync_queue          = dispatch_queue_create( "dataprovider.sync_queue", DISPATCH_QUEUE_SERIAL );
-        self->_rowFrom             = NSNotFound;
-        self->_rowTo               = NSNotFound;
-        self->_originalLogFileName = nil;
+        self->_filter                = [LogItem new];
+        self->_filterType            = FILTER_SEARCH;
+        self->_sync_queue            = dispatch_queue_create( "dataprovider.sync_queue", DISPATCH_QUEUE_SERIAL );
+        self->_rowFrom               = NSNotFound;
+        self->_rowTo                 = NSNotFound;
+        self->_originalLogFileName   = nil;
+        self->_matchedRowsIndexSet   = nil;
+        self->_unmatchedRowsIndexSet = nil;
+        self->_matchedRowsIndexDict  = nil;
     }
     return self;
 }
@@ -65,63 +71,6 @@
 
 
 //------------------------------------------------------------------------------
-- (void) matchFilteredDataWithCompletion:(void(^)( BOOL completed ))completion
-{
-    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        
-        // Wait for previous search interruption
-        while ( self.isSearching ) {
-            [NSThread sleepForTimeInterval:0.1f];
-        }
-        
-        dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            self.isSearching = YES;
-            BOOL result      = YES;
-            
-            @synchronized( self ) {
-                NSPredicate *predicate = ( [self.filter.text length] ? [NSPredicate predicateWithFormat:@"((text LIKE [cd] %@))" argumentArray:@[[NSString stringWithFormat:@"*%@*", self.filter.text]]] : nil );
-                NSArray     *aux       = ( predicate ? [[NSArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:NO] : nil );
-                
-                if ( self.isSearching ) {
-                    
-                    [self resetMatchCountersAndIndexes];
-                    
-                    NSUInteger index              = 0;
-                    BOOL       isAuxEmpty         = !((BOOL)[aux count]);
-                    
-                    //for ( __weak LogItem *logItem in self->_filteredData ) {
-                    for ( __weak LogItem *logItem in self->_originalData ) {
-                        
-                        if ( !self.isSearching ) {
-                            result = NO;
-                            break;
-                        }
-                        
-                        logItem.matchFilter = ( isAuxEmpty ? NO : ( [aux indexOfObject:logItem] != NSNotFound ) );
-                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index];
-                        
-                        index++;
-                    }
-                }
-                else {
-                    result = NO;
-                }
-                
-                self->_filteredData = nil;
-                [self filteredDataWithOriginalData];
-            }
-            
-            self.isSearching = NO;
-            
-            if ( completion ) {
-                completion( result );
-            }
-        });
-    });
-}
-
-//------------------------------------------------------------------------------
 - (void) resetMatchCountersAndIndexes
 {
     self->_matchedRowsCount       = 0;
@@ -129,6 +78,9 @@
     self->_firstMatchedRowIndex   = NSNotFound;
     self->_currentMatchedRowIndex = NSNotFound;
     self->_lastMatchedRowIndex    = NSNotFound;
+    self->_matchedRowsIndexSet    = nil;
+    self->_unmatchedRowsIndexSet  = nil;
+    self->_matchedRowsIndexDict   = nil;
 }
 
 //------------------------------------------------------------------------------
@@ -161,10 +113,75 @@
 }
 
 //------------------------------------------------------------------------------
+- (void) matchFilteredDataWithCompletion:(void(^)( BOOL completed ))completion
+{
+    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        
+        // Wait for previous search interruption
+        NSRunLoop            *runLoop      = [NSRunLoop currentRunLoop];
+        static CGFloat const  WaitInterval = 0.1f;
+        
+        while ( self.isSearching ) {
+            if ( runLoop ) {
+                [runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:WaitInterval]];
+            }
+            else {
+                [NSThread sleepForTimeInterval:WaitInterval];
+            }
+        }
+        
+        dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            self.isSearching = YES;
+            BOOL result      = YES;
+            
+            @synchronized( self ) {
+                NSPredicate *predicate = ( [self.filter.text length] ? [NSPredicate predicateWithFormat:@"((text LIKE [cd] %@))" argumentArray:@[[NSString stringWithFormat:@"*%@*", self.filter.text]]] : nil );
+                NSArray     *aux       = ( predicate ? [[NSArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:NO] : nil );
+                
+                if ( self.isSearching ) {
+                    
+                    [self resetMatchCountersAndIndexes];
+                    
+                    NSUInteger index              = 0;
+                    BOOL       isAuxEmpty         = !((BOOL)[aux count]);
+                    
+                    for ( __weak LogItem *logItem in self->_originalData ) {
+                        
+                        if ( !self.isSearching ) {
+                            result = NO;
+                            break;
+                        }
+                        
+                        logItem.matchFilter = ( isAuxEmpty ? NO : ( [aux indexOfObject:logItem] != NSNotFound ) );
+                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index];
+                        
+                        index++;
+                    }
+                }
+                else {
+                    result = NO;
+                }
+                
+                self->_filteredData = nil;
+                [self filteredDataWithOriginalData];
+            }
+            
+            self.isSearching = NO;
+            
+            if ( completion ) {
+                completion( result );
+            }
+        });
+    });
+}
+
+
+//------------------------------------------------------------------------------
 - (NSArray*) filteredData
 {
     @synchronized( self ) {
-        if ( ![self->_filteredData count] ) {
+        if ( ![self->_filteredData count] && [self->_originalData count] ) {
             
             [self resetMatchCountersAndIndexes];
             
@@ -210,24 +227,6 @@
 }
 
 //------------------------------------------------------------------------------
-- (NSArray*) matchedData
-{
-    NSPredicate    *predicate = [NSPredicate predicateWithFormat:@"((matchFilter == %d))" argumentArray:@[@YES]];
-    NSMutableArray *result;
-    
-    @synchronized( self ) {
-        result = [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES];
-    }
-    
-    for ( __weak LogItem *logItem in result ) {
-        logItem.matchFilter = NO;
-    }
-    
-    return result;
-}
-
-
-//------------------------------------------------------------------------------
 - (NSArray*) filteredDataWithOriginalData
 {
     @synchronized( self ) {
@@ -249,37 +248,85 @@
 }
 
 
+//------------------------------------------------------------------------------
+- (NSArray*) matchedData
+{
+    NSPredicate    *predicate = [NSPredicate predicateWithFormat:@"((matchFilter == %d))" argumentArray:@[@YES]];
+    NSMutableArray *result;
+    
+    @synchronized( self ) {
+        result = [[NSMutableArray alloc] initWithArray:[self->_originalData filteredArrayUsingPredicate:predicate] copyItems:YES];
+    }
+    
+    for ( __weak LogItem *logItem in result ) {
+        logItem.matchFilter = NO;
+    }
+    
+    return result;
+}
+
+//------------------------------------------------------------------------------
+- (NSDictionary*) matchedRowsIndexDict
+{
+    if ( !self->_matchedRowsIndexDict ) {
+        @synchronized( self ) {
+            NSMutableDictionary *aux   = [[NSMutableDictionary alloc] initWithCapacity:[self.filteredData count]];
+            NSUInteger           index = 0;
+            NSUInteger           order = 0;
+            
+            for ( __weak LogItem *logItem in self.filteredData ) {
+                if ( logItem.matchFilter ) {
+                    [aux setValue:[NSNumber numberWithUnsignedInteger:order++] forKey:[NSString stringWithFormat:@"%lu", index]];
+                }
+                index++;
+            }
+            
+            self->_matchedRowsIndexDict = [[NSDictionary alloc] initWithDictionary:aux];
+        }
+    }
+    return self->_matchedRowsIndexDict;
+}
 
 //------------------------------------------------------------------------------
 - (NSIndexSet*) matchedRowsIndexSet
 {
-    NSMutableIndexSet *aux = [NSMutableIndexSet new];
-    
-    NSUInteger index = 0;
-    for ( __weak LogItem *logItem in self.filteredData ) {
-        if ( logItem.matchFilter ) {
-            [aux addIndex:index];
+    if ( !self->_matchedRowsIndexSet ) {
+        
+        NSMutableIndexSet *aux   = [NSMutableIndexSet new];
+        NSUInteger         index = 0;
+        @synchronized( self ) {
+            for ( __weak LogItem *logItem in self.filteredData ) {
+                if ( logItem.matchFilter ) {
+                    [aux addIndex:index];
+                }
+                index++;
+            }
         }
-        index++;
+        self->_matchedRowsIndexSet = [[NSIndexSet alloc] initWithIndexSet:aux];
     }
-    
-    return [[NSIndexSet alloc] initWithIndexSet:aux];
+    return self->_matchedRowsIndexSet;
 }
 
 //------------------------------------------------------------------------------
 - (NSIndexSet*) unmatchedRowsIndexSet
 {
-    NSMutableIndexSet *aux = [NSMutableIndexSet new];
-    
-    NSUInteger index = 0;
-    for ( __weak LogItem *logItem in self.filteredData ) {
-        if ( !logItem.matchFilter ) {
-            [aux addIndex:index];
+    if ( !self->_unmatchedRowsIndexSet ) {
+        
+        NSMutableIndexSet *aux   = [NSMutableIndexSet new];
+        NSUInteger         index = 0;
+        
+        @synchronized( self ) {
+            for ( __weak LogItem *logItem in self.filteredData ) {
+                if ( !logItem.matchFilter ) {
+                    [aux addIndex:index];
+                }
+                index++;
+            }
         }
-        index++;
+        
+        self->_unmatchedRowsIndexSet = [[NSIndexSet alloc] initWithIndexSet:aux];
     }
-    
-    return [[NSIndexSet alloc] initWithIndexSet:aux];
+    return self->_unmatchedRowsIndexSet;
 }
 
 //------------------------------------------------------------------------------
@@ -312,6 +359,23 @@
     }
 }
 
+//------------------------------------------------------------------------------
+- (void) deleteRow:(NSUInteger)row
+{
+    @synchronized( self ) {
+        if ( row < [self->_filteredData count] ) {
+            LogItem *logItem = [self->_filteredData objectAtIndex:row];
+            NSUInteger index = [self->_originalData indexOfObject:logItem];
+            if ( index != NSNotFound ) {
+                NSMutableArray *aux = [NSMutableArray arrayWithArray:self->_originalData];
+                [aux removeObjectAtIndex:index];
+                self->_originalData = [[NSArray alloc] initWithArray:aux];
+                self->_filteredData = nil;
+            }
+        }
+    }
+}
+
 #pragma mark -
 #pragma mark Data
 //------------------------------------------------------------------------------
@@ -325,7 +389,11 @@
         
         if ( error ) {
             self->_originalLogFileName = nil;
-            NSLog( @"Error while loading file: %@", [error localizedDescription] );
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [[NSAlert alertWithError:error] runModal];
+            });
+            
             if ( completion ) {
                 completion( error );
             }
@@ -338,26 +406,34 @@
         NSMutableArray *aux        = [NSMutableArray new];
         NSUInteger      rowId      = ( [self->_originalData count] ? ((LogItem*)[self->_originalData lastObject]).originalRowId : 0 );
         LogItem        *logItem    = nil;
+        BOOL            foundDate  = NO;
         
         for ( __weak NSString *line in lines ) {
             if ( [line length] ) {
                 if ( [self startsWithDate:line] ) {
+                    foundDate = YES;
                     if ( logItem ) {
                         [aux addObject:logItem];
                     }
                     logItem = [[LogItem alloc] initWithRowId:rowId++ text:line];
                 }
                 else {
-                    if ( logItem ) {
-                        logItem.text = [NSString stringWithFormat:@"%@\n%@", logItem.text, line];
+                    if ( foundDate ) {
+                        if ( logItem ) {
+                            logItem.text = [NSString stringWithFormat:@"%@\n%@", logItem.text, line];
+                        }
+                        else {
+                            logItem = [[LogItem alloc] initWithRowId:rowId++ text:line];
+                        }
                     }
                     else {
-                        logItem = [[LogItem alloc] initWithRowId:rowId++ text:line];
+                        [aux addObject:[[LogItem alloc] initWithRowId:rowId++ text:line]];
                     }
                 }
             }
         }
-        if ( logItem ) {
+        
+        if ( logItem && foundDate ) {
             [aux addObject:logItem];
         }
         
@@ -375,6 +451,77 @@
         }];
     });
 }
+
+//------------------------------------------------------------------------------
+- (void) appendLogFromText:(NSString*)logText completion:(void (^)(NSError*))completion
+{
+    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        NSError          *error    = nil;
+        
+        if ( error ) {
+            self->_originalLogFileName = nil;
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [[NSAlert alertWithError:error] runModal];
+            });
+            
+            if ( completion ) {
+                completion( error );
+            }
+            return;
+        }
+        
+        NSArray        *lines      = [logText componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r\n"]];
+        NSMutableArray *aux        = [NSMutableArray new];
+        NSUInteger      rowId      = ( [self->_originalData count] ? ((LogItem*)[self->_originalData lastObject]).originalRowId : 0 );
+        LogItem        *logItem    = nil;
+        BOOL            foundDate  = NO;
+        
+        for ( __weak NSString *line in lines ) {
+            if ( [line length] ) {
+                if ( [self startsWithDate:line] ) {
+                    foundDate = YES;
+                    if ( logItem ) {
+                        [aux addObject:logItem];
+                    }
+                    logItem = [[LogItem alloc] initWithRowId:rowId++ text:line];
+                }
+                else {
+                    if ( foundDate ) {
+                        if ( logItem ) {
+                            logItem.text = [NSString stringWithFormat:@"%@\n%@", logItem.text, line];
+                        }
+                        else {
+                            logItem = [[LogItem alloc] initWithRowId:rowId++ text:line];
+                        }
+                    }
+                    else {
+                        [aux addObject:[[LogItem alloc] initWithRowId:rowId++ text:line]];
+                    }
+                }
+            }
+        }
+        
+        if ( logItem && foundDate ) {
+            [aux addObject:logItem];
+        }
+        
+        if ( [self->_originalData count] ) {
+            self->_originalData = [[NSArray arrayWithArray:self->_originalData] arrayByAddingObjectsFromArray:aux];
+        }
+        else {
+            self->_originalData = [NSArray arrayWithArray:aux];
+        }
+        
+        [self invalidateDataWithCompletion:^{
+            if ( completion ) {
+                completion( error );
+            }
+        }];
+    });
+}
+
 
 //------------------------------------------------------------------------------
 - (BOOL) saveOriginalData
@@ -546,6 +693,7 @@
         self->_currentMatchedRow      = 0;
         return self->_currentMatchedRowIndex;
     }
+    
     if ( self->_currentMatchedRowIndex == NSNotFound ) {
         return self->_currentMatchedRowIndex;
     }
@@ -596,6 +744,20 @@
     return self->_currentMatchedRowIndex;
 }
 
+//------------------------------------------------------------------------------
+- (void) setCurrentMatchedRowIndex:(NSUInteger)newValue
+{
+    if ( ( self->_firstMatchedRowIndex != NSNotFound )
+         &&
+         ( self->_lastMatchedRowIndex != NSNotFound )
+         &&
+         ( newValue >= self->_firstMatchedRowIndex )
+         &&
+         ( newValue <= self->_lastMatchedRowIndex )
+        ) {
+        self->_currentMatchedRowIndex = newValue;
+    }
+}
 
 //------------------------------------------------------------------------------
 - (BOOL) startsWithDate:(NSString*)line

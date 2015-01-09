@@ -11,6 +11,7 @@
 		191AEA801A42F88300736A1A /* LogTablePopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA7F1A42F88300736A1A /* LogTablePopup.m */; };
 		191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */; };
 		191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */; };
+		1952BF751A4F1D3E002C867F /* LogTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1952BF741A4F1D3E002C867F /* LogTextView.m */; };
 		19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */; };
 		19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDC1A33A3CE00F88F53 /* main.m */; };
 		19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */; };
@@ -35,6 +36,8 @@
 		191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFont+LogAnalyzer.m"; sourceTree = "<group>"; };
 		191AEA851A4411D100736A1A /* NSColor+LogAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSColor+LogAnalyzer.h"; sourceTree = "<group>"; };
 		191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+LogAnalyzer.m"; sourceTree = "<group>"; };
+		1952BF731A4F1D3E002C867F /* LogTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTextView.h; sourceTree = "<group>"; };
+		1952BF741A4F1D3E002C867F /* LogTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTextView.m; sourceTree = "<group>"; };
 		19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19C4EBD81A33A3CE00F88F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -85,6 +88,17 @@
 			name = Extensions;
 			sourceTree = "<group>";
 		};
+		1952BF721A4F1D02002C867F /* LogItemView */ = {
+			isa = PBXGroup;
+			children = (
+				19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */,
+				19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */,
+				1952BF731A4F1D3E002C867F /* LogTextView.h */,
+				1952BF741A4F1D3E002C867F /* LogTextView.m */,
+			);
+			name = LogItemView;
+			sourceTree = "<group>";
+		};
 		19B85C591A3B5116005C85FC /* Windows */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,8 +115,6 @@
 		19B85C5A1A3B513C005C85FC /* LogBrowser */ = {
 			isa = PBXGroup;
 			children = (
-				19E53FFB1A35EF0B0062B586 /* LogItemViewController.h */,
-				19E53FFC1A35EF0B0062B586 /* LogItemViewController.m */,
 				191AEA7B1A42AE1E00736A1A /* LogTableCell.h */,
 				191AEA7C1A42AE1E00736A1A /* LogTableCell.m */,
 				191AEA7E1A42F88300736A1A /* LogTablePopup.h */,
@@ -171,6 +183,7 @@
 		19C4EC081A34D4AF00F88F53 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				1952BF721A4F1D02002C867F /* LogItemView */,
 				19B85C5A1A3B513C005C85FC /* LogBrowser */,
 				19B85C591A3B5116005C85FC /* Windows */,
 				19C4EBE31A33A3CE00F88F53 /* Main.storyboard */,
@@ -257,6 +270,7 @@
 				19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */,
 				19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */,
 				19D2D9831A471BE300802498 /* ToggleButton.m in Sources */,
+				1952BF751A4F1D3E002C867F /* LogTextView.m in Sources */,
 				191AEA7D1A42AE1E00736A1A /* LogTableCell.m in Sources */,
 				19C4EC001A344FE000F88F53 /* DataProvider.m in Sources */,
 				19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */,
