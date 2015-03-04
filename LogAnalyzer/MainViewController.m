@@ -58,11 +58,9 @@ NSString *const kMenuItemPaste                      = @"Paste";
 @property (weak) IBOutlet NSButton               *toggleFilterModeButton;
 @property (weak) IBOutlet NSView                 *topBarBaseView;
 @property (weak) IBOutlet NSButton               *toggleMatchedButton;
-@property (weak) IBOutlet NSButton               *arrowUpButton;
-@property (weak) IBOutlet NSButton               *arrowDownButton;
-
 @property (weak) IBOutlet NSTextField            *matchedCountLabel;
 @property (weak) IBOutlet NSButton               *removeMatchedButton;
+@property (weak) IBOutlet NSButton               *togglePeerBrowserButton;
 
 @property (nonatomic, readonly) NSArray          *data;
 
@@ -70,14 +68,14 @@ NSString *const kMenuItemPaste                      = @"Paste";
 - (IBAction) removeMatchedAction:(NSButton *)sender;
 - (IBAction) toggleMatchedAction:(NSButton *)sender;
 
-- (IBAction)arrowUpAction:(NSButton *)sender;
-- (IBAction)arrowDownAction:(NSButton *)sender;
 
 @end
 
 @implementation MainViewController
 
 @synthesize dataProvider = _dataProvider;
+
+static BOOL isPrimaryController = YES;
 
 //------------------------------------------------------------------------------
 - (void) awakeFromNib
@@ -110,9 +108,13 @@ NSString *const kMenuItemPaste                      = @"Paste";
     self.removeMatchedButton.enabled                                            = NO;
     self->_logTableLoading                                                      = NO;
     
+    self.togglePeerBrowserButton.enabled                                        = YES;
+    self.togglePeerBrowserButton.state                                          = NSOffState;
+    
     [self.removeMatchedButton setToolTip:@"Remove all matched items."];
     [self.toggleMatchedButton setToolTip:@"Toggle matched <-> unmatched items."];
     [self.toggleFilterModeButton setToolTip:@"Toggle view all items <-> matched only."];
+    [self.togglePeerBrowserButton setToolTip:@"Toggle browse for clients ON <-> OFF."];
     
     static dispatch_once_t onceToken = 0;
     dispatch_once( &onceToken, ^{
@@ -158,12 +160,19 @@ NSString *const kMenuItemPaste                      = @"Paste";
     id searchCell = [self.searchField cell];
     [searchCell setMaximumRecents:20];
     [searchCell setSearchMenuTemplate:searchMenu];
+    
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(handleNotifications:) name:ReloadLogNeededNotification object:nil];
+    [center addObserver:self selector:@selector(handleNotifications:) name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
 }
 
 
 //------------------------------------------------------------------------------
 - (void) dealloc
 {
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self name:ReloadLogNeededNotification object:nil];
+    [center removeObserver:self name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
 }
 
 //------------------------------------------------------------------------------
@@ -212,6 +221,17 @@ NSString *const kMenuItemPaste                      = @"Paste";
 //------------------------------------------------------------------------------
 - (void) handleNotifications:(NSNotification*)notification
 {
+    if ( [notification.name isEqualToString:ReloadLogNeededNotification] ) {
+        [self reloadLogAndScrollToTheEnd:YES];
+        if ( [self.dataProvider.remotePeerName length] ) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self.view.window setTitle:self.dataProvider.remotePeerName];
+            });
+        }
+    }
+    else if ( [notification.name isEqualToString:NSViewBoundsDidChangeNotification] ) {
+        [self scrollViewContentBoundsDidChange:notification];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -220,12 +240,18 @@ NSString *const kMenuItemPaste                      = @"Paste";
     [self setSaveEnabled:( [self.dataProvider.originalLogFileName length] > 0 )];
     
     LogAnalyzerWindowController *windowController = (LogAnalyzerWindowController*)self.view.window.windowController;
-    [windowController setActive];
+//    [windowController setActive];
     
     [self updateStatus];
     
     LogAnalyzerWindowController *sourceController = [WindowManager sharedInstance].sourceWindowController;
-    [self  setPasteEnabled:( sourceController && ( sourceController != windowController ) )];
+    if ( [self.view.window.firstResponder isKindOfClass:[NSTextView class]] ) {
+        [self setPasteEnabled:YES];
+        [self setCopyEnabled:YES];
+    }
+    else {
+        [self  setPasteEnabled:( sourceController && ( sourceController != windowController ) )];
+    }
 }
 
 #pragma mark -
@@ -271,7 +297,13 @@ NSString *const kMenuItemPaste                      = @"Paste";
 - (DataProvider*) dataProvider
 {
     if ( !self->_dataProvider ) {
-        self->_dataProvider = [DataProvider new];
+        
+        self->_dataProvider                      = [DataProvider new];
+        self->_dataProvider.dataProviderDelegate = self;
+        
+        if ( isPrimaryController ) {
+            isPrimaryController = NO;
+        }
     }
     return self->_dataProvider;
 }
@@ -363,11 +395,7 @@ NSString *const kMenuItemPaste                      = @"Paste";
 //------------------------------------------------------------------------------
 - (IBAction) removeMatchedAction:(NSButton *)sender
 {
-    [self startActivityIndicatorWithMessage:@"Reloading ..."];
-    [self.dataProvider removeAllMatchedItemsWithCompletion:^{
-        [self reloadLog];
-        [self stopActivityIndicator];
-    }];
+    [self removeMatchedRows];
 }
 
 //------------------------------------------------------------------------------
@@ -379,6 +407,18 @@ NSString *const kMenuItemPaste                      = @"Paste";
         [self reloadLog];
         [self stopActivityIndicator];
     }];
+}
+
+//------------------------------------------------------------------------------
+- (IBAction) toggleBrowseOnOffAction:(NSButton *)sender
+{
+    BOOL newValue                           = !self.dataProvider.isRemoteSessionActive;
+    self.dataProvider.isRemoteSessionActive = newValue;
+    if ( newValue ) {
+        [self startActivityIndicatorWithMessage:@"Searching for clients ..."];
+        [self.togglePeerBrowserButton setImage:[NSImage imageNamed:@"ButtonRadioSearching"]];
+    }
+    //[self.togglePeerBrowserButton setEnabled:NO];
 }
 
 #pragma mark -
@@ -531,6 +571,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) showLogItemPopupAtRow:(NSInteger)row
 {
     [self startActivityIndicator];
+    [self setCopyEnabled:NO];
     
     LogItemViewController *controller = (LogItemViewController*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogItemViewController];
     controller.logItem                = (LogItem*)[self.dataProvider.filteredData objectAtIndex:row];
@@ -546,7 +587,6 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     [self startActivityIndicatorWithMessage:@"Deleting row ..."];
     [self.dataProvider deleteRow:row];
     [self reloadLog];
-    [self updateStatus];
     [self stopActivityIndicator];
 }
 
@@ -570,6 +610,16 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self.dataProvider setCurrentMatchedRowIndex:row];
     }
     [self updateStatus];
+}
+
+//------------------------------------------------------------------------------
+- (void) scrollViewContentBoundsDidChange:(NSNotification*)notification
+{
+    NSRange visibleRows = [self.logTableView rowsInRect:self.logTableScrollView.contentView.bounds];
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:0];
+    [self.logTableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
+    [NSAnimationContext endGrouping];
 }
 
 //------------------------------------------------------------------------------
@@ -603,7 +653,13 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     [self.dataProvider saveOriginalData];
 }
 
-
+//------------------------------------------------------------------------------
+- (void) selectAllRows
+{
+    [self.dataProvider matchAllRowsWithCompletion:^{
+        [self reloadLog];
+    }];
+}
 
 //------------------------------------------------------------------------------
 - (void) saveLogFileAs
@@ -673,18 +729,30 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 }
 
 //------------------------------------------------------------------------------
-- (void) reloadLog
+- (void) reloadLogAndScrollToTheEnd:(BOOL)scrollToTheEnd
 {
     dispatch_async( dispatch_get_main_queue(), ^{
         self->_logTableLoading = YES;
         
-        if ( [self.data count] ) {
+        NSUInteger count = [self.data count];
+        if ( count ) {
             [self startActivityIndicatorWithMessage:@"Reloading ..."];
         }
         
         [self.logTableView reloadData];
         [self updateStatus];
+        
+        if ( ( scrollToTheEnd ) && count ) {
+            [self.logTableView scrollToRowIndex:count - 1 ];
+        }
     });
+}
+
+
+//------------------------------------------------------------------------------
+- (void) reloadLog
+{
+    [self reloadLogAndScrollToTheEnd:NO];
 }
 
 //------------------------------------------------------------------------------
@@ -872,6 +940,38 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     }
 }
 
+//------------------------------------------------------------------------------
+- (void) removeMatchedRows
+{
+    [self startActivityIndicatorWithMessage:@"Reloading ..."];
+    [self.dataProvider removeAllMatchedItemsWithCompletion:^{
+        [self reloadLog];
+        [self stopActivityIndicator];
+    }];
+}
+
+#pragma mark -
+#pragma mark DataProviderDelegate Methods
+//------------------------------------------------------------------------------
+- (void) sessionContainerDidChangeState:(MCSessionState)state
+{
+    [self stopActivityIndicator];
+    
+    dispatch_async( dispatch_get_main_queue(), ^{
+        switch ( state ) {
+            case MCSessionStateConnected:
+                [self.togglePeerBrowserButton setImage:[NSImage imageNamed:@"ButtonRadioOn"]];
+                break;
+                
+            case MCSessionStateNotConnected:
+                [self.togglePeerBrowserButton setImage:[NSImage imageNamed:@"ButtonRadioOff"]];
+                break;
+                
+            default:;
+        }
+        [self.togglePeerBrowserButton setEnabled:YES];
+    });
+}
 
 #pragma mark -
 #pragma mark Searching Methods
@@ -988,7 +1088,6 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         }
         self->_delayedSearchTimer = [NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(firePartialSearch) userInfo:nil repeats:NO];
     }
-
 }
 
 #pragma mark -
@@ -1008,41 +1107,41 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             index = NSNotFound;
         }
         
-        NSString *label;
-        if ( self.dataProvider.filterType == FILTER_SEARCH ) {
-            if ( index == NSNotFound ) {
+        NSString *label = nil;
+        if ( [self.data count] ) {
+            if ( self.dataProvider.filterType == FILTER_SEARCH ) {
+                if ( index == NSNotFound ) {
+                    if ( selectedIndex == NSNotFound ) {
+                        label = [NSString stringWithFormat:@"total %lu", (unsigned long)[self.dataProvider.filteredData count]];
+                    }
+                    else {
+                        label = [NSString stringWithFormat:@"row %lu, total %lu", (unsigned long)selectedIndex + 1, (unsigned long)[self.dataProvider.filteredData count]];
+                    }
+                }
+                else {
+                    label = [NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index + 1, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]];
+                }
+            }
+            else {
                 if ( selectedIndex == NSNotFound ) {
-                    label = [NSString stringWithFormat:@"total %lu", (unsigned long)[self.dataProvider.filteredData count]];
+                    label = [NSString stringWithFormat:@"total %lu",  (unsigned long)[self.dataProvider.filteredData count]];
                 }
                 else {
                     label = [NSString stringWithFormat:@"row %lu, total %lu", (unsigned long)selectedIndex + 1, (unsigned long)[self.dataProvider.filteredData count]];
                 }
             }
-            else {
-                label = [NSString stringWithFormat:@"matched %lu/%lu, total %lu", (unsigned long)index + 1, (unsigned long)self.dataProvider.matchedRowsCount, (unsigned long)[self.dataProvider.filteredData count]];
-            }
-        }
-        else {
-            if ( selectedIndex == NSNotFound ) {
-                label = [NSString stringWithFormat:@"total %lu",  (unsigned long)[self.dataProvider.filteredData count]];
-            }
-            else {
-                label = [NSString stringWithFormat:@"row %lu, total %lu", (unsigned long)selectedIndex + 1, (unsigned long)[self.dataProvider.filteredData count]];
-            }
         }
         
-        [self.matchedCountLabel setStringValue:label];
+        [self.matchedCountLabel setStringValue:( [label length] ? label : @"" )];
         
         BOOL matchedRowsFound               = ( self.dataProvider.matchedRowsCount > 0 );
         BOOL dataTransferEnabled            = ( matchedRowsFound && self.dataProvider.filterType == FILTER_SEARCH );
         
         self.removeMatchedButton.enabled    = dataTransferEnabled;
-        self.toggleMatchedButton.enabled    = dataTransferEnabled;
+        self.toggleMatchedButton.enabled    = [self.dataProvider.filteredData count];
         self.toggleFilterModeButton.enabled = matchedRowsFound;
-        self.arrowDownButton.enabled        = dataTransferEnabled;
-        self.arrowUpButton.enabled          = dataTransferEnabled;
         
-        [self setCopyEnabled:dataTransferEnabled];
+        [self setCopyEnabled:( dataTransferEnabled || [self.view.window.firstResponder isKindOfClass:[NSTextView class]] )];
     });
 }
 

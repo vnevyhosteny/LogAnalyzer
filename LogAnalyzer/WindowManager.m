@@ -70,7 +70,9 @@ NSString *const kMainViewController                 = @"MainViewController";
 - (LogAnalyzerWindowController*) createNewWindowWithLogItems:(NSArray*)logItems title:(NSString*)title
 {
     LogAnalyzerWindowController *windowController = [[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateInitialController];
-    [windowController.window setTitle:title];
+    if ( [title length] ) {
+        [windowController.window setTitle:title];
+    }
     [windowController.mainViewController pasteLogItems:logItems withCompletion:nil];
     [self->_windows addObject:windowController];
     
@@ -81,19 +83,29 @@ NSString *const kMainViewController                 = @"MainViewController";
 - (void) removeWindowController:(LogAnalyzerWindowController*)controller
 {
     [self->_windows removeObject:controller];
-    if ( ![self->_windows count] ) {
-        [[NSApplication sharedApplication] terminate:nil];
-    }
+//    if ( ![self->_windows count] ) {
+//        [[NSApplication sharedApplication] terminate:nil];
+//    }
 }
 
 #pragma mark -
 #pragma mark Getters And Setters
 //------------------------------------------------------------------------------
-- (void) setActiveWindowController:(LogAnalyzerWindowController *)newValue
-{
-    self->_activeWindowController = newValue;
-    if ( [self->_windows indexOfObject:newValue] == NSNotFound ) {
-        [self->_windows addObject:newValue];
-    }
-}
+//- (void) setActiveWindowController:(LogAnalyzerWindowController *)newValue
+//{
+//    if ( [self->_windows count] ) {
+//        for ( __weak LogAnalyzerWindowController *windowController in self->_windows ) {
+//            windowController.mainViewController.dataProvider.isRemoteSessionActive = NO;
+//        }
+//    }
+//    
+//    self->_activeWindowController = newValue;
+//    if ( [self->_windows indexOfObject:newValue] == NSNotFound ) {
+//        [self->_windows addObject:newValue];
+//    }
+//
+//    if ( !newValue.mainViewController.dataProvider.isRemoteSessionActive ) {
+//        newValue.mainViewController.dataProvider.isRemoteSessionActive = YES;
+//    }
+//}
 @end

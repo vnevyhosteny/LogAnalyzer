@@ -22,5 +22,7 @@ extern NSString *const kMatchFilter;
 @property (nonatomic, copy)      NSString  *text;
 @property (nonatomic, readwrite) BOOL       matchFilter;
 
++ (NSString*) trim:(NSString*)text;
+
 - (instancetype) initWithRowId:(NSUInteger)row text:(NSString*)text;
 @end

@@ -9,12 +9,14 @@
 #ifndef LogAnalyzer_Protocols_h
 #define LogAnalyzer_Protocols_h
 
-#import "LogItem.h"
+@import MultipeerConnectivity;
 
+#import "LogItem.h"
 
 @class LogItemViewController;
 @class LogTablePopup;
 
+//==============================================================================
 @protocol MainViewControllerDelegate <NSObject>
 - (void) appendLogFromFile:(NSString*)fileName;
 - (void) appendLogFromText:(NSString*)logText;
@@ -27,11 +29,18 @@
 - (void) stopActivityIndicator;
 - (void) deleteRow:(NSUInteger)row;
 - (void) clickedRowAtIndex:(NSInteger)rowIndex atPoint:(NSPoint)point;
+- (void) selectAllRows;
+- (void) removeMatchedRows;
 
 - (void) popup:(LogTablePopup*)popup didSelectMarkFromWithLogItem:(LogItem*)logItem;
 - (void) popup:(LogTablePopup*)popup didSelectMarkToWithItem:(LogItem*)logItem;
 - (void) showLogItemPopupAtRow:(NSInteger)row;
 
+@end
+
+//==============================================================================
+@protocol DataProviderDelegate
+- (void) sessionContainerDidChangeState:(MCSessionState)state;
 @end
 
 #endif

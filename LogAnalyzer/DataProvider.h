@@ -7,33 +7,42 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "LogItem.h"
+#import "SessionContainer.h"
+#import "Protocols.h"
 
 typedef enum { FILTER_SEARCH = 0,
                FILTER_FILTER = 1
 } FilterType;
 
+extern NSString *const ReloadLogNeededNotification;
+
 //==============================================================================
-@interface DataProvider : NSObject
+@interface DataProvider : NSObject <SessionContainerDelegate>
 
-@property (nonatomic, readonly) LogItem       *filter;
-@property (nonatomic, readwrite) FilterType    filterType;
-@property (nonatomic, readonly) NSArray       *originalData;
-@property (nonatomic, readonly) NSArray       *filteredData;
-@property (nonatomic, readonly) NSArray       *matchedData;
+@property (nonatomic, readonly) LogItem                  *filter;
+@property (nonatomic, readwrite) FilterType               filterType;
+@property (nonatomic, readonly) NSMutableArray           *originalData;
+@property (nonatomic, readonly) NSMutableArray           *filteredData;
+@property (nonatomic, readonly) NSArray                  *matchedData;
 
-@property (nonatomic, readonly) NSUInteger     matchedRowsCount;
-@property (nonatomic, readonly) NSUInteger     currentMatchedRow;
-@property (nonatomic, readonly) NSIndexSet    *matchedRowsIndexSet;
-@property (nonatomic, readonly) NSDictionary  *matchedRowsIndexDict;
-@property (nonatomic, readonly) NSIndexSet    *unmatchedRowsIndexSet;
-@property (nonatomic, readonly) NSUInteger     firstMatchedRowIndex;
-@property (nonatomic, readwrite) NSUInteger    currentMatchedRowIndex;
-@property (nonatomic, readonly) NSUInteger     lastMatchedRowIndex;
-@property (nonatomic, readwrite) BOOL          isSearching;
-@property (nonatomic, readwrite) NSUInteger    rowFrom;
-@property (nonatomic, readwrite) NSUInteger    rowTo;
-@property (nonatomic, readonly) NSString      *originalLogFileName;
+@property (nonatomic, readonly) NSUInteger                matchedRowsCount;
+@property (nonatomic, readonly) NSUInteger                currentMatchedRow;
+@property (nonatomic, readonly) NSIndexSet               *matchedRowsIndexSet;
+@property (nonatomic, readonly) NSDictionary             *matchedRowsIndexDict;
+@property (nonatomic, readonly) NSIndexSet               *unmatchedRowsIndexSet;
+@property (nonatomic, readonly) NSUInteger                firstMatchedRowIndex;
+@property (nonatomic, readwrite) NSUInteger               currentMatchedRowIndex;
+@property (nonatomic, readonly) NSUInteger                lastMatchedRowIndex;
+@property (nonatomic, readwrite) BOOL                     isSearching;
+@property (nonatomic, readwrite) NSUInteger               rowFrom;
+@property (nonatomic, readwrite) NSUInteger               rowTo;
+@property (nonatomic, readonly) NSString                 *originalLogFileName;
+@property (nonatomic, readwrite) BOOL                     isRemoteSessionActive;
+@property (nonatomic, readonly) NSString                 *remotePeerName;
+@property (nonatomic, readonly) SessionContainer         *sessionContainer;
+@property (nonatomic, readwrite) id<DataProviderDelegate> dataProviderDelegate;
 
 - (void) appendLogFromFile:(NSString*)fileName completion:(void (^)(NSError*))completion;
 - (void) appendLogFromText:(NSString*)logText completion:(void (^)(NSError*))completion;
@@ -53,5 +62,6 @@ typedef enum { FILTER_SEARCH = 0,
 - (void) removeFromToMarksWithCompletion:(void (^)(void))completion;
 - (BOOL) saveOriginalData;
 - (BOOL) saveFilteredDataToURL:(NSURL*)url;
+- (void) matchAllRowsWithCompletion:(void (^)())completion;
 
 @end

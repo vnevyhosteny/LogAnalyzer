@@ -11,6 +11,7 @@
 @implementation NSColor(LogAnalyzer)
 
 static CGFloat const FullColor = 255.0f;
+static CGFloat const FullAlpha = 1.0f;
 
 //------------------------------------------------------------------------------
 + (NSColor*) logTablePlainTextColor
@@ -19,7 +20,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:33.0f/FullColor green:33.0f/FullColor blue:33.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:33.0f/FullColor green:33.0f/FullColor blue:33.0f/FullColor alpha:FullAlpha];
     });
     return __color__;
 }
@@ -31,7 +32,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:180.0f/FullColor green:180.0f/FullColor blue:200.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:180.0f/FullColor green:180.0f/FullColor blue:200.0f/FullColor alpha:FullAlpha];
     });
     return __color__;
 }
@@ -43,7 +44,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:0.0f/FullColor green:140.0f/FullColor blue:20.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:0.0f/FullColor green:140.0f/FullColor blue:20.0f/FullColor alpha:FullAlpha];
     });
     return __color__;
 }
@@ -55,7 +56,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:10.0f/FullColor green:100.0f/FullColor blue:255.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:10.0f/FullColor green:100.0f/FullColor blue:255.0f/FullColor alpha:FullAlpha];
     });
     return __color__;
 }
@@ -67,7 +68,7 @@ static CGFloat const FullColor = 255.0f;
     static dispatch_once_t  __once_token__ = 0;
     
     dispatch_once( &__once_token__, ^{
-        __color__ = [NSColor colorWithCalibratedRed:10.0f/FullColor green:150.0f/FullColor blue:255.0f/FullColor alpha:1.0f];
+        __color__ = [NSColor colorWithCalibratedRed:60.0f/FullColor green:150.0f/FullColor blue:255.0f/FullColor alpha:FullAlpha];
     });
     return __color__;
 }

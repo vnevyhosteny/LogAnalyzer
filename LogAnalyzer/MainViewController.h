@@ -17,11 +17,14 @@ extern NSString *const kLogItem;
 @interface MainViewController : NSViewController <NSTableViewDataSource,
                                                   NSTableViewDelegate,
                                                   MainViewControllerDelegate,
+                                                  DataProviderDelegate,
                                                   NSTextViewDelegate,
                                                   NSWindowDelegate
                                                  >
 
 @property (nonatomic, readonly) DataProvider     *dataProvider;
+
+- (IBAction) toggleBrowseOnOffAction:(NSButton *)sender;
 
 - (void) appendLogFromFile:(NSString*)fileName;
 - (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion;
@@ -31,8 +34,6 @@ extern NSString *const kLogItem;
 - (void) markLastRow;
 - (void) moveToPreviousMatchedRow;
 - (void) moveToNextMatchedRow;
-
-
 
 - (void) openLogFile;
 - (void) saveLogFile;

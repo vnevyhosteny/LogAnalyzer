@@ -19,11 +19,29 @@ NSString *const kMatchFilter          = @"matchFilter";
 @implementation LogItem
 
 //------------------------------------------------------------------------------
++ (NSString*) trim:(NSString*)text
+{
+    NSUInteger len   = [text length];
+    NSRange    range = ( [text length] ? [text rangeOfString:@"\n" options:NSBackwardsSearch] : NSMakeRange( NSNotFound, 0 ) );
+    
+    if ( range.location != NSNotFound ) {
+        len = range.location;
+        while ( len && ( [text characterAtIndex:len] == '\n' ) ) {
+            len--;
+        }
+        len++;
+    }
+    
+    return ( len ? [text substringToIndex:len] : text );
+}
+
+
+//------------------------------------------------------------------------------
 - (instancetype) initWithRowId:(NSUInteger)row text:(NSString*)text
 {
     if ( ( self = [super init] ) ) {
         self->_originalRowId = row;
-        self.text            = text;
+        self.text            = [LogItem trim:text];
     }
     return self;
 }

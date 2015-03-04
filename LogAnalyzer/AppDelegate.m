@@ -17,7 +17,8 @@
 
 @implementation AppDelegate
 
-#define ActiveViewController() [[[WindowManager sharedInstance] activeWindowController] mainViewController]
+#define ActiveViewController() [self mainWindowController]
+
 
 //------------------------------------------------------------------------------
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -81,13 +82,13 @@
 }
 
 //------------------------------------------------------------------------------
-- (IBAction)moveToNextMatchedRow:(NSMenuItem *)sender
+- (IBAction) moveToNextMatchedRow:(NSMenuItem *)sender
 {
     [ActiveViewController() moveToNextMatchedRow];
 }
 
 //------------------------------------------------------------------------------
-- (IBAction)moveToPreviousMatchedRow:(NSMenuItem *)sender
+- (IBAction) moveToPreviousMatchedRow:(NSMenuItem *)sender
 {
     [ActiveViewController() moveToPreviousMatchedRow];
 }
@@ -96,22 +97,36 @@
 //------------------------------------------------------------------------------
 - (IBAction) copyAction:(NSMenuItem *)sender
 {
-    [WindowManager sharedInstance].sourceWindowController = [WindowManager sharedInstance].activeWindowController;
+    id responder = [NSApplication sharedApplication].mainWindow.firstResponder;
+    if ( [responder isKindOfClass:[NSTextView class]] ) {
+        [(NSTextView*)responder copy:nil];
+    }
+    else {
+        [WindowManager sharedInstance].sourceWindowController = [WindowManager sharedInstance].activeWindowController;
+    }
 }
 
 //------------------------------------------------------------------------------
 - (IBAction) pasteAction:(NSMenuItem *)sender
 {
-    MainViewController *sourceController = [[[WindowManager sharedInstance] sourceWindowController] mainViewController];
-    MainViewController *activeController = [[[WindowManager sharedInstance] activeWindowController] mainViewController];
-    
-    if ( sourceController && activeController ) {
-        [activeController pasteLogItems:sourceController.dataProvider.matchedData withCompletion:^{
-            [activeController reloadLog];
-            dispatch_async( dispatch_get_main_queue(), ^{
-                [activeController.view.window setTitle:sourceController.dataProvider.filter.text];
-            });
-        }];
+    id responder = [NSApplication sharedApplication].mainWindow.firstResponder;
+    if ( [responder isKindOfClass:[NSTextView class]] ) {
+        [(NSTextView*)responder paste:nil];
+    }
+    else {
+        MainViewController *sourceController = [[[WindowManager sharedInstance] sourceWindowController] mainViewController];
+        MainViewController *activeController = [[[WindowManager sharedInstance] activeWindowController] mainViewController];
+        
+        if ( sourceController && activeController ) {
+            [activeController pasteLogItems:sourceController.dataProvider.matchedData withCompletion:^{
+                [activeController reloadLog];
+                if ( [sourceController.dataProvider.filter.text length] ) {
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [activeController.view.window setTitle:sourceController.dataProvider.filter.text];
+                    });
+                }
+            }];
+        }
     }
 }
 
@@ -121,6 +136,13 @@
     [ActiveViewController() find];
 }
 
+//------------------------------------------------------------------------------
+- (IBAction) toggleBrowseForClientAction:(NSMenuItem *)sender
+{
+    BOOL isBrowsingForClient = [[ActiveViewController() dataProvider] isRemoteSessionActive];
+    sender.state             = ( isBrowsingForClient ? NSOffState : NSOnState );
+    [ActiveViewController() toggleBrowseOnOffAction:nil];
+}
 
 //------------------------------------------------------------------------------
 - (void) applicationDidChangeScreenParameters:(NSNotification *)notification
@@ -128,5 +150,20 @@
     [self.mainViewDelegate reloadLog];
 }
 
+//------------------------------------------------------------------------------
+- (MainViewController*) mainWindowController
+{
+    MainViewController *result = [[[WindowManager sharedInstance] activeWindowController] mainViewController];
+    if ( !result ) {
+        result = [(LogAnalyzerWindowController*)[NSApplication sharedApplication].mainWindow.windowController mainViewController];
+    }
+    return result;
+}
+
+//------------------------------------------------------------------------------
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)application
+{
+    return YES;
+}
 
 @end

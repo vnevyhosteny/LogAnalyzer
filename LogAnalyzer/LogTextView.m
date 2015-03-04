@@ -22,14 +22,27 @@
             }
             break;
             
+        case kVK_ANSI_A:
+            if ( event.modifierFlags & NSCommandKeyMask ) {
+                [self selectAll:nil];
+            }
+            else {
+                [super keyDown:event];
+            }
+            break;
+
+            
         case kVK_ANSI_C:
             if ( event.modifierFlags & NSCommandKeyMask ) {
                 NSRange range = self.selectedRange;
                 if ( range.length > 0 ) {
                     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
                     [pasteboard declareTypes:[NSArray arrayWithObject: NSStringPboardType] owner: nil];
-                    [pasteboard setString: [self.string substringWithRange:range] forType: NSStringPboardType];
+                    [pasteboard setString:[self.string substringWithRange:range] forType:NSStringPboardType];
                 }
+            }
+            else {
+                [super keyDown:event];
             }
             break;
             
@@ -40,10 +53,11 @@
             }
             break;
             
-        default:;
+        default:
+            [super keyDown:event];
     }
     
-    [super keyDown:event];
+    
 }
 
 @end

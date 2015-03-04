@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C81f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14D72i" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
     </dependencies>
@@ -74,6 +74,12 @@
                                         <menuItem title="Save as..." keyEquivalent="S" id="tXI-mr-wws">
                                             <connections>
                                                 <action selector="saveLogFileAs:" target="Voe-Tx-rLC" id="ORD-d3-U3V"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="nJr-aC-7Dg"/>
+                                        <menuItem title="Browse for client" keyEquivalent="b" id="F0w-wF-MnX">
+                                            <connections>
+                                                <action selector="toggleBrowseForClientAction:" target="Voe-Tx-rLC" id="cWD-Ko-jvX"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -203,7 +209,7 @@
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="6xc-Xa-lUl">
                                 <rect key="frame" x="0.0" y="555" width="800" height="45"/>
                                 <subviews>
-                                    <searchField wantsLayer="YES" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="964-Oi-rpu">
+                                    <searchField wantsLayer="YES" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="964-Oi-rpu" customClass="LogSearchField">
                                         <rect key="frame" x="585" y="14" width="195" height="22"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="195" id="PDY-0j-0vq"/>
@@ -247,8 +253,8 @@
                                             <constraint firstAttribute="width" constant="20" id="xFj-o2-q8p"/>
                                         </constraints>
                                         <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="ButtonFilterOn" imagePosition="only" alignment="center" alternateImage="ButtonFilterOff" state="on" imageScaling="proportionallyUpOrDown" inset="2" id="tWo-x0-14Q">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="system" size="10"/>
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="toggleFilterMode:" target="XfG-lQ-9wD" id="pRF-sJ-Hfh"/>
@@ -271,7 +277,7 @@
                                         <rect key="frame" x="7" y="14" width="16" height="16"/>
                                     </progressIndicator>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="b6X-8S-BFp">
-                                        <rect key="frame" x="301" y="16" width="214" height="18"/>
+                                        <rect key="frame" x="276" y="16" width="214" height="18"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="210" id="irV-lM-Zr3"/>
                                         </constraints>
@@ -281,10 +287,24 @@
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <button verticalCompressionResistancePriority="748" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kkZ-DE-8Am" userLabel="Connect OnOff Button">
+                                        <rect key="frame" x="491" y="16" width="20" height="20"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="20" id="hPN-Zy-nD9"/>
+                                        </constraints>
+                                        <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="ButtonRadioOff" imagePosition="only" alignment="center" state="on" imageScaling="proportionallyUpOrDown" inset="2" id="ehT-7T-Xxb">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system" size="10"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="toggleBrowseOnOffAction:" target="XfG-lQ-9wD" id="zCW-cm-9mJ"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="eVO-Jl-Cbl" firstAttribute="leading" secondItem="udz-CS-gUM" secondAttribute="trailing" constant="2" id="D6p-Km-7xm"/>
                                     <constraint firstItem="eVO-Jl-Cbl" firstAttribute="bottom" secondItem="udz-CS-gUM" secondAttribute="bottom" id="G4w-Yo-1iU"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="800" id="JGG-vg-0eJ"/>
                                     <constraint firstAttribute="trailing" secondItem="964-Oi-rpu" secondAttribute="trailing" constant="20" id="JQf-nB-7eR"/>
                                     <constraint firstItem="b6X-8S-BFp" firstAttribute="centerY" secondItem="964-Oi-rpu" secondAttribute="centerY" id="NSx-Wz-Qh8"/>
                                     <constraint firstItem="udz-CS-gUM" firstAttribute="leading" secondItem="9KK-hQ-e7X" secondAttribute="trailing" constant="3" id="NtF-PF-d2I"/>
@@ -297,16 +317,18 @@
                                     <constraint firstItem="964-Oi-rpu" firstAttribute="top" secondItem="6xc-Xa-lUl" secondAttribute="top" constant="9" id="acI-bI-ukm"/>
                                     <constraint firstItem="2Uh-sH-Kfk" firstAttribute="top" secondItem="6xc-Xa-lUl" secondAttribute="top" constant="11" id="ahR-Ue-ZYM"/>
                                     <constraint firstItem="964-Oi-rpu" firstAttribute="leading" secondItem="eVO-Jl-Cbl" secondAttribute="trailing" constant="4" id="b5D-iU-ief"/>
+                                    <constraint firstItem="kkZ-DE-8Am" firstAttribute="top" secondItem="6xc-Xa-lUl" secondAttribute="top" constant="9" id="bqe-BS-Zk0"/>
                                     <constraint firstItem="b6X-8S-BFp" firstAttribute="top" secondItem="6xc-Xa-lUl" secondAttribute="top" constant="11" id="dDj-3L-s0s"/>
                                     <constraint firstItem="2Uh-sH-Kfk" firstAttribute="leading" secondItem="9Xm-Lt-V72" secondAttribute="trailing" constant="8" id="dnv-Yv-Ve1"/>
                                     <constraint firstItem="2Uh-sH-Kfk" firstAttribute="leading" secondItem="9Xm-Lt-V72" secondAttribute="trailing" constant="8" id="eD5-np-jYV"/>
-                                    <constraint firstItem="9KK-hQ-e7X" firstAttribute="leading" secondItem="b6X-8S-BFp" secondAttribute="trailing" constant="3" id="hE0-CG-5Dn"/>
+                                    <constraint firstItem="kkZ-DE-8Am" firstAttribute="leading" secondItem="b6X-8S-BFp" secondAttribute="trailing" constant="3" id="fXp-Rc-t51"/>
+                                    <constraint firstItem="9KK-hQ-e7X" firstAttribute="leading" secondItem="kkZ-DE-8Am" secondAttribute="trailing" constant="5" id="g05-Hh-FRG"/>
                                     <constraint firstItem="9KK-hQ-e7X" firstAttribute="top" secondItem="6xc-Xa-lUl" secondAttribute="top" constant="9" id="hjv-lJ-p3w"/>
                                     <constraint firstItem="9KK-hQ-e7X" firstAttribute="bottom" secondItem="b6X-8S-BFp" secondAttribute="bottom" id="iSJ-sU-Npp"/>
                                     <constraint firstItem="964-Oi-rpu" firstAttribute="bottom" secondItem="9Xm-Lt-V72" secondAttribute="bottom" id="kxi-NJ-ti7"/>
-                                    <constraint firstItem="9KK-hQ-e7X" firstAttribute="leading" secondItem="b6X-8S-BFp" secondAttribute="trailing" constant="3" id="nvB-AF-pMu"/>
                                     <constraint firstItem="964-Oi-rpu" firstAttribute="leading" secondItem="eVO-Jl-Cbl" secondAttribute="trailing" constant="4" id="qop-Vv-G0n"/>
                                     <constraint firstItem="9Xm-Lt-V72" firstAttribute="leading" secondItem="6xc-Xa-lUl" secondAttribute="leading" constant="7" id="tSU-3x-YGb"/>
+                                    <constraint firstItem="kkZ-DE-8Am" firstAttribute="bottom" secondItem="9KK-hQ-e7X" secondAttribute="bottom" id="tVe-OG-mLR"/>
                                     <constraint firstItem="udz-CS-gUM" firstAttribute="leading" secondItem="9KK-hQ-e7X" secondAttribute="trailing" constant="3" id="wa7-qM-op7"/>
                                 </constraints>
                             </customView>
@@ -317,14 +339,14 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView appearanceType="vibrantLight" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" id="QYW-7O-Sm7" customClass="LogTableView">
-                                            <rect key="frame" x="0.0" y="0.0" width="798" height="19"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="808" height="19"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                             <tableViewGridLines key="gridStyleMask" horizontal="YES"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="RowId" editable="NO" width="40" minWidth="40" maxWidth="40" id="tIM-3a-xGh">
+                                                <tableColumn identifier="RowId" editable="NO" width="50" minWidth="50" maxWidth="50" id="tIM-3a-xGh">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="right" title="RowId">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -358,7 +380,7 @@
                                     </subviews>
                                     <nil key="backgroundColor"/>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="b1o-hu-6Id">
+                                <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="b1o-hu-6Id">
                                     <rect key="frame" x="1" y="119" width="223" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -389,6 +411,7 @@
                         <outlet property="searchField" destination="964-Oi-rpu" id="ACq-GY-Sax"/>
                         <outlet property="toggleFilterModeButton" destination="eVO-Jl-Cbl" id="Xj3-fs-24U"/>
                         <outlet property="toggleMatchedButton" destination="udz-CS-gUM" id="6LN-JD-qJX"/>
+                        <outlet property="togglePeerBrowserButton" destination="kkZ-DE-8Am" id="HPp-nU-A8M"/>
                         <outlet property="topBarBaseView" destination="6xc-Xa-lUl" id="nFF-CS-pcB"/>
                     </connections>
                 </viewController>
@@ -410,10 +433,10 @@
                                     <rect key="frame" x="1" y="1" width="223" height="133"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="qoC-yw-rZh" customClass="LogTextView">
+                                        <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" allowsUndo="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="qoC-yw-rZh" customClass="LogTextView">
                                             <rect key="frame" x="0.0" y="0.0" width="223" height="306"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="textColor" red="0.40000000596046448" green="0.40000000596046448" blue="0.40000000596046448" alpha="1" colorSpace="calibratedRGB"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <size key="minSize" width="448" height="306"/>
                                             <size key="maxSize" width="463" height="10000000"/>
@@ -507,10 +530,11 @@
         </scene>
     </scenes>
     <resources>
-        <image name="ButtonBasket" width="20" height="20"/>
+        <image name="ButtonBasket" width="21.5" height="20"/>
         <image name="ButtonFilterOff" width="20" height="20"/>
         <image name="ButtonFilterOn" width="20" height="20"/>
         <image name="ButtonMarkFrom" width="20" height="20"/>
         <image name="ButtonMarkTo" width="20" height="20"/>
+        <image name="ButtonRadioOff" width="20" height="20"/>
     </resources>
 </document>

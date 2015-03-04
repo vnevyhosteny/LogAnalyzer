@@ -22,5 +22,6 @@ extern NSString *const kClickedRow;
            
 
 - (instancetype) initWithCoder:(NSCoder *)coder;
+- (void) scrollToRowIndex:(NSUInteger)rowIndex;
 
 @end

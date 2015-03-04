@@ -12,6 +12,7 @@
 		191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */; };
 		191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */; };
 		1952BF751A4F1D3E002C867F /* LogTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1952BF741A4F1D3E002C867F /* LogTextView.m */; };
+		19AC3E221A92733C00CF1294 /* LogSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 19AC3E211A92733C00CF1294 /* LogSearchField.m */; };
 		19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */; };
 		19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDC1A33A3CE00F88F53 /* main.m */; };
 		19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDF1A33A3CE00F88F53 /* MainViewController.m */; };
@@ -25,6 +26,8 @@
 		19EB4BB81A3B29D700183F56 /* WindowManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BB71A3B29D700183F56 /* WindowManager.m */; };
 		19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */; };
 		19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */; };
+		19F3B3331A6D9AD300CDFCE6 /* MultipeerConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F3B3321A6D9AD300CDFCE6 /* MultipeerConnectivity.framework */; };
+		19F3B3361A6D9B3100CDFCE6 /* SessionContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 19F3B3351A6D9B3100CDFCE6 /* SessionContainer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +41,8 @@
 		191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+LogAnalyzer.m"; sourceTree = "<group>"; };
 		1952BF731A4F1D3E002C867F /* LogTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTextView.h; sourceTree = "<group>"; };
 		1952BF741A4F1D3E002C867F /* LogTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTextView.m; sourceTree = "<group>"; };
+		19AC3E201A92733C00CF1294 /* LogSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogSearchField.h; sourceTree = "<group>"; };
+		19AC3E211A92733C00CF1294 /* LogSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogSearchField.m; sourceTree = "<group>"; };
 		19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19C4EBD81A33A3CE00F88F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -64,6 +69,9 @@
 		19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindowController.m; sourceTree = "<group>"; };
 		19EB4BBC1A3B3A2F00183F56 /* LogAnalyzerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogAnalyzerWindow.h; sourceTree = "<group>"; };
 		19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindow.m; sourceTree = "<group>"; };
+		19F3B3321A6D9AD300CDFCE6 /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
+		19F3B3341A6D9B3100CDFCE6 /* SessionContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SessionContainer.h; sourceTree = "<group>"; };
+		19F3B3351A6D9B3100CDFCE6 /* SessionContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SessionContainer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19F3B3331A6D9AD300CDFCE6 /* MultipeerConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +124,8 @@
 		19B85C5A1A3B513C005C85FC /* LogBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				19AC3E201A92733C00CF1294 /* LogSearchField.h */,
+				19AC3E211A92733C00CF1294 /* LogSearchField.m */,
 				191AEA7B1A42AE1E00736A1A /* LogTableCell.h */,
 				191AEA7C1A42AE1E00736A1A /* LogTableCell.m */,
 				191AEA7E1A42F88300736A1A /* LogTablePopup.h */,
@@ -163,6 +174,7 @@
 		19C4EBD71A33A3CE00F88F53 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				19F3B3311A6D9ABE00CDFCE6 /* Frameworks */,
 				19C4EBD81A33A3CE00F88F53 /* Info.plist */,
 				19C4EBDC1A33A3CE00F88F53 /* main.m */,
 			);
@@ -172,6 +184,8 @@
 		19C4EC011A345D1D00F88F53 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				19F3B3341A6D9B3100CDFCE6 /* SessionContainer.h */,
+				19F3B3351A6D9B3100CDFCE6 /* SessionContainer.m */,
 				19C4EBFE1A344FE000F88F53 /* DataProvider.h */,
 				19C4EBFF1A344FE000F88F53 /* DataProvider.m */,
 				19C4EC021A345D4100F88F53 /* LogItem.h */,
@@ -189,6 +203,14 @@
 				19C4EBE31A33A3CE00F88F53 /* Main.storyboard */,
 			);
 			name = UI;
+			sourceTree = "<group>";
+		};
+		19F3B3311A6D9ABE00CDFCE6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				19F3B3321A6D9AD300CDFCE6 /* MultipeerConnectivity.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,6 +285,8 @@
 				19C4EBE01A33A3CE00F88F53 /* MainViewController.m in Sources */,
 				191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */,
 				19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */,
+				19AC3E221A92733C00CF1294 /* LogSearchField.m in Sources */,
+				19F3B3361A6D9B3100CDFCE6 /* SessionContainer.m in Sources */,
 				19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */,
 				191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */,
 				19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */,

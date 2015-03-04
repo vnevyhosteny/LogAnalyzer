@@ -279,20 +279,50 @@ NSString *const kClickedRow                    = @"ClickedRow";
 //------------------------------------------------------------------------------
 - (void) keyDown:(NSEvent*)event
 {
-    if ( event.keyCode == kVK_Return ) {
-        NSInteger row = self.selectedRow;
-        if ( row >= 0 ) {
-            [self.mainViewDelegate showLogItemPopupAtRow:row];
-        }
+    NSInteger row = self.selectedRow;
+    switch ( event.keyCode ) {
+        case kVK_Return:
+            if ( row >= 0 ) {
+                [self.mainViewDelegate showLogItemPopupAtRow:row];
+            }
+            break;
+            
+        case kVK_Delete:
+            if ( event.modifierFlags & NSCommandKeyMask ) {
+                [self.mainViewDelegate removeMatchedRows];
+            }
+            else if ( row >= 0 ) {
+                [self.mainViewDelegate deleteRow:row];
+            }
+            break;
+            
+        case kVK_ANSI_A:
+            if ( event.modifierFlags & NSCommandKeyMask ) {
+                [self.mainViewDelegate selectAllRows];
+            }
+            else {
+                [super keyDown:event];
+            }
+            break;
+            
+        default:
+            [super keyDown:event];
     }
-    else if ( event.keyCode == kVK_Delete ) {
-        NSInteger row = self.selectedRow;
-        if ( row >= 0 ) {
-            [self.mainViewDelegate deleteRow:row];
-        }
-    }
+}
+
+//------------------------------------------------------------------------------
+- (void) scrollToRowIndex:(NSUInteger)rowIndex
+{
+    NSRect  rowRect      = [self rectOfRow:rowIndex];
+    NSRect  viewRect     = [[self superview] frame];
     
-    [super keyDown:event];
+    NSPoint scrollOrigin = rowRect.origin;
+    scrollOrigin.y       = scrollOrigin.y + (rowRect.size.height - viewRect.size.height) / 2.0f;
+    
+    if (scrollOrigin.y < 0) {
+        scrollOrigin.y = 0;
+    }
+    [[[self superview] animator] setBoundsOrigin:scrollOrigin];
 }
 
 @end
