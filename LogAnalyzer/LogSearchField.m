@@ -9,6 +9,8 @@
 #import "LogSearchField.h"
 @import Carbon;
 
+NSString *const SearchFieldBecomeFirstResponderNotification = @"_search_field_focused_";
+
 @implementation LogSearchField
 
 //------------------------------------------------------------------------------
@@ -51,6 +53,13 @@
             [super keyDown:event];
     }
 
+}
+
+//------------------------------------------------------------------------------
+- (BOOL) becomeFirstResponder
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:SearchFieldBecomeFirstResponderNotification object:self];
+    return [super becomeFirstResponder];
 }
 
 

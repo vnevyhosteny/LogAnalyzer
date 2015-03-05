@@ -22,6 +22,7 @@
 #import "NSFont+LogAnalyzer.h"
 #import "NSColor+LogAnalyzer.h"
 #import "ToggleButton.h"
+#import "LogSearchField.h"
 
 @import QuartzCore;
 
@@ -43,11 +44,12 @@ NSString *const kMenuItemPaste                      = @"Paste";
 //==============================================================================
 @interface MainViewController()
 {
-    BOOL          _isSearchingInProgress;
-    NSString      *_currentFilterText;
-    BOOL           _logTableLoading;
-    NSTimer       *_delayedSearchTimer;
-    LogTablePopup *_popup;
+    BOOL              _isSearchingInProgress;
+    NSString         *_currentFilterText;
+    BOOL              _logTableLoading;
+    NSTimer          *_delayedSearchTimer;
+    LogTablePopup    *_popup;
+    dispatch_queue_t  _serial_queue;
 }
 
 @property (weak) IBOutlet LogTableView           *logTableView;
@@ -63,6 +65,7 @@ NSString *const kMenuItemPaste                      = @"Paste";
 @property (weak) IBOutlet NSButton               *togglePeerBrowserButton;
 
 @property (nonatomic, readonly) NSArray          *data;
+@property (nonatomic, readwrite) BOOL             isRowHeightUpdatePending;
 
 - (IBAction) toggleFilterMode:(NSButton *)sender;
 - (IBAction) removeMatchedAction:(NSButton *)sender;
@@ -73,13 +76,17 @@ NSString *const kMenuItemPaste                      = @"Paste";
 
 @implementation MainViewController
 
-@synthesize dataProvider = _dataProvider;
+@synthesize dataProvider              = _dataProvider;
+@synthesize isRowHeightUpdatePending = _isRowHeightUpdatePending;
 
 static BOOL isPrimaryController = YES;
 
 //------------------------------------------------------------------------------
 - (void) awakeFromNib
 {
+    self->_serial_queue = dispatch_queue_create( "LogAnalyzer.SerialQueue", DISPATCH_QUEUE_SERIAL );
+    dispatch_set_target_queue( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), self->_serial_queue );
+    
     [self.infoLabel setStringValue:@""];
     if ( [self.searchField acceptsFirstResponder] ) {
         [self.searchField resignFirstResponder];
@@ -164,6 +171,7 @@ static BOOL isPrimaryController = YES;
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(handleNotifications:) name:ReloadLogNeededNotification object:nil];
     [center addObserver:self selector:@selector(handleNotifications:) name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
+    [center addObserver:self selector:@selector(handleNotifications:) name:SearchFieldBecomeFirstResponderNotification object:nil];
 }
 
 
@@ -173,6 +181,7 @@ static BOOL isPrimaryController = YES;
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center removeObserver:self name:ReloadLogNeededNotification object:nil];
     [center removeObserver:self name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
+    [center removeObserver:self name:SearchFieldBecomeFirstResponderNotification object:nil];
 }
 
 //------------------------------------------------------------------------------
@@ -231,6 +240,12 @@ static BOOL isPrimaryController = YES;
     }
     else if ( [notification.name isEqualToString:NSViewBoundsDidChangeNotification] ) {
         [self scrollViewContentBoundsDidChange:notification];
+    }
+    else if ( [notification.name isEqualToString:SearchFieldBecomeFirstResponderNotification] ) {
+        dispatch_async( dispatch_get_main_queue(), ^{
+            [self setCopyEnabled:YES];
+            [self setPasteEnabled:YES];
+        });
     }
 }
 
@@ -306,6 +321,24 @@ static BOOL isPrimaryController = YES;
         }
     }
     return self->_dataProvider;
+}
+
+//------------------------------------------------------------------------------
+- (BOOL) isIsRowHeightUpdatePending
+{
+    __block BOOL result;
+    dispatch_sync( self->_serial_queue, ^{
+        result = self->_isRowHeightUpdatePending;
+    });
+    return result;
+}
+
+//------------------------------------------------------------------------------
+- (void) setIsRowHeightUpdatePending:(BOOL)newValue
+{
+    dispatch_sync( self->_serial_queue, ^{
+        self->_isRowHeightUpdatePending = newValue;
+    });
 }
 
 #pragma mark -
@@ -613,13 +646,33 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 }
 
 //------------------------------------------------------------------------------
+- (void) adjustRowHeightForVisibleRows
+{
+    static CGFloat const DeltaY = 100.0f;
+    dispatch_async( dispatch_get_main_queue(), ^{
+        
+        CGRect visibleRect       = self.logTableScrollView.contentView.bounds;
+        visibleRect.origin.y    -= DeltaY;
+        visibleRect.size.height += DeltaY;
+        NSRange visibleRows      = [self.logTableView rowsInRect:visibleRect];
+        
+        [NSAnimationContext beginGrouping];
+        [[NSAnimationContext currentContext] setDuration:0];
+        [self.logTableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
+        [NSAnimationContext endGrouping];
+        
+        self.isRowHeightUpdatePending = NO;
+    });
+}
+
+//------------------------------------------------------------------------------
 - (void) scrollViewContentBoundsDidChange:(NSNotification*)notification
 {
-    NSRange visibleRows = [self.logTableView rowsInRect:self.logTableScrollView.contentView.bounds];
-    [NSAnimationContext beginGrouping];
-    [[NSAnimationContext currentContext] setDuration:0];
-    [self.logTableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
-    [NSAnimationContext endGrouping];
+    if ( self.isRowHeightUpdatePending ) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(adjustRowHeightForVisibleRows) object:nil];
+    }
+    [self performSelector:@selector(adjustRowHeightForVisibleRows) withObject:nil afterDelay:0.2f];
+    self.isRowHeightUpdatePending = YES;
 }
 
 //------------------------------------------------------------------------------
