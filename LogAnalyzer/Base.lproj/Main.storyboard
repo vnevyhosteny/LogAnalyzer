@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14D72i" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14D127a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="6751"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -161,9 +162,9 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                                     <items>
-                                        <menuItem title="LogAnalyzer Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                                        <menuItem title="Log Analyzer Help" keyEquivalent="/" id="FKE-Sm-Kum">
                                             <connections>
-                                                <action selector="showHelp:" target="Ady-hI-5gd" id="y7X-2Q-9no"/>
+                                                <action selector="showHelpAction:" target="Voe-Tx-rLC" id="J2s-5p-Z5k"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -474,6 +475,54 @@
                 <customObject id="8Wf-HJ-5Dd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-100" y="1170"/>
+        </scene>
+        <!--Help Window Controller-->
+        <scene sceneID="gEV-cc-Xu3">
+            <objects>
+                <windowController storyboardIdentifier="HelpWindowController" showSeguePresentationStyle="single" id="Unr-xV-bfP" userLabel="Help Window Controller" customClass="HelpWindowController" sceneMemberID="viewController">
+                    <window key="window" title="Log Analyzer Help" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="euF-cr-Zjv" userLabel="Help Window">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="425" y="461" width="480" height="270"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+                    </window>
+                    <connections>
+                        <segue destination="ukM-Bd-yn9" kind="relationship" relationship="window.shadowedContentViewController" id="tN0-lQ-yoM"/>
+                    </connections>
+                </windowController>
+                <customObject id="rAP-5Z-fsY" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="669" y="-354"/>
+        </scene>
+        <!--Help View Controller-->
+        <scene sceneID="fh8-y4-6Kd">
+            <objects>
+                <viewController id="ukM-Bd-yn9" userLabel="Help View Controller" customClass="HelpViewController" sceneMemberID="viewController">
+                    <view key="view" id="bTv-nE-TKd" userLabel="Help View">
+                        <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <webView translatesAutoresizingMaskIntoConstraints="NO" id="mfY-xJ-NgZ" userLabel="Help Web View" customClass="HelpWebView">
+                                <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
+                                <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
+                                    <nil key="identifier"/>
+                                </webPreferences>
+                            </webView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="mfY-xJ-NgZ" firstAttribute="top" secondItem="bTv-nE-TKd" secondAttribute="top" id="B5x-zm-iIu"/>
+                            <constraint firstAttribute="bottom" secondItem="mfY-xJ-NgZ" secondAttribute="bottom" id="DjM-gb-IZn"/>
+                            <constraint firstItem="mfY-xJ-NgZ" firstAttribute="leading" secondItem="bTv-nE-TKd" secondAttribute="leading" id="ibb-lu-kxH"/>
+                            <constraint firstAttribute="trailing" secondItem="mfY-xJ-NgZ" secondAttribute="trailing" id="ilk-Az-7yQ"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="helpView" destination="mfY-xJ-NgZ" id="knf-3V-QKw"/>
+                    </connections>
+                </viewController>
+                <customObject id="Kn0-4d-o5i" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1376" y="-379"/>
         </scene>
         <!--Log Table Popup-->
         <scene sceneID="5Mb-Sn-xNz">

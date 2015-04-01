@@ -269,6 +269,12 @@ static BOOL isPrimaryController = YES;
     }
 }
 
+//------------------------------------------------------------------------------
+- (void) windowWillClose:(NSNotification *)notification
+{
+    [[WindowManager sharedInstance] checkForLastLogWindowOpened];
+}
+
 #pragma mark -
 #pragma mark Activity Indicator
 //------------------------------------------------------------------------------
@@ -418,9 +424,27 @@ static BOOL isPrimaryController = YES;
         default:;
     }
     
+    // Preserve selected row ...
+    NSInteger  index         = self.logTableView.selectedRow;
+    NSUInteger selectedRowId = ( ( index >= 0 ) ? ((LogItem*)[self.data objectAtIndex:index]).originalRowId : NSNotFound );
+    
     [self startActivityIndicatorWithMessage:@"Switching mode ..."];
     [self.dataProvider invalidateDataWithCompletion:^{
         [self reloadLog];
+        
+        if ( selectedRowId != NSNotFound ) {
+            NSUInteger rowIndex = 0;
+            for ( __weak LogItem *logItem in self.data ) {
+                if ( logItem.originalRowId == selectedRowId ) {
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [self.logTableView scrollRowToVisible:rowIndex];
+                        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowIndex] byExtendingSelection:NO];
+                    });
+                    break;
+                }
+                rowIndex++;
+            }
+        }
         [self stopActivityIndicator];
     }];
 }
@@ -484,9 +508,10 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
 dataCellForTableColumn:(NSTableColumn *)tableColumn
                    row:(NSInteger)row
 {
-    LogTableCell     *cell       = nil;
-    LogItem          *logItem    = (LogItem*)[self.data objectAtIndex:row];
-    BOOL              isMarked   = ( ( self.dataProvider.rowFrom == logItem.originalRowId ) && ( self.dataProvider.rowTo == NSNotFound ) );
+    LogTableCell     *cell           = nil;
+    LogItem          *logItem        = (LogItem*)[self.data objectAtIndex:row];
+    BOOL              isMarked       = ( ( self.dataProvider.rowFrom == logItem.originalRowId ) && ( self.dataProvider.rowTo == NSNotFound ) );
+    BOOL              isTableFocused = ( self.view.window.firstResponder == self.logTableView );
     
     if ( [[tableColumn.headerCell stringValue] isEqualToString:kRowId] ) {
         NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
@@ -524,7 +549,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         else {
             if ( [tableView selectedRow] == row ) {
                 //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
-                [cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && ( self.view.window.firstResponder == self.logTableView ) ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
+                [cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && isTableFocused ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : ( isTableFocused ? [NSColor whiteColor] : [NSColor logTablePlainTextColor]))];
             }
             else {
                 //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor logTablePlainTextColor])];
@@ -657,7 +682,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         NSRange visibleRows      = [self.logTableView rowsInRect:visibleRect];
         
         [NSAnimationContext beginGrouping];
-        [[NSAnimationContext currentContext] setDuration:0];
+        [[NSAnimationContext currentContext] setDuration:0.0f];
         [self.logTableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
         [NSAnimationContext endGrouping];
         
@@ -671,7 +696,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     if ( self.isRowHeightUpdatePending ) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(adjustRowHeightForVisibleRows) object:nil];
     }
-    [self performSelector:@selector(adjustRowHeightForVisibleRows) withObject:nil afterDelay:0.2f];
+    [self performSelector:@selector(adjustRowHeightForVisibleRows) withObject:nil afterDelay:0.01f];
     self.isRowHeightUpdatePending = YES;
 }
 
@@ -1031,9 +1056,9 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) fireSearchProcess
 {
-    if ( [self->_currentFilterText isEqualToString:self.searchField.stringValue] ) {
-        return;
-    }
+//    if ( [self->_currentFilterText isEqualToString:self.searchField.stringValue] ) {
+//        return;
+//    }
     
     if ( self->_isSearchingInProgress ) {
         return;
@@ -1049,7 +1074,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     else {
         [self stopActivityIndicator];
         self->_isSearchingInProgress = NO;
-        return;
+//        return;
     }
     
     self.dataProvider.filter.text   = ( [self->_currentFilterText length] ? self->_currentFilterText : nil );
@@ -1078,6 +1103,8 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             [self setMoveNextPrevEnabled:found];
             
             self->_isSearchingInProgress = NO;
+            
+            [self.view.window makeFirstResponder:self.logTableView];
         });
     }];
 }
@@ -1092,6 +1119,14 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     
     if ( self.dataProvider.isSearching ) {
         self.dataProvider.isSearching = NO;
+    }
+    
+    if ( self.dataProvider.filterType == FILTER_FILTER ) {
+        self.dataProvider.filterType = FILTER_SEARCH;
+        dispatch_async( dispatch_get_main_queue(), ^{
+            self.toggleFilterModeButton.state = NSOnState;
+            [self.toggleFilterModeButton setImage:[NSImage imageNamed:@"ButtonFilterOn"]];
+        });
     }
     
     self.dataProvider.filter.text = [self.searchField stringValue];

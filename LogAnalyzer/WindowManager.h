@@ -9,9 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "LogAnalyzerWindowController.h"
 #import "LogAnalyzerWindow.h"
+#import "HelpWindowController.h"
 
 extern NSString *const kMainStoryboard;
 extern NSString *const kMainViewController;
+extern NSString *const kHelpWindowController;
 
 //==============================================================================
 @interface WindowManager : NSObject
@@ -24,4 +26,6 @@ extern NSString *const kMainViewController;
 - (void) removeWindowController:(LogAnalyzerWindowController*)controller;
 - (LogAnalyzerWindowController*) controllerWithWindow:(LogAnalyzerWindow*)window;
 - (LogAnalyzerWindowController*) controllerWithWindowNumber:(NSInteger)windowNumber;
+- (HelpWindowController*) createHelpWindow;
+- (void) checkForLastLogWindowOpened;
 @end

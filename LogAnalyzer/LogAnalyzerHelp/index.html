@@ -1,0 +1,157 @@
+<html>
+    <head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+		<meta name="author" content="Vladimír Nevyhoštěný" >
+		<meta name="description" content="Log Analyzer Help File" >
+		<meta name="AppleTitle" content="Log Analyzer Help" >
+        <meta name="AppleIcon" content="LogAnalyzerHelp/images/AppIcon16.png" >
+		<link href="main.css" rel="stylesheet" media="screen" type="text/css" >
+		<title>My Webpage</title>
+	</head>
+	<body style="font-family:'Helvetica Neue'; color:#303030; " >
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; " >Introduction</h2>
+        <hr/>
+        <p>
+        LogAnalyzer application provides a way to analyze log files. Or to be more exact, the application displays any plain-text file. When loading a file, LogAnalyzer checks if the lines start with a timestamp in a common format, such as
+        2015-03-22 10:11:23.456, etc. In that case it takes the input file as a log and groups the lines according to their timestamp value.
+        </p>
+        
+        <p>
+        The application numbers the lines during loading. Each line number then becomes a unique identifier for a line, and it doesn’t change during any other actions such as filtering, copying or grouping.
+        </p>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Opening a log</h2>
+        <hr/>
+        <p>
+            There are several ways to open the log files:
+            <ul>
+                <li>In Finder, define LogAnalyzer as the default application for opening log file type. After that, all you have to do is to click to open the file in Finder.</li>
+                <li>Run LogAnalyzer and press ⌘+O.</li>
+                <li>Drag and drop a file to the LogAnalyzer window.</li>
+                <li>Drag and drop a file to the LogAnalyzer icon in dock if the icon is present.</li>
+                <li>Select text in other application (such as Xcode) and drag and drop it at the LogAnalyzer application window.</li>
+            </ul>
+        </p>
+        <p>
+            If you wish to append a file to an existing log shown in the application window, simply drag it to the LogAnalyzer application window. Lines from the new file will be appended to the end of the open file, ie. they will not be inserted based on their timestamp.
+        </p>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3;">Analyzing a log</h2>
+        <hr/>
+        <p>
+            The basic way to analyze a log in LogAnalyzer is filtering. There are two ways to filter, which can be combined:
+            <ul>
+                <li>Searching – input the text in the search bar.</li>
+                <li>Make a selection of lines.</li>
+            </ul>
+        </p>
+        <p>
+            Selected lines will be highlighted and available for additional work. But first let’s describe both methods to select filtered lines in more detail:
+        </p>
+        
+        <h3 style="font-family:'Helvetica Neue'; color:#0057B3;">Searching by entering text in the search bar</h3>
+        <p>
+        Text in the search bar can be entered by either typing it in  (the search starts automatically), or by pasting text using standard keyboard shortcut (⌘+V).
+        </p>
+        <p>
+        If you want to search a text shown in the log, you can display a window with the details of a line:
+        </p>
+        <ul>
+            <li>Double click a selected line.</li>
+            <li>Hit ⏎(Enter) key on a selected line.</li>
+        </ul>
+        <p>
+        A popup window will appear with the details of the line. You can highlight the searched text in the window using mouse, then:
+        </p>
+        <ul>
+            <li>After hitting ⏎(Enter), the popup windows closes and the highlighted text is transferred to the search box and search action starts automatically.</li>
+            <li>By hitting Escape the popup window closes without starting a search action.</li>
+        </ul>
+        
+        <h3 style="font-family:'Helvetica Neue'; color:#0057B3;">Highlighting a from-to selection</h3>
+        <p>
+        It is possible to click the line number column. A popup window with line numbers and icons “from row” and “to row” will appear. Alternatively it is possible to use keyboard shortcuts.
+        </p>
+        <ul>
+            <li>⌥+⌘+▽ for choosing the first line of the selection.</li>
+            <li>⌥+⌘+△ for choosing the last line of the selection.</li>
+        </ul>
+        
+        <h3 style="font-family:'Helvetica Neue'; color:#0057B3;">Cancelling a from-to selection</h3>
+        <p>
+        You can cancel a selection by selecting a row below the “to” line or above the “from” line.
+        </p>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Working with selection in the log</h2>
+        <hr/>
+        <ul>
+            <li>To switch between highlighted lines and all lines, hit button <img src="images/FilterOn.png" width="15" height="15"/>.</li>
+            <li>To invert the selection, hit button <img src="images/ToggleFilterDown.png" width="15" height="15"/>.</li>
+            <li>To delete highlighted lines, hit button <img src="images/Basket.png" width="15" height="15"/>.</li>
+            <li>Hit ⌘+C for copying highlighted lines, ⌘+N for opening a new window and ⌘+V for pasting the selected lines to the new window.</li>
+            <li>By dragging highlighted or normal rows away from the LogAnalyzer window, a new window will be opened and the dragged lines will be copied into this new window.</li>
+            <li>The above-mentioned ways to move lines can be used repeatedly. Newly added lines will be inserted between the existing ones to a position determined by their row number.</li>
+        </ul>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Moving between the log lines</h2>
+        <hr/>
+        <ul>
+            <li>The arrow keys ▽  and △ can be used to move to the next or previous line in the log.</li>
+            <li>The keys ⌘+▽ and ⌘+△ can be used to move to the next or previous highlighted line in the log.</li>
+            <li>To delete highlighted lines, hit button <img src="images/Basket.png" width="15" height="15"/>.</li>
+            <li>Hit ⌘+C for copying highlighted lines, ⌘+N for opening a new window and ⌘+V for pasting the selected lines to the new window.</li>
+            <li>By dragging highlighted or normal rows away from the LogAnalyzer window, a new window will be opened and the dragged lines will be copied into this new window.</li>
+            <li>The above-mentioned ways to move lines can be used repeatedly. Newly added lines will be inserted between the existing ones to a position determined by their row number.</li>
+        </ul>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Remote logging</h2>
+        <hr/>
+        
+        <p>
+        The LogAnalyzer application supports remote logging. It uses the Bonjour protocol to receive continuous stream of log messages from a client that cannot for some reason be connected to the computer with Xcode through a cable.
+        </p>
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">RemoteLogger framework</h2>
+        <hr/>
+        
+        <p>
+        To enable remote logging on the iOS client side, it is necessary to implement the RemoteLogger logging framework. The implementation into iOS applications requires the following steps:
+        </p>
+        
+        <ul>
+            <li>Add RemoteLogger.framework to the project. Also, add it to “Embeded Binaries”.</li>
+            <li>At an appropriate place, such as the application delegate, configure the logging type.</li>
+        </ul>
+        
+        <p>
+        A sample iOS project that demonstrates using the RemoteLogger framework is available at:
+        </p>
+        <a href="https://github.com/vnevyhosteny/RLoggerDemo"><p style="font-family:'Menlo'; color:#4d8de7; ">https://github.com/vnevyhosteny/RLoggerDemo</p></a>
+        
+        
+        <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">How to establish remote logging</h2>
+        <hr/>
+        
+        <p>
+        In order for remote logging to work, it is necessary that the iOS device has Wi-Fi turned on and is on the same network as the receiving computer running LogAnalyzer. Alternatively, the iOS device needs Bluetooth turned on, enabled Bluetooth hotspot and the Mac with LogAnalyzer has to be connected to the iOS Bluetooth hotspot.
+        </p>
+        
+        </p>
+        Then all that is needed in LogAnalyzer is hitting ⌘+B, or the button <img src="images/RadioOff.png" width="15" height="15"/>.
+        </p>
+        
+        <p>
+        LogAnalyzer starts to search for clients, and if there is an iOS device with an application having the RemoteLogger framework implementation, the iOS device will show a connection request. After the request is accepted, the logs will be shown in LogAnalyzer (with minor delay).
+        </p>
+        
+        
+    </body>
+</html>

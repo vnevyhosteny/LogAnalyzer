@@ -7,11 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		19129BD51ACB0BD400812AB4 /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19129BD41ACB0BD400812AB4 /* HelpViewController.m */; };
+		19129BD71ACB0CB800812AB4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19129BD61ACB0CB800812AB4 /* WebKit.framework */; };
+		19129BDA1ACB2AED00812AB4 /* HelpWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 19129BD91ACB2AED00812AB4 /* HelpWebView.m */; };
+		19129BDD1ACB2CBE00812AB4 /* HelpWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 19129BDC1ACB2CBE00812AB4 /* HelpWindowController.m */; };
 		191AEA7D1A42AE1E00736A1A /* LogTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA7C1A42AE1E00736A1A /* LogTableCell.m */; };
 		191AEA801A42F88300736A1A /* LogTablePopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA7F1A42F88300736A1A /* LogTablePopup.m */; };
 		191AEA841A44102100736A1A /* NSFont+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA831A44102100736A1A /* NSFont+LogAnalyzer.m */; };
 		191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */; };
 		1952BF751A4F1D3E002C867F /* LogTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1952BF741A4F1D3E002C867F /* LogTextView.m */; };
+		19617D201AC7227E002724EE /* LogAnalyzerHelp in Resources */ = {isa = PBXBuildFile; fileRef = 19617D1F1AC7227E002724EE /* LogAnalyzerHelp */; };
 		19AC3E221A92733C00CF1294 /* LogSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 19AC3E211A92733C00CF1294 /* LogSearchField.m */; };
 		19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */; };
 		19C4EBDD1A33A3CE00F88F53 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 19C4EBDC1A33A3CE00F88F53 /* main.m */; };
@@ -31,6 +36,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		19129BD31ACB0BD400812AB4 /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
+		19129BD41ACB0BD400812AB4 /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
+		19129BD61ACB0CB800812AB4 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		19129BD81ACB2AED00812AB4 /* HelpWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpWebView.h; sourceTree = "<group>"; };
+		19129BD91ACB2AED00812AB4 /* HelpWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpWebView.m; sourceTree = "<group>"; };
+		19129BDB1ACB2CBE00812AB4 /* HelpWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpWindowController.h; sourceTree = "<group>"; };
+		19129BDC1ACB2CBE00812AB4 /* HelpWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpWindowController.m; sourceTree = "<group>"; };
 		191AEA7B1A42AE1E00736A1A /* LogTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTableCell.h; sourceTree = "<group>"; };
 		191AEA7C1A42AE1E00736A1A /* LogTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTableCell.m; sourceTree = "<group>"; };
 		191AEA7E1A42F88300736A1A /* LogTablePopup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTablePopup.h; sourceTree = "<group>"; };
@@ -41,10 +53,11 @@
 		191AEA861A4411D100736A1A /* NSColor+LogAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+LogAnalyzer.m"; sourceTree = "<group>"; };
 		1952BF731A4F1D3E002C867F /* LogTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogTextView.h; sourceTree = "<group>"; };
 		1952BF741A4F1D3E002C867F /* LogTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogTextView.m; sourceTree = "<group>"; };
+		19617D1C1AC6C6AA002724EE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		19617D1F1AC7227E002724EE /* LogAnalyzerHelp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = LogAnalyzerHelp; sourceTree = "<group>"; };
 		19AC3E201A92733C00CF1294 /* LogSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogSearchField.h; sourceTree = "<group>"; };
 		19AC3E211A92733C00CF1294 /* LogSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogSearchField.m; sourceTree = "<group>"; };
 		19C4EBD41A33A3CE00F88F53 /* LogAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		19C4EBD81A33A3CE00F88F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		19C4EBDC1A33A3CE00F88F53 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -72,6 +85,7 @@
 		19F3B3321A6D9AD300CDFCE6 /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
 		19F3B3341A6D9B3100CDFCE6 /* SessionContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SessionContainer.h; sourceTree = "<group>"; };
 		19F3B3351A6D9B3100CDFCE6 /* SessionContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SessionContainer.m; sourceTree = "<group>"; };
+		19F571E11AB4480B00AED127 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19129BD71ACB0CB800812AB4 /* WebKit.framework in Frameworks */,
 				19F3B3331A6D9AD300CDFCE6 /* MultipeerConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -86,6 +101,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		19129BD21ACB0B2700812AB4 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				19129BD31ACB0BD400812AB4 /* HelpViewController.h */,
+				19129BD41ACB0BD400812AB4 /* HelpViewController.m */,
+				19129BD81ACB2AED00812AB4 /* HelpWebView.h */,
+				19129BD91ACB2AED00812AB4 /* HelpWebView.m */,
+				19129BDB1ACB2CBE00812AB4 /* HelpWindowController.h */,
+				19129BDC1ACB2CBE00812AB4 /* HelpWindowController.m */,
+			);
+			name = Help;
+			sourceTree = "<group>";
+		};
 		191AEA811A440DA100736A1A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -106,6 +134,22 @@
 				1952BF741A4F1D3E002C867F /* LogTextView.m */,
 			);
 			name = LogItemView;
+			sourceTree = "<group>";
+		};
+		19617D1E1AC72263002724EE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				19617D1F1AC7227E002724EE /* LogAnalyzerHelp */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		19B532911ACC422D00421789 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				19129BD61ACB0CB800812AB4 /* WebKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		19B85C591A3B5116005C85FC /* Windows */ = {
@@ -159,14 +203,16 @@
 		19C4EBD61A33A3CE00F88F53 /* LogAnalyzer */ = {
 			isa = PBXGroup;
 			children = (
-				191AEA811A440DA100736A1A /* Extensions */,
-				19C4EC081A34D4AF00F88F53 /* UI */,
-				19C4EC011A345D1D00F88F53 /* Data */,
 				19C4EBD91A33A3CE00F88F53 /* AppDelegate.h */,
 				19C4EBDA1A33A3CE00F88F53 /* AppDelegate.m */,
+				19C4EC011A345D1D00F88F53 /* Data */,
+				191AEA811A440DA100736A1A /* Extensions */,
+				19B532911ACC422D00421789 /* Frameworks */,
 				19C4EBE11A33A3CE00F88F53 /* Images.xcassets */,
-				19C4EBD71A33A3CE00F88F53 /* Supporting Files */,
 				19C4EBFD1A344C3E00F88F53 /* Protocols.h */,
+				19617D1E1AC72263002724EE /* Resources */,
+				19C4EBD71A33A3CE00F88F53 /* Supporting Files */,
+				19C4EC081A34D4AF00F88F53 /* UI */,
 			);
 			path = LogAnalyzer;
 			sourceTree = "<group>";
@@ -174,8 +220,8 @@
 		19C4EBD71A33A3CE00F88F53 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				19617D1C1AC6C6AA002724EE /* Info.plist */,
 				19F3B3311A6D9ABE00CDFCE6 /* Frameworks */,
-				19C4EBD81A33A3CE00F88F53 /* Info.plist */,
 				19C4EBDC1A33A3CE00F88F53 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -197,6 +243,7 @@
 		19C4EC081A34D4AF00F88F53 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				19129BD21ACB0B2700812AB4 /* Help */,
 				1952BF721A4F1D02002C867F /* LogItemView */,
 				19B85C5A1A3B513C005C85FC /* LogBrowser */,
 				19B85C591A3B5116005C85FC /* Windows */,
@@ -239,7 +286,7 @@
 		19C4EBCC1A33A3CE00F88F53 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = "Vladimír Nevyhoštěný";
 				TargetAttributes = {
 					19C4EBD31A33A3CE00F88F53 = {
@@ -270,6 +317,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19617D201AC7227E002724EE /* LogAnalyzerHelp in Resources */,
 				19C4EBE21A33A3CE00F88F53 /* Images.xcassets in Resources */,
 				19C4EBE51A33A3CE00F88F53 /* Main.storyboard in Resources */,
 			);
@@ -288,9 +336,12 @@
 				19AC3E221A92733C00CF1294 /* LogSearchField.m in Sources */,
 				19F3B3361A6D9B3100CDFCE6 /* SessionContainer.m in Sources */,
 				19EB4BBB1A3B2E1800183F56 /* LogAnalyzerWindowController.m in Sources */,
+				19129BD51ACB0BD400812AB4 /* HelpViewController.m in Sources */,
 				191AEA871A4411D100736A1A /* NSColor+LogAnalyzer.m in Sources */,
 				19C4EBFC1A344AD100F88F53 /* LogTableView.m in Sources */,
 				191AEA801A42F88300736A1A /* LogTablePopup.m in Sources */,
+				19129BDD1ACB2CBE00812AB4 /* HelpWindowController.m in Sources */,
+				19129BDA1ACB2AED00812AB4 /* HelpWebView.m in Sources */,
 				19EB4BBE1A3B3A2F00183F56 /* LogAnalyzerWindow.m in Sources */,
 				19C4EBDB1A33A3CE00F88F53 /* AppDelegate.m in Sources */,
 				19D2D9831A471BE300802498 /* ToggleButton.m in Sources */,
@@ -310,6 +361,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				19C4EBE41A33A3CE00F88F53 /* Base */,
+				19F571E11AB4480B00AED127 /* en */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

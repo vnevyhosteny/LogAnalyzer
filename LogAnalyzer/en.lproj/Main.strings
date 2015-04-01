@@ -1,0 +1,126 @@
+
+/* Class = "NSMenuItem"; title = "Paste"; ObjectID = "18x-b3-fTh"; */
+"18x-b3-fTh.title" = "Paste";
+
+/* Class = "NSMenuItem"; title = "LogAnalyzer"; ObjectID = "1Xt-HY-uBw"; */
+"1Xt-HY-uBw.title" = "LogAnalyzer";
+
+/* Class = "NSTextFieldCell"; title = "matched 0/0, total 0"; ObjectID = "2bV-v4-t8t"; */
+"2bV-v4-t8t.title" = "matched 0/0, total 0";
+
+/* Class = "NSMenuItem"; title = "New"; ObjectID = "4Pq-Y0-CvY"; */
+"4Pq-Y0-CvY.title" = "New";
+
+/* Class = "NSMenuItem"; title = "Quit LogAnalyzer"; ObjectID = "4sb-4s-VLi"; */
+"4sb-4s-VLi.title" = "Quit LogAnalyzer";
+
+/* Class = "NSMenuItem"; title = "About LogAnalyzer"; ObjectID = "5kV-Vb-QxS"; */
+"5kV-Vb-QxS.title" = "About LogAnalyzer";
+
+/* Class = "NSMenu"; title = "Main Menu"; ObjectID = "AYu-sK-qS6"; */
+"AYu-sK-qS6.title" = "Main Menu";
+
+/* Class = "NSTextFieldCell"; title = "Row #"; ObjectID = "DnX-qg-9id"; */
+"DnX-qg-9id.title" = "Row #";
+
+/* Class = "NSMenuItem"; title = "Browse for client"; ObjectID = "F0w-wF-MnX"; */
+"F0w-wF-MnX.title" = "Browse for client";
+
+/* Class = "NSMenu"; title = "Help"; ObjectID = "F2S-fz-NVQ"; */
+"F2S-fz-NVQ.title" = "Help";
+
+/* Class = "NSMenuItem"; title = "LogAnalyzer Help"; ObjectID = "FKE-Sm-Kum"; */
+"FKE-Sm-Kum.title" = "LogAnalyzer Help";
+
+/* Class = "NSMenuItem"; title = "Open…"; ObjectID = "IAo-SY-fd9"; */
+"IAo-SY-fd9.title" = "Open…";
+
+/* Class = "NSMenu"; title = "Edit"; ObjectID = "IHj-WV-ycY"; */
+"IHj-WV-ycY.title" = "Edit";
+
+/* Class = "NSWindow"; title = "Log Analyzer"; ObjectID = "IQv-IB-iLA"; */
+"IQv-IB-iLA.title" = "Log Analyzer";
+
+/* Class = "NSSearchFieldCell"; placeholderString = "Filter text"; ObjectID = "Ik8-dv-K5I"; */
+"Ik8-dv-K5I.placeholderString" = "Filter text";
+
+/* Class = "NSTextFieldCell"; title = "Info text ..."; ObjectID = "J5L-0T-VZ2"; */
+"J5L-0T-VZ2.title" = "Info text ...";
+
+/* Class = "NSMenuItem"; title = "Mark first row"; ObjectID = "Jfj-EE-8Iu"; */
+"Jfj-EE-8Iu.title" = "Mark first row";
+
+/* Class = "NSMenuItem"; title = "Show All"; ObjectID = "Kd2-mp-pUS"; */
+"Kd2-mp-pUS.title" = "Show All";
+
+/* Class = "NSMenuItem"; title = "Bring All to Front"; ObjectID = "LE2-aR-0XJ"; */
+"LE2-aR-0XJ.title" = "Bring All to Front";
+
+/* Class = "NSMenuItem"; title = "Edit"; ObjectID = "Lem-Qn-Q2o"; */
+"Lem-Qn-Q2o.title" = "Edit";
+
+/* Class = "NSMenuItem"; title = "Services"; ObjectID = "NMo-om-nkz"; */
+"NMo-om-nkz.title" = "Services";
+
+/* Class = "NSMenuItem"; title = "Minimize"; ObjectID = "OY7-WF-poV"; */
+"OY7-WF-poV.title" = "Minimize";
+
+/* Class = "NSMenuItem"; title = "Hide LogAnalyzer"; ObjectID = "Olw-nP-bQN"; */
+"Olw-nP-bQN.title" = "Hide LogAnalyzer";
+
+/* Class = "NSMenuItem"; title = "Zoom"; ObjectID = "R4o-n2-Eq4"; */
+"R4o-n2-Eq4.title" = "Zoom";
+
+/* Class = "NSMenu"; title = "Window"; ObjectID = "Td7-aD-5lo"; */
+"Td7-aD-5lo.title" = "Window";
+
+/* Class = "NSTableColumn"; headerCell.title = "LogItem"; ObjectID = "ThK-nS-MOv"; */
+"ThK-nS-MOv.headerCell.title" = "LogItem";
+
+/* Class = "NSMenuItem"; title = "Previous matched row"; ObjectID = "UqB-2b-no4"; */
+"UqB-2b-no4.title" = "Previous matched row";
+
+/* Class = "NSMenuItem"; title = "Hide Others"; ObjectID = "Vdr-fp-XzO"; */
+"Vdr-fp-XzO.title" = "Hide Others";
+
+/* Class = "NSMenuItem"; title = "Next matched row"; ObjectID = "XUm-kU-hMP"; */
+"XUm-kU-hMP.title" = "Next matched row";
+
+/* Class = "NSTextFieldCell"; title = "Log text"; ObjectID = "Xld-U4-yX7"; */
+"Xld-U4-yX7.title" = "Log text";
+
+/* Class = "NSMenuItem"; title = "Copy"; ObjectID = "YmG-RJ-fGl"; */
+"YmG-RJ-fGl.title" = "Copy";
+
+/* Class = "NSMenuItem"; title = "Save"; ObjectID = "ZO5-vh-eCV"; */
+"ZO5-vh-eCV.title" = "Save";
+
+/* Class = "NSMenuItem"; title = "Window"; ObjectID = "aUF-d1-5bR"; */
+"aUF-d1-5bR.title" = "Window";
+
+/* Class = "NSMenu"; title = "File"; ObjectID = "bib-Uj-vzu"; */
+"bib-Uj-vzu.title" = "File";
+
+/* Class = "NSMenuItem"; title = "File"; ObjectID = "dMs-cI-mzQ"; */
+"dMs-cI-mzQ.title" = "File";
+
+/* Class = "NSMenu"; title = "Services"; ObjectID = "hz9-B4-Xy5"; */
+"hz9-B4-Xy5.title" = "Services";
+
+/* Class = "NSMenuItem"; title = "Mark last row"; ObjectID = "oiG-Yy-ogF"; */
+"oiG-Yy-ogF.title" = "Mark last row";
+
+/* Class = "NSTableColumn"; headerCell.title = "RowId"; ObjectID = "tIM-3a-xGh"; */
+"tIM-3a-xGh.headerCell.title" = "RowId";
+
+/* Class = "NSMenuItem"; title = "Save as..."; ObjectID = "tXI-mr-wws"; */
+"tXI-mr-wws.title" = "Save as...";
+
+/* Class = "NSMenuItem"; title = "Find"; ObjectID = "uIR-sF-Aa7"; */
+"uIR-sF-Aa7.title" = "Find";
+
+/* Class = "NSMenu"; title = "LogAnalyzer"; ObjectID = "uQy-DD-JDr"; */
+"uQy-DD-JDr.title" = "LogAnalyzer";
+
+/* Class = "NSMenuItem"; title = "Help"; ObjectID = "wpr-3q-Mcd"; */
+"wpr-3q-Mcd.title" = "Help";

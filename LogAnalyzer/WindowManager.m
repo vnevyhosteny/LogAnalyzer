@@ -12,6 +12,7 @@
 
 NSString *const kMainStoryboard                     = @"Main";
 NSString *const kMainViewController                 = @"MainViewController";
+NSString *const kHelpWindowController                = @"HelpWindowController";
 
 //==============================================================================
 @interface WindowManager()
@@ -80,12 +81,23 @@ NSString *const kMainViewController                 = @"MainViewController";
 }
 
 //------------------------------------------------------------------------------
+- (HelpWindowController*) createHelpWindow
+{
+    return [[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kHelpWindowController];
+}
+
+//------------------------------------------------------------------------------
 - (void) removeWindowController:(LogAnalyzerWindowController*)controller
 {
     [self->_windows removeObject:controller];
-//    if ( ![self->_windows count] ) {
-//        [[NSApplication sharedApplication] terminate:nil];
-//    }
+}
+
+//------------------------------------------------------------------------------
+- (void) checkForLastLogWindowOpened
+{
+    if ( ![self->_windows count] ) {
+        [[NSApplication sharedApplication] terminate:nil];
+    }
 }
 
 #pragma mark -

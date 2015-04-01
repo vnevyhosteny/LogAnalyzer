@@ -233,6 +233,9 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
             }
             else {
                 self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
+                for ( __weak LogItem *logItem in self->_filteredData ) {
+                    logItem.matchFilter = NO;
+                }
             }
         }
         

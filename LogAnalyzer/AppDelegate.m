@@ -10,9 +10,10 @@
 #import "MainViewController.h"
 #import "WindowManager.h"
 #import "LogAnalyzerWindowController.h"
+#import "HelpWindowController.h"
 
 @interface AppDelegate ()
-
+@property (nonatomic, strong )HelpWindowController *helpWindowController;
 @end
 
 @implementation AppDelegate
@@ -26,6 +27,7 @@
 //    CGRect displayFrame = [[NSScreen deepestScreen] frame];
 //    CGRect windowFrame  = [NSApplication sharedApplication].mainWindow.frame;
 }
+
 
 //------------------------------------------------------------------------------
 - (void)applicationWillTerminate:(NSNotification *)aNotification
@@ -145,6 +147,24 @@
 }
 
 //------------------------------------------------------------------------------
+- (IBAction) showHelpAction:(NSMenuItem *)sender
+{
+    if ( !self.helpWindowController ) {
+        self.helpWindowController    = [[WindowManager sharedInstance] createHelpWindow];
+        __weak AppDelegate *weakSelf = self;
+        
+        self.helpWindowController.closeCompletion = ^{
+            AppDelegate *appDelegate = weakSelf;
+            [[appDelegate helpWindowController] close];
+            [appDelegate setHelpWindowController:nil];
+        };
+        
+        [self.helpWindowController.window makeKeyAndOrderFront:self];
+    }
+}
+
+
+//------------------------------------------------------------------------------
 - (void) applicationDidChangeScreenParameters:(NSNotification *)notification
 {
     [self.mainViewDelegate reloadLog];
@@ -161,9 +181,18 @@
 }
 
 //------------------------------------------------------------------------------
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)application
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)application
 {
     return YES;
+}
+
+//------------------------------------------------------------------------------
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+    if ( self.helpWindowController ) {
+        self.helpWindowController.closeCompletion();
+    }
+    return NSTerminateNow;
 }
 
 @end
