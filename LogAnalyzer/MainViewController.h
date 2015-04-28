@@ -23,6 +23,7 @@ extern NSString *const kLogItem;
                                                  >
 
 @property (nonatomic, readonly) DataProvider     *dataProvider;
+@property (nonatomic, readwrite) NSResponder     *currentResponder;
 
 - (IBAction) toggleBrowseOnOffAction:(NSButton *)sender;
 
@@ -40,6 +41,7 @@ extern NSString *const kLogItem;
 - (void) saveLogFileAs;
 
 - (void) find;
+- (void) toggleShowInfoOnOff;
 
 @end
 

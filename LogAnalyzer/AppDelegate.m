@@ -11,6 +11,7 @@
 #import "WindowManager.h"
 #import "LogAnalyzerWindowController.h"
 #import "HelpWindowController.h"
+#import "HistoryTableView.h"
 
 @interface AppDelegate ()
 @property (nonatomic, strong )HelpWindowController *helpWindowController;
@@ -95,6 +96,11 @@
     [ActiveViewController() moveToPreviousMatchedRow];
 }
 
+//------------------------------------------------------------------------------
+- (IBAction) showInfoAction:(NSMenuItem *)sender
+{
+    [ActiveViewController() toggleShowInfoOnOff];
+}
 
 //------------------------------------------------------------------------------
 - (IBAction) copyAction:(NSMenuItem *)sender
@@ -104,7 +110,9 @@
         [(NSTextView*)responder copy:nil];
     }
     else {
-        [WindowManager sharedInstance].sourceWindowController = [WindowManager sharedInstance].activeWindowController;
+        WindowManager *windowManager                                             = [WindowManager sharedInstance];
+        windowManager.activeWindowController.mainViewController.currentResponder = responder;
+        windowManager.sourceWindowController                                     = windowManager.activeWindowController;
     }
 }
 
@@ -116,11 +124,18 @@
         [(NSTextView*)responder paste:nil];
     }
     else {
-        MainViewController *sourceController = [[[WindowManager sharedInstance] sourceWindowController] mainViewController];
-        MainViewController *activeController = [[[WindowManager sharedInstance] activeWindowController] mainViewController];
+        WindowManager      *windowManager    = [WindowManager sharedInstance];
+        MainViewController *sourceController = [[windowManager sourceWindowController] mainViewController];
+        MainViewController *activeController = [[windowManager activeWindowController] mainViewController];
         
         if ( sourceController && activeController ) {
-            [activeController pasteLogItems:sourceController.dataProvider.matchedData withCompletion:^{
+            NSArray *data = ( [sourceController.currentResponder isKindOfClass:[HistoryTableView class]]
+                              ?
+                              sourceController.dataProvider.historyData
+                              :
+                              sourceController.dataProvider.matchedData
+                            );
+            [activeController pasteLogItems:data withCompletion:^{
                 [activeController reloadLog];
                 if ( [sourceController.dataProvider.filter.text length] ) {
                     dispatch_async( dispatch_get_main_queue(), ^{

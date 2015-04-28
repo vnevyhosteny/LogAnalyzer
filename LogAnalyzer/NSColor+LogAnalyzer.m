@@ -75,4 +75,18 @@ static CGFloat const FullAlpha = 1.0f;
 }
 
 
+//------------------------------------------------------------------------------
++ (NSColor*) historyTablePlainTextColor
+{
+    static NSColor         *__color__      = nil;
+    static dispatch_once_t  __once_token__ = 0;
+    
+    dispatch_once( &__once_token__, ^{
+        //__color__ = [NSColor colorWithCalibratedRed:233.0f/FullColor green:233.0f/FullColor blue:233.0f/FullColor alpha:FullAlpha];
+        __color__ = [NSColor colorWithCalibratedRed:33.0f/FullColor green:33.0f/FullColor blue:33.0f/FullColor alpha:FullAlpha];
+    });
+    return __color__;
+}
+
+
 @end

@@ -35,6 +35,9 @@
 - (void) popup:(LogTablePopup*)popup didSelectMarkFromWithLogItem:(LogItem*)logItem;
 - (void) popup:(LogTablePopup*)popup didSelectMarkToWithItem:(LogItem*)logItem;
 - (void) showLogItemPopupAtRow:(NSInteger)row;
+- (void) insertItemToHistoryAtRow:(NSInteger)row;
+- (void) deleteSelectedHistoryRows;
+- (void) selectAllHistoryRows;
 
 @end
 

@@ -17,6 +17,7 @@ typedef enum { FILTER_SEARCH = 0,
 } FilterType;
 
 extern NSString *const ReloadLogNeededNotification;
+extern NSString *const RemoteLogItemsReceivedNotification ;
 
 //==============================================================================
 @interface DataProvider : NSObject <SessionContainerDelegate>
@@ -25,6 +26,7 @@ extern NSString *const ReloadLogNeededNotification;
 @property (nonatomic, readwrite) FilterType               filterType;
 @property (nonatomic, readonly) NSMutableArray           *originalData;
 @property (nonatomic, readonly) NSMutableArray           *filteredData;
+@property (nonatomic, readonly) NSMutableArray           *historyData;
 @property (nonatomic, readonly) NSArray                  *matchedData;
 
 @property (nonatomic, readonly) NSUInteger                matchedRowsCount;
@@ -63,5 +65,9 @@ extern NSString *const ReloadLogNeededNotification;
 - (BOOL) saveOriginalData;
 - (BOOL) saveFilteredDataToURL:(NSURL*)url;
 - (void) matchAllRowsWithCompletion:(void (^)())completion;
+
+- (void) addLogItemToHistory:(LogItem*)logItem;
+- (void) searchForRowIndexInFilteredDataWithItem:(LogItem*)logItem withCompletion:(void(^)( NSUInteger rowIndex))completion;
+- (void) deleteHistoryRowsWithIndexes:(NSIndexSet*)indexSet completion:(void(^)())completion;
 
 @end

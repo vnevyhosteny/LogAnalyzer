@@ -36,9 +36,14 @@
             if ( event.modifierFlags & NSCommandKeyMask ) {
                 NSRange range = self.selectedRange;
                 if ( range.length > 0 ) {
+                    NSString     *foo        = [self.string substringWithRange:range];
                     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-                    [pasteboard declareTypes:[NSArray arrayWithObject: NSStringPboardType] owner: nil];
-                    [pasteboard setString:[self.string substringWithRange:range] forType:NSStringPboardType];
+                    [pasteboard clearContents];
+                    [pasteboard declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:nil];
+                    [pasteboard setString:foo forType:NSPasteboardTypeString];
+                }
+                else {
+                    [super keyDown:event];    
                 }
             }
             else {

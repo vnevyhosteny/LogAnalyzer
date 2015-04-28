@@ -15,4 +15,6 @@
 + (NSColor*) logTableMarkedColor;
 + (NSColor*) logTableMatchedColor;
 + (NSColor*) logTableSelectedMatchedColor;
+
++ (NSColor*) historyTablePlainTextColor;
 @end

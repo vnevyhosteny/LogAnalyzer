@@ -75,9 +75,18 @@ NSString *const kHelpWindowController                = @"HelpWindowController";
         [windowController.window setTitle:title];
     }
     [windowController.mainViewController pasteLogItems:logItems withCompletion:nil];
-    [self->_windows addObject:windowController];
+//    [self->_windows addObject:windowController];
     
     return windowController;
+}
+
+//------------------------------------------------------------------------------
+- (void) addLogAnalyzerWindowController:(LogAnalyzerWindowController*)controller
+{
+    if ( [self->_windows indexOfObject:controller] == NSNotFound ) {
+        [self->_windows addObject:controller];
+        self->_activeWindowController = controller;
+    }
 }
 
 //------------------------------------------------------------------------------

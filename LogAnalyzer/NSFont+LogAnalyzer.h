@@ -12,4 +12,5 @@
 @interface NSFont(LogAnalyzer)
 + (NSFont*) logTableRegularFont;
 + (NSFont*) logTableBoldFont;
++ (NSFont*) historyTableRegularFont;
 @end

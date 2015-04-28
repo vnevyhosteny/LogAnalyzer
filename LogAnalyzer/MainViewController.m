@@ -11,9 +11,10 @@
 
 #import "MainViewController.h"
 #import "LogTableView.h"
-
+#import "HistoryTableView.h"
 #import "LogItem.h"
 #import "LogItemViewController.h"
+#import "HistoryTableCell.h"
 #import "AppDelegate.h"
 #import "WindowManager.h"
 #import "LogAnalyzerWindowController.h"
@@ -29,6 +30,8 @@
 NSString *const kRowId                              = @"RowId";
 NSString *const kLogItem                            = @"LogItem";
 NSString *const kLogTablePopup                      = @"LogTablePopup";
+NSString *const kLogClipView                        = @"LogClipView";
+NSString *const kHistoryClipView                    = @"HistoryClipView";
 
 NSString *const kLogItemViewController              = @"LogItemViewController";
 NSString *const kMenuItemEdit                       = @"Edit";
@@ -48,11 +51,20 @@ NSString *const kMenuItemPaste                      = @"Paste";
     NSString         *_currentFilterText;
     BOOL              _logTableLoading;
     NSTimer          *_delayedSearchTimer;
-    LogTablePopup    *_popup;
+//    LogTablePopup    *_popup;
+//    LogLinePopup     *_linePopup;
     dispatch_queue_t  _serial_queue;
 }
 
 @property (weak) IBOutlet LogTableView           *logTableView;
+@property (weak) IBOutlet HistoryTableView       *historyTableView;
+@property (weak) IBOutlet NSClipView             *logTableClipView;
+@property (weak) IBOutlet NSClipView             *historyTableClipView;
+
+
+@property (weak) IBOutlet NSVisualEffectView     *infoTopView;
+
+
 @property (weak) IBOutlet NSSearchField          *searchField;
 @property (weak) IBOutlet NSProgressIndicator    *activityIndicator;
 @property (weak) IBOutlet NSScrollView           *logTableScrollView;
@@ -63,6 +75,11 @@ NSString *const kMenuItemPaste                      = @"Paste";
 @property (weak) IBOutlet NSTextField            *matchedCountLabel;
 @property (weak) IBOutlet NSButton               *removeMatchedButton;
 @property (weak) IBOutlet NSButton               *togglePeerBrowserButton;
+@property (weak) IBOutlet NSLayoutConstraint     *inspectorViewWidthLayoutConstraint;
+@property (weak) IBOutlet NSView                 *inspectorView;
+@property (weak) IBOutlet NSButton               *toggleInfoButton;
+@property (weak) IBOutlet NSScrollView           *historyTableScrollView;
+@property (weak) IBOutlet NSTextField            *favoritesInfoLabel;
 
 @property (nonatomic, readonly) NSArray          *data;
 @property (nonatomic, readwrite) BOOL             isRowHeightUpdatePending;
@@ -70,6 +87,7 @@ NSString *const kMenuItemPaste                      = @"Paste";
 - (IBAction) toggleFilterMode:(NSButton *)sender;
 - (IBAction) removeMatchedAction:(NSButton *)sender;
 - (IBAction) toggleMatchedAction:(NSButton *)sender;
+- (IBAction)toggleInfoAction:(NSButton *)sender;
 
 
 @end
@@ -77,9 +95,11 @@ NSString *const kMenuItemPaste                      = @"Paste";
 @implementation MainViewController
 
 @synthesize dataProvider              = _dataProvider;
-@synthesize isRowHeightUpdatePending = _isRowHeightUpdatePending;
+@synthesize isRowHeightUpdatePending  = _isRowHeightUpdatePending;
 
-static BOOL isPrimaryController = YES;
+static BOOL isPrimaryController       = YES;
+
+static CGFloat const FullColor        = 255.0f;
 
 //------------------------------------------------------------------------------
 - (void) awakeFromNib
@@ -92,21 +112,33 @@ static BOOL isPrimaryController = YES;
         [self.searchField resignFirstResponder];
     }
     
+    self.inspectorViewWidthLayoutConstraint.constant = 0.0f;
+    [self.view setNeedsUpdateConstraints:YES];
+    
     // Set the top bar background color ...
     
     CALayer    *viewLayer = [CALayer layer];
-    CGColorRef  color = CGColorCreateGenericRGB( 255.0f, 255.0f, 255.0f, 1.0f );
+    CGColorRef  color = CGColorCreateGenericRGB( 255.0f/FullColor, 255.0f/FullColor, 255.0f/FullColor, 1.0f );
     [viewLayer setBackgroundColor:color];
     CFRelease( color );
     [self.topBarBaseView setWantsLayer:YES];
     [self.topBarBaseView setLayer:viewLayer];
+    
+    CALayer *infoLayer = [CALayer layer];
+    color = CGColorCreateGenericRGB( 0.0f, 128.0f/FullColor, 255.0f/FullColor, 1.0f );
+    [infoLayer setBackgroundColor:color];
+    CFRelease( color );
+    [self.infoTopView setWantsLayer:YES];
+    [self.infoTopView setLayer:infoLayer];
 
     // Setup the logTableView ...
     
-    [self.logTableView becomeFirstResponder];
+    [self.view.window makeFirstResponder:self.logTableView];
     [self.logTableView setTarget:self];
     [self.logTableView setDoubleAction:@selector(doubleClick:)];
     self.logTableView.mainViewDelegate                                          = self;
+    
+    self.historyTableView.mainViewDelegate                                      = self;
     
     ((AppDelegate*)[NSApplication sharedApplication].delegate).mainViewDelegate = self;
     self->_isSearchingInProgress                                                = NO;
@@ -171,7 +203,10 @@ static BOOL isPrimaryController = YES;
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(handleNotifications:) name:ReloadLogNeededNotification object:nil];
     [center addObserver:self selector:@selector(handleNotifications:) name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
+    [center addObserver:self selector:@selector(handleNotifications:) name:NSViewBoundsDidChangeNotification object:[self.historyTableScrollView contentView]];
     [center addObserver:self selector:@selector(handleNotifications:) name:SearchFieldBecomeFirstResponderNotification object:nil];
+    [center addObserver:self selector:@selector(handleNotifications:) name:RemoteLogItemsReceivedNotification object:nil];
+    
 }
 
 
@@ -182,6 +217,7 @@ static BOOL isPrimaryController = YES;
     [center removeObserver:self name:ReloadLogNeededNotification object:nil];
     [center removeObserver:self name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
     [center removeObserver:self name:SearchFieldBecomeFirstResponderNotification object:nil];
+    [center removeObserver:self name:RemoteLogItemsReceivedNotification object:nil];
 }
 
 //------------------------------------------------------------------------------
@@ -238,14 +274,24 @@ static BOOL isPrimaryController = YES;
             });
         }
     }
+    
     else if ( [notification.name isEqualToString:NSViewBoundsDidChangeNotification] ) {
         [self scrollViewContentBoundsDidChange:notification];
     }
+    
     else if ( [notification.name isEqualToString:SearchFieldBecomeFirstResponderNotification] ) {
         dispatch_async( dispatch_get_main_queue(), ^{
             [self setCopyEnabled:YES];
             [self setPasteEnabled:YES];
         });
+    }
+    
+    else if ( [notification.name isEqualToString:RemoteLogItemsReceivedNotification] ) {
+        if ( self.dataProvider.filterType != FILTER_SEARCH ) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                [self toggleFilterMode:self.toggleFilterModeButton];
+            });
+        }
     }
 }
 
@@ -254,18 +300,19 @@ static BOOL isPrimaryController = YES;
 {
     [self setSaveEnabled:( [self.dataProvider.originalLogFileName length] > 0 )];
     
-    LogAnalyzerWindowController *windowController = (LogAnalyzerWindowController*)self.view.window.windowController;
+//    LogAnalyzerWindowController *windowController = (LogAnalyzerWindowController*)self.view.window.windowController;
 //    [windowController setActive];
     
     [self updateStatus];
     
-    LogAnalyzerWindowController *sourceController = [WindowManager sharedInstance].sourceWindowController;
+//    LogAnalyzerWindowController *sourceController = [WindowManager sharedInstance].sourceWindowController;
     if ( [self.view.window.firstResponder isKindOfClass:[NSTextView class]] ) {
         [self setPasteEnabled:YES];
         [self setCopyEnabled:YES];
     }
     else {
-        [self  setPasteEnabled:( sourceController && ( sourceController != windowController ) )];
+//        [self  setPasteEnabled:( sourceController && ( sourceController != windowController ) )];
+        [self setPasteEnabled:YES];
     }
 }
 
@@ -467,6 +514,54 @@ static BOOL isPrimaryController = YES;
 }
 
 //------------------------------------------------------------------------------
+- (IBAction) toggleInfoAction:(NSButton *)sender
+{
+    static CGFloat const InfoWidth = 250.0f;
+    
+    CGFloat newValue;
+    switch ( sender.state ) {
+        case NSOnState:
+            newValue = 0.0f;
+            [self.historyTableView.enclosingScrollView setBorderType:NSNoBorder];
+            [sender setImage:[NSImage imageNamed:@"ButtonInfoOff"]];
+            break;
+            
+        case NSOffState:
+            newValue = InfoWidth;
+            [sender setImage:[NSImage imageNamed:@"ButtonInfoOn"]];
+            break;
+            
+        default:
+            newValue = 0.0f;
+    }
+    
+    if ( newValue > 0.0f ) {
+        CGFloat width = self.logTableView.bounds.size.width / 4.0f;
+        if ( newValue < width ) {
+            newValue = width;
+        }
+    }
+    
+    [self.view setNeedsUpdateConstraints:YES];
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        context.duration = 0.2f;
+        [self.inspectorViewWidthLayoutConstraint.animator setConstant:newValue];
+    }
+                        completionHandler:^{
+                            if ( sender.state == NSOnState ) {
+                                [self.view.window makeFirstResponder:self.logTableView];
+                            }
+                            else {
+                                [self.historyTableView.enclosingScrollView setBorderType:NSLineBorder];
+                                [self scrollViewContentBoundsDidChange:nil];
+                                [self tableViewSelectionDidChange:nil];
+                                [self.view.window makeFirstResponder:self.historyTableView];
+                            }
+                        }];
+}
+
+//------------------------------------------------------------------------------
 - (IBAction) toggleBrowseOnOffAction:(NSButton *)sender
 {
     BOOL newValue                           = !self.dataProvider.isRemoteSessionActive;
@@ -481,22 +576,37 @@ static BOOL isPrimaryController = YES;
 #pragma mark -
 #pragma mark NSTableViewDataSource Methods
 //------------------------------------------------------------------------------
-- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return [self.data count];
+    if ( tableView == self.logTableView ) {
+        return [self.data count];
+    }
+    else {
+        return [self.dataProvider.historyData count];
+    }
 }
 
 
 //------------------------------------------------------------------------------
-- (id)          tableView:(NSTableView *)aTableView
-objectValueForTableColumn:(NSTableColumn *)aTableColumn
+- (id)          tableView:(NSTableView *)tableView
+objectValueForTableColumn:(NSTableColumn *)tableColumn
                       row:(NSInteger)rowIndex
 {
-    if ( [[aTableColumn.headerCell stringValue] isEqualToString:kRowId] ) {
-        return [NSString stringWithFormat:@"%lu", (unsigned long)((LogItem*)[self.data objectAtIndex:rowIndex]).originalRowId + 1];
+    if ( [[tableColumn.headerCell stringValue] isEqualToString:kRowId] ) {
+        if ( tableView == self.logTableView ) {
+            return [NSString stringWithFormat:@"%lu", (unsigned long)((LogItem*)[self.data objectAtIndex:rowIndex]).originalRowId + 1];
+        }
+        else {
+            return [NSString stringWithFormat:@"%lu", (unsigned long)((LogItem*)[self.dataProvider.historyData objectAtIndex:rowIndex]).originalRowId + 1];
+        }
     }
-    if ( [[aTableColumn.headerCell stringValue] isEqualToString:kLogItem] ) {
-        return ((LogItem*)[self.data objectAtIndex:rowIndex]).text;
+    if ( [[tableColumn.headerCell stringValue] isEqualToString:kLogItem] ) {
+        if ( tableView == self.logTableView ) {
+            return ((LogItem*)[self.data objectAtIndex:rowIndex]).text;
+        }
+        else {
+            return ((LogItem*)[self.dataProvider.historyData objectAtIndex:rowIndex]).text;
+        }
     }
     else {
         return nil;
@@ -508,70 +618,112 @@ objectValueForTableColumn:(NSTableColumn *)aTableColumn
 dataCellForTableColumn:(NSTableColumn *)tableColumn
                    row:(NSInteger)row
 {
-    LogTableCell     *cell           = nil;
-    LogItem          *logItem        = (LogItem*)[self.data objectAtIndex:row];
-    BOOL              isMarked       = ( ( self.dataProvider.rowFrom == logItem.originalRowId ) && ( self.dataProvider.rowTo == NSNotFound ) );
-    BOOL              isTableFocused = ( self.view.window.firstResponder == self.logTableView );
     
-    if ( [[tableColumn.headerCell stringValue] isEqualToString:kRowId] ) {
-        NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
-        cell           = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
-        if ( cell ) {
-            [cell setStringValue:text];
-        }
-        else {
-            cell = [[LogTableCell alloc] initTextCell:text];
-        }
-        [cell setSelectable:NO];
-        [cell setCellAttribute:NSCellDisabled to:1];
-        [cell setTextColor:( isMarked ? [NSColor logTableMarkedColor] : [NSColor logTableLineNumberColor])];
-        
-        [cell setAlignment:NSRightTextAlignment];
-        
-        if ( isMarked ) {
-            [cell setImage:[NSImage imageNamed:@"ButtonMarkFrom"]];
-        }
-    }
+    if ( tableView == self.logTableView ) {
     
-    else if ( [[tableColumn.headerCell stringValue] isEqualToString:kLogItem] ) {
-        cell           = [tableView viewAtColumn:1 row:row makeIfNecessary:NO];
-        if ( cell ) {
-            [cell setStringValue:logItem.text];
-        }
-        else {
-            cell = [[LogTableCell alloc] initTextCell:logItem.text];
-        }
-        [cell setSelectable:YES];
-        [cell setCellAttribute:NSCellEditable to:0];
-        if ( isMarked ) {
-            [cell setTextColor:[NSColor logTableMarkedColor]];
-        }
-        else {
-            if ( [tableView selectedRow] == row ) {
-                //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
-                [cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && isTableFocused ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : ( isTableFocused ? [NSColor whiteColor] : [NSColor logTablePlainTextColor]))];
+        LogTableCell     *cell           = nil;
+        LogItem          *logItem        = (LogItem*)[self.data objectAtIndex:row];
+        BOOL              isMarked       = ( ( self.dataProvider.rowFrom == logItem.originalRowId ) && ( self.dataProvider.rowTo == NSNotFound ) );
+        BOOL              isTableFocused = ( self.view.window.firstResponder == self.logTableView );
+        
+        if ( [tableColumn.identifier isEqualToString:kRowId] ) {
+            NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
+            cell           = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
+            if ( cell ) {
+                [cell setStringValue:text];
             }
             else {
-                //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor logTablePlainTextColor])];
-                [cell setTextColor:( logItem.matchFilter ? [NSColor logTableMatchedColor] : [NSColor logTablePlainTextColor])];
+                cell = [[LogTableCell alloc] initTextCell:text];
+            }
+            [cell setSelectable:NO];
+            [cell setCellAttribute:NSCellDisabled to:1];
+            [cell setTextColor:( isMarked ? [NSColor logTableMarkedColor] : [NSColor logTableLineNumberColor])];
+            
+            [cell setAlignment:NSRightTextAlignment];
+            
+            if ( isMarked ) {
+                [cell setImage:[NSImage imageNamed:@"ButtonMarkFrom"]];
             }
         }
+        
+        else if ( [tableColumn.identifier isEqualToString:kLogItem] ) {
+            cell           = [tableView viewAtColumn:1 row:row makeIfNecessary:NO];
+            if ( cell ) {
+                [cell setStringValue:logItem.text];
+            }
+            else {
+                cell = [[LogTableCell alloc] initTextCell:logItem.text];
+            }
+            [cell setSelectable:YES];
+            [cell setCellAttribute:NSCellEditable to:0];
+            if ( isMarked ) {
+                [cell setTextColor:[NSColor logTableMarkedColor]];
+            }
+            else {
+                if ( [tableView selectedRow] == row ) {
+                    //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor whiteColor])];
+                    [cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && isTableFocused ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : ( isTableFocused ? [NSColor whiteColor] : [NSColor logTablePlainTextColor]))];
+                }
+                else {
+                    //[cell setTextColor:( logItem.matchFilter ? ( ( row == self.dataProvider.currentMatchedRowIndex ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : [NSColor logTablePlainTextColor])];
+                    [cell setTextColor:( logItem.matchFilter ? [NSColor logTableMatchedColor] : [NSColor logTablePlainTextColor])];
+                }
+            }
+        }
+        
+        [cell setFont:[NSFont logTableRegularFont]];
+        
+        [cell setEditable:NO];
+        [cell setEnabled:NO];
+        [cell setLineBreakMode:NSLineBreakByWordWrapping];
+        
+        return cell;
     }
-    
-//    if ( logItem.matchFilter && ( row == self.dataProvider.currentMatchedRowIndex ) ) {
-//        [cell setFont:[NSFont logTableBoldFont]];
-//    }
-//    else {
-//        [cell setFont:[NSFont logTableRegularFont]];
-//    }
-    
-    [cell setFont:[NSFont logTableRegularFont]];
-    
-    [cell setEditable:NO];
-    [cell setEnabled:NO];
-    [cell setLineBreakMode:NSLineBreakByWordWrapping];
-    
-    return cell;
+    else {
+        HistoryTableCell *cell           = nil;
+        LogItem          *logItem        = (LogItem*)[self.dataProvider.historyData objectAtIndex:row];
+        BOOL              isTableFocused = ( self.view.window.firstResponder == self.historyTableView );
+        
+        if ( [tableColumn.identifier isEqualToString:kRowId] ) {
+            NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
+            cell           = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
+            if ( cell ) {
+                [cell setStringValue:text];
+            }
+            else {
+                cell = [[HistoryTableCell alloc] initTextCell:text];
+            }
+            [cell setSelectable:NO];
+            [cell setCellAttribute:NSCellDisabled to:1];
+            [cell setTextColor:[NSColor logTableLineNumberColor]];
+            
+            [cell setAlignment:NSRightTextAlignment];
+        }
+        
+        else if ( [tableColumn.identifier isEqualToString:kLogItem] ) {
+            cell           = [tableView viewAtColumn:1 row:row makeIfNecessary:NO];
+            if ( cell ) {
+                [cell setStringValue:logItem.text];
+            }
+            else {
+                cell = [[HistoryTableCell alloc] initTextCell:logItem.text];
+            }
+            [cell setSelectable:YES];
+            [cell setCellAttribute:NSCellEditable to:0];
+            
+            if ( [tableView selectedRow] == row ) {
+                //[cell setTextColor:( logItem.matchFilter ? ( ( ( row == self.dataProvider.currentMatchedRowIndex ) && isTableFocused ) ? [NSColor logTableSelectedMatchedColor] : [NSColor logTableMatchedColor] ) : ( isTableFocused ? [NSColor whiteColor] : [NSColor logTablePlainTextColor]))];
+                [cell setTextColor:( isTableFocused ? [NSColor whiteColor] : [NSColor historyTablePlainTextColor])];
+            }
+            else {
+                [cell setTextColor:[NSColor historyTablePlainTextColor]];
+            }
+        }
+        
+        [cell setFont:[NSFont historyTableRegularFont]];
+        
+        return cell;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -586,7 +738,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         return defaultHeight;
     }
     
-    LogItem         *logItem = [self.data objectAtIndex:row];
+    LogItem         *logItem = ( ( tableView == self.logTableView ) ? [self.data objectAtIndex:row] : [self.dataProvider.historyData objectAtIndex:row] );
     [cell setStringValue:logItem.text];
     
     // See how tall it naturally would want to be if given a restricted with, but unbound height
@@ -598,26 +750,46 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 }
 
 //------------------------------------------------------------------------------
-- (void) tableView:(NSTableView *)aTableView
-   willDisplayCell:(id)aCell
-    forTableColumn:(NSTableColumn *)aTableColumn
+- (void) tableView:(NSTableView *)tableView
+   willDisplayCell:(id)cell
+    forTableColumn:(NSTableColumn *)tableColumn
                row:(NSInteger)rowIndex
 {
-    if ( self->_logTableLoading ) {
-        [self stopActivityIndicator];
-        self->_logTableLoading = NO;
+    if ( tableView == self.logTableView ) {
+        if ( self->_logTableLoading ) {
+            [self stopActivityIndicator];
+            self->_logTableLoading = NO;
+        }
     }
 }
 
 
 //------------------------------------------------------------------------------
-- (BOOL)    tableView:(NSTableView *)aTableView
+- (BOOL)    tableView:(NSTableView *)tableView
  writeRowsWithIndexes:(NSIndexSet *)rowIndexes
          toPasteboard:(NSPasteboard *)pboard
 {
-    if ( [rowIndexes count] ) {
-        LogItem    *draggedLogItem = [self.data objectAtIndex:rowIndexes.firstIndex];
-        [self.dataProvider writeMatchedLogItems:draggedLogItem.matchFilter toPasteboard:pboard];
+    if ( tableView == self.logTableView ) {
+        if ( [rowIndexes count] ) {
+            LogItem    *draggedLogItem = [self.data objectAtIndex:rowIndexes.firstIndex];
+            [self.dataProvider writeMatchedLogItems:draggedLogItem.matchFilter toPasteboard:pboard];
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if ( ( tableView == self.historyTableView ) && [rowIndexes count] ) {
+        NSMutableArray *aux          = [NSMutableArray new];
+        NSUInteger      currentIndex = [rowIndexes firstIndex];
+        
+        while ( currentIndex != NSNotFound) {
+            [aux addObject:[self.dataProvider.historyData objectAtIndex:currentIndex]];
+            currentIndex = [rowIndexes indexGreaterThanIndex:currentIndex];
+        }
+        
+        [pboard writeObjects:aux];
+        
         return YES;
     }
     else {
@@ -628,11 +800,16 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) showLogItemPopupAtRow:(NSInteger)row
 {
+    LogItem *logItem                  = (LogItem*)[self.dataProvider.filteredData objectAtIndex:row];
+    if ( !logItem ) {
+        return;
+    }
+    
     [self startActivityIndicator];
-    [self setCopyEnabled:NO];
+//    [self setCopyEnabled:YES];
     
     LogItemViewController *controller = (LogItemViewController*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogItemViewController];
-    controller.logItem                = (LogItem*)[self.dataProvider.filteredData objectAtIndex:row];
+    controller.logItem                = logItem;
     controller.mainViewDelegate       = self;
     [self presentViewControllerAsModalWindow:controller];
     
@@ -640,10 +817,29 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 }
 
 //------------------------------------------------------------------------------
+- (void) insertItemToHistoryAtRow:(NSInteger)row
+{
+    LogItem *logItem = (LogItem*)[self.data objectAtIndex:row];
+    if ( !logItem ) {
+        return;
+    }
+    [self.dataProvider addLogItemToHistory:logItem];
+    
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self.historyTableView reloadData];
+    });
+}
+
+//------------------------------------------------------------------------------
 - (void) deleteRow:(NSUInteger)row
 {
     [self startActivityIndicatorWithMessage:@"Deleting row ..."];
     [self.dataProvider deleteRow:row];
+    
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self.historyTableView reloadData];
+    });
+    
     [self reloadLog];
     [self stopActivityIndicator];
 }
@@ -654,49 +850,77 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) doubleClick:(id)object
 {
-    NSInteger row = [self.logTableView clickedRow];
-    [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-    [self showLogItemPopupAtRow:row];
+    if ( object == self.logTableView ) {
+        NSInteger row = [self.logTableView clickedRow];
+        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+        [self showLogItemPopupAtRow:row];
+    }
 }
 
 //------------------------------------------------------------------------------
-- (void) tableViewSelectionDidChange:(NSNotification *)aNotification
+- (void) tableViewSelectionDidChange:(NSNotification *)notification
 {
-    NSInteger row = self.logTableView.selectedRow;
-    [self setMarkFirstAndLastEnabled:( ( row >= 0 ) && [self.data count] )];
-    if ( row >= 0 ) {
-        [self.dataProvider setCurrentMatchedRowIndex:row];
+    if ( notification.object == self.logTableView ) {
+        NSInteger row = self.logTableView.selectedRow;
+        [self setMarkFirstAndLastEnabled:( ( row >= 0 ) && [self.data count] )];
+        if ( row >= 0 ) {
+            [self.dataProvider setCurrentMatchedRowIndex:row];
+        }
+        
     }
+    else {
+        NSIndexSet *indexSet = self.historyTableView.selectedRowIndexes;
+        if ( [indexSet count] == 1 ) {
+            LogItem    *historyItem = [self.dataProvider.historyData objectAtIndex:[indexSet firstIndex]];
+            [self.dataProvider searchForRowIndexInFilteredDataWithItem:historyItem withCompletion:^( NSUInteger rowIndex ){
+                if ( rowIndex != NSNotFound ) {
+                    dispatch_async( dispatch_get_main_queue(), ^{
+                        [self.logTableView scrollRowToVisible:rowIndex];
+                        [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowIndex] byExtendingSelection:NO];
+                    });
+                }
+            }];
+        }
+    }
+    
+    [self setCopyEnabled:YES];
     [self updateStatus];
 }
 
 //------------------------------------------------------------------------------
-- (void) adjustRowHeightForVisibleRows
+- (void) adjustRowHeightForVisibleRowsForTable:(NSObject*)object
 {
     static CGFloat const DeltaY = 100.0f;
-    dispatch_async( dispatch_get_main_queue(), ^{
-        
-        CGRect visibleRect       = self.logTableScrollView.contentView.bounds;
-        visibleRect.origin.y    -= DeltaY;
-        visibleRect.size.height += DeltaY;
-        NSRange visibleRows      = [self.logTableView rowsInRect:visibleRect];
-        
-        [NSAnimationContext beginGrouping];
-        [[NSAnimationContext currentContext] setDuration:0.0f];
-        [self.logTableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
-        [NSAnimationContext endGrouping];
-        
-        self.isRowHeightUpdatePending = NO;
-    });
+    
+    NSClipView   *clipView   = (NSClipView*)object;
+    NSScrollView *scrollView = ( ( clipView == self.logTableClipView ) ? self.logTableScrollView : self.historyTableScrollView );
+    
+    if ( scrollView ) {
+        dispatch_async( dispatch_get_main_queue(), ^{
+            
+            NSTableView *tableView       = ( ( scrollView == self.logTableScrollView ) ? self.logTableView : self.historyTableView );
+            CGRect       visibleRect     = scrollView.contentView.bounds;
+            visibleRect.origin.y        -= DeltaY;
+            visibleRect.size.height     += DeltaY;
+            NSRange      visibleRows     = [tableView rowsInRect:visibleRect];
+            
+            [NSAnimationContext beginGrouping];
+            [[NSAnimationContext currentContext] setDuration:0.0f];
+            [tableView noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:visibleRows]];
+            [NSAnimationContext endGrouping];
+            
+            self.isRowHeightUpdatePending = NO;
+        });
+    }
 }
 
 //------------------------------------------------------------------------------
 - (void) scrollViewContentBoundsDidChange:(NSNotification*)notification
 {
     if ( self.isRowHeightUpdatePending ) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(adjustRowHeightForVisibleRows) object:nil];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(adjustRowHeightForVisibleRowsForTable:) object:notification.object];
     }
-    [self performSelector:@selector(adjustRowHeightForVisibleRows) withObject:nil afterDelay:0.01f];
+    [self performSelector:@selector(adjustRowHeightForVisibleRowsForTable:) withObject:notification.object afterDelay:0.01f];
     self.isRowHeightUpdatePending = YES;
 }
 
@@ -724,6 +948,26 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         }];
     });
 }
+
+//------------------------------------------------------------------------------
+- (void) deleteSelectedHistoryRows
+{
+    [self.dataProvider deleteHistoryRowsWithIndexes:[self.historyTableView selectedRowIndexes] completion:^{
+        dispatch_async( dispatch_get_main_queue(), ^{
+            [self.historyTableView deselectAll:nil];
+            [self.historyTableView reloadData];
+        });
+    }];
+}
+
+//------------------------------------------------------------------------------
+- (void) selectAllHistoryRows
+{
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self.historyTableView selectAll:nil];
+    });
+}
+
 
 //------------------------------------------------------------------------------
 - (void) saveLogFile
@@ -920,6 +1164,11 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self dismissViewController:popup];
     }
     
+    if ( self.dataProvider.filterType == FILTER_FILTER ) {
+        self.toggleFilterModeButton.state = NSOnState;
+        [self toggleFilterMode:self.toggleFilterModeButton];
+    }
+    
     if ( self.dataProvider.rowFrom != NSNotFound ) {
         if ( self.dataProvider.rowTo >= self.dataProvider.rowFrom ) {
             [self startActivityIndicatorWithMessage:@"Setting marks ..."];
@@ -1026,6 +1275,13 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         [self reloadLog];
         [self stopActivityIndicator];
     }];
+}
+
+//------------------------------------------------------------------------------
+- (void) toggleShowInfoOnOff
+{
+    self.toggleInfoButton.state = ( ( self.toggleInfoButton.state == NSOnState ) ? NSOffState : NSOnState );
+    [self toggleInfoAction:self.toggleInfoButton];
 }
 
 #pragma mark -
@@ -1184,6 +1440,9 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) updateStatus
 {
     dispatch_async( dispatch_get_main_queue(), ^{
+        
+        // Update logTable ...
+        
         NSUInteger selectedIndex = ( ( self.logTableView.selectedRow >= 0 ) ? self.logTableView.selectedRow : NSNotFound );
         NSUInteger index;
         
@@ -1229,7 +1488,32 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         self.toggleMatchedButton.enabled    = [self.dataProvider.filteredData count];
         self.toggleFilterModeButton.enabled = matchedRowsFound;
         
-        [self setCopyEnabled:( dataTransferEnabled || [self.view.window.firstResponder isKindOfClass:[NSTextView class]] )];
+        [self setCopyEnabled:( dataTransferEnabled
+                               ||
+                               [self.view.window.firstResponder isKindOfClass:[NSTextView class]]
+                               ||
+                               [self.view.window.firstResponder isKindOfClass:[HistoryTableView class]]
+                             )
+         ];
+        
+        // Update historyTable
+        selectedIndex            = ( ( self.historyTableView.selectedRow >= 0 ) ? self.historyTableView.selectedRow : NSNotFound );
+        NSUInteger selectedCount = [self.historyTableView selectedRowIndexes].count;
+        NSUInteger totalCount    = [self.dataProvider.historyData count];
+        
+        if ( selectedCount > 1 ) {
+            label = [NSString stringWithFormat:@"Favorites selected %lu total %lu", selectedCount, totalCount];
+        }
+        else {
+            if ( selectedIndex != NSNotFound ) {
+                label = [NSString stringWithFormat:@"Favorites row %lu total %lu", selectedIndex + 1, totalCount];
+            }
+            else {
+                label = [NSString stringWithFormat:@"Favorites total %lu rows.", totalCount];
+            }
+        }
+        
+        [self.favoritesInfoLabel setStringValue:label];
     });
 }
 

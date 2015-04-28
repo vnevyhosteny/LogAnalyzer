@@ -28,4 +28,5 @@ extern NSString *const kHelpWindowController;
 - (LogAnalyzerWindowController*) controllerWithWindowNumber:(NSInteger)windowNumber;
 - (HelpWindowController*) createHelpWindow;
 - (void) checkForLastLogWindowOpened;
+- (void) addLogAnalyzerWindowController:(LogAnalyzerWindowController*)controller;
 @end

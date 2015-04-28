@@ -21,6 +21,7 @@ extern NSString *const kMatchFilter;
 @property (nonatomic, readonly)  NSUInteger originalRowId;
 @property (nonatomic, copy)      NSString  *text;
 @property (nonatomic, readwrite) BOOL       matchFilter;
+@property (nonatomic, readwrite) BOOL       markedForDelete;
 
 + (NSString*) trim:(NSString*)text;
 

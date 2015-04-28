@@ -19,6 +19,7 @@
 - (void) windowDidLoad
 {
     [super windowDidLoad];
+    [[WindowManager sharedInstance] addLogAnalyzerWindowController:self];
 }
 
 //------------------------------------------------------------------------------

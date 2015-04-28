@@ -17,4 +17,12 @@
     [[WindowManager sharedInstance] removeWindowController:self.windowController];
     [super close];
 }
+
+//------------------------------------------------------------------------------
+- (void) becomeKeyWindow
+{
+    [super becomeKeyWindow];
+    [WindowManager sharedInstance].activeWindowController = self.windowController;
+}
+
 @end

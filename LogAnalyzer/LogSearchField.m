@@ -22,8 +22,9 @@ NSString *const SearchFieldBecomeFirstResponderNotification = @"_search_field_fo
                 NSString *foo = [self stringValue];
                 if ( [foo length] ) {
                     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-                    [pasteboard declareTypes:[NSArray arrayWithObject: NSStringPboardType] owner: nil];
-                    [pasteboard setString:foo forType:NSStringPboardType];
+                    [pasteboard clearContents];
+                    [pasteboard declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:self];
+                    [pasteboard setString:foo forType:NSPasteboardTypeString];
                 }
                 else {
                     [super keyDown:event];

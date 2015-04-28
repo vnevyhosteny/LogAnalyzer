@@ -283,7 +283,12 @@ NSString *const kClickedRow                    = @"ClickedRow";
     switch ( event.keyCode ) {
         case kVK_Return:
             if ( row >= 0 ) {
-                [self.mainViewDelegate showLogItemPopupAtRow:row];
+                if ( event.modifierFlags & NSCommandKeyMask ) {
+                    [self.mainViewDelegate insertItemToHistoryAtRow:row];
+                }
+                else {
+                    [self.mainViewDelegate showLogItemPopupAtRow:row];
+                }
             }
             break;
             

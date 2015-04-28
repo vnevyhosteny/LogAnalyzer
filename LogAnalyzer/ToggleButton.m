@@ -60,10 +60,14 @@
     static CGFloat const TimeInterval = 0.2f;
     
     [self->_toggleImageView setAlphaValue:LowAlpha];
+    [self->_toggleImageView setNeedsDisplay];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(TimeInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self->_isToggled             = !self->_isToggled;
-        self->_toggleImageView.image = ( self->_isToggled ? [NSImage imageNamed:@"ButtonToggleDown"] : [NSImage imageNamed:@"ButtonToggleUp"] );
+        NSImage *newImage            = ( self->_isToggled ? [NSImage imageNamed:@"ButtonToggleDown"] : [NSImage imageNamed:@"ButtonToggleUp"] );
+        [self->_toggleImageView setImage:newImage];
         [self->_toggleImageView setAlphaValue:LowAlpha];
+        [self->_toggleImageView setNeedsDisplay];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(TimeInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self->_toggleImageView setAlphaValue:NormalAlpha];
         });

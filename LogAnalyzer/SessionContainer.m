@@ -143,7 +143,7 @@ didReceiveCertificate:(NSArray *)certificate
 }
 
 //------------------------------------------------------------------------------
-- (void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
+- (void) session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
 {
     NSLog( @"Start receviing resource name %@ from peer %@", resourceName, peerID.displayName);
 }

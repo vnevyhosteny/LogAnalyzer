@@ -8,13 +8,13 @@
 		<link href="main.css" rel="stylesheet" media="screen" type="text/css" >
 		<title>My Webpage</title>
 	</head>
-	<body style="font-family:'Helvetica Neue'; color:#303030; " >
+	<body style="font-family:'Helvetica Neue'; color:#303030; font-size: 11pt" >
         <br>
         <h2 style="font-family:'Helvetica Neue'; color:#0057B3; " >Introduction</h2>
         <hr/>
         <p>
         LogAnalyzer application provides a way to analyze log files. Or to be more exact, the application displays any plain-text file. When loading a file, LogAnalyzer checks if the lines start with a timestamp in a common format, such as
-        2015-03-22 10:11:23.456, etc. In that case it takes the input file as a log and groups the lines according to their timestamp value.
+        <font style="font-family:'Menlo'; color:#4d8de7; font-size: 10pt">2015-03-22 10:11:23.456</font> etc. In that case it takes the input file as a log and groups the lines according to their timestamp value.
         </p>
         
         <p>
@@ -31,7 +31,7 @@
                 <li>Run LogAnalyzer and press ⌘+O.</li>
                 <li>Drag and drop a file to the LogAnalyzer window.</li>
                 <li>Drag and drop a file to the LogAnalyzer icon in dock if the icon is present.</li>
-                <li>Select text in other application (such as Xcode) and drag and drop it at the LogAnalyzer application window.</li>
+                <li>Select text in other application (such as XCode) and drag and drop it at the LogAnalyzer application window.</li>
             </ul>
         </p>
         <p>
@@ -61,13 +61,13 @@
         </p>
         <ul>
             <li>Double click a selected line.</li>
-            <li>Hit ⏎(Enter) key on a selected line.</li>
+            <li>Hit ⏎ key on a selected line.</li>
         </ul>
         <p>
         A popup window will appear with the details of the line. You can highlight the searched text in the window using mouse, then:
         </p>
         <ul>
-            <li>After hitting ⏎(Enter), the popup windows closes and the highlighted text is transferred to the search box and search action starts automatically.</li>
+            <li>After hitting ⏎, the popup windows closes and the highlighted text is transferred to the search box and search action starts automatically.</li>
             <li>By hitting Escape the popup window closes without starting a search action.</li>
         </ul>
         
@@ -110,11 +110,19 @@
         </ul>
         
         <br>
+        <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Using favorites</h2>
+        <hr/>
+        <p>
+        While you are browsing log, you cat put selected log item to favorites list by hitting ⌘+⏎ key. By hitting ⌘+I, or by pushing the <img src="images/Info.png" width="15" height="15"/> button, you can show or hide the favourites list. By selecting a log item in the favouritest list, the log view will be synchronized.
+        </p>
+        
+        
+        <br>
         <h2 style="font-family:'Helvetica Neue'; color:#0057B3; ">Remote logging</h2>
         <hr/>
         
         <p>
-        The LogAnalyzer application supports remote logging. It uses the Bonjour protocol to receive continuous stream of log messages from a client that cannot for some reason be connected to the computer with Xcode through a cable.
+        The LogAnalyzer application supports remote logging. It uses the Bonjour protocol to receive continuous stream of log messages from a client that cannot for some reason be connected to the computer with XCode through a cable.
         </p>
         
         <br>
@@ -133,7 +141,7 @@
         <p>
         A sample iOS project that demonstrates using the RemoteLogger framework is available at:
         </p>
-        <a href="https://github.com/vnevyhosteny/RLoggerDemo"><p style="font-family:'Menlo'; color:#4d8de7; ">https://github.com/vnevyhosteny/RLoggerDemo</p></a>
+        <a href="https://github.com/vnevyhosteny/RLoggerDemo"><p style="font-family:'Menlo'; color:#4d8de7; font-size: 10pt">https://github.com/vnevyhosteny/RLoggerDemo</p></a>
         
         
         <br>

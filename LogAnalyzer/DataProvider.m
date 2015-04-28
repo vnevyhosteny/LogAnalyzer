@@ -9,8 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "DataProvider.h"
 
-NSString *const ServiceName                       = @"rlogger";
-NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notification_";
+NSString *const ServiceName                        = @"rlogger";
+NSString *const ReloadLogNeededNotification        = @"_reload_log_needed_notification_";
+NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_received_notification_";
 
 //==============================================================================
 @interface DataProvider()
@@ -29,6 +30,7 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
 
 @synthesize originalData          = _originalData;
 @synthesize filteredData          = _filteredData;
+@synthesize historyData           = _historyData;
 @synthesize matchedRowsIndexSet   = _matchedRowsIndexSet;
 @synthesize unmatchedRowsIndexSet = _unmatchedRowsIndexSet;
 @synthesize matchedRowsIndexDict  = _matchedRowsIndexDict;
@@ -42,6 +44,7 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
         self->_sync_queue            = dispatch_queue_create( "dataprovider.sync_queue", DISPATCH_QUEUE_SERIAL );
         self->_remote_queue          = dispatch_queue_create( "dataprovider.remote_queue", DISPATCH_QUEUE_SERIAL );
         self->_remoteLogItems        = [NSMutableArray new];
+        self->_historyData           = [NSMutableArray new];
         self->_rowFrom               = NSNotFound;
         self->_rowTo                 = NSNotFound;
         self->_originalLogFileName   = nil;
@@ -61,6 +64,7 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
     [self->_sessionContainer stopBrowse];
     self->_filteredData = nil;
     self->_originalData = nil;
+    self->_historyData  = nil;
 }
 
 #pragma mark -
@@ -157,20 +161,20 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
                     
                     [self resetMatchCountersAndIndexes];
                     
-                    NSUInteger index              = 0;
                     BOOL       isAuxEmpty         = !((BOOL)[aux count]);
+                    NSUInteger count              = [self->_originalData count];
                     
-                    for ( __weak LogItem *logItem in self->_originalData ) {
+                    __weak     LogItem *logItem;
+                    for ( NSUInteger i = 0; i < count; i++ ) {
                         
                         if ( !self.isSearching ) {
                             result = NO;
                             break;
                         }
                         
+                        logItem             = [self->_originalData objectAtIndex:i];
                         logItem.matchFilter = ( isAuxEmpty ? NO : ( [aux indexOfObject:logItem] != NSNotFound ) );
-                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index];
-                        
-                        index++;
+                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:i];
                     }
                 }
                 else {
@@ -202,11 +206,16 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
             if ( [self.filter.text length] ) {
                 
                 if ( self.filterType == FILTER_SEARCH ) {
-                    NSUInteger index    = 0;
-                    for ( __weak LogItem *logItem in self->_originalData ) {
+                    
+                    NSUInteger count = [self->_originalData count];
+                    __weak     LogItem *logItem;
+                    
+                    for ( NSUInteger i = 0; i < count; i++ ) {
+                        logItem             = [self->_originalData objectAtIndex:i];
                         logItem.matchFilter = ( [self.filter.text length] && ( [logItem.text rangeOfString:self.filter.text options:NSCaseInsensitiveSearch].location != NSNotFound ) );
-                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index++];
+                        [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:i];
                     }
+                    
                     self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
                 }
                 else {
@@ -252,11 +261,12 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
             [self resetMatchCountersAndIndexes];
             
             self->_filteredData = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:NO];
-            NSUInteger index    = 0;
+            NSUInteger count    = [self->_filteredData count];
             
-            for ( __weak LogItem *logItem in self->_filteredData ) {
-                [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:index];
-                index++;
+            __weak LogItem *logItem;
+            for ( NSUInteger i = 0; i < count; i++ ) {
+                logItem = [self->_filteredData objectAtIndex:i];
+                [self updateMatchCountersAndIndexesWithLogItem:logItem withIndex:i];
             }
         }
         
@@ -364,6 +374,7 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
     }
 }
 
+
 //------------------------------------------------------------------------------
 - (void) setRowTo:(NSUInteger)newValue
 {
@@ -384,6 +395,18 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
             LogItem *logItem = [self->_filteredData objectAtIndex:row];
             NSUInteger index = [self->_originalData indexOfObject:logItem];
             if ( index != NSNotFound ) {
+                
+                NSUInteger i = 0;
+                for ( __weak LogItem *historyLogItem in self.historyData ) {
+                    if ( historyLogItem.originalRowId == logItem.originalRowId ) {
+                        [self.historyData removeObjectAtIndex:i];
+                        break;
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                
                 NSMutableArray *aux = [NSMutableArray arrayWithArray:self->_originalData];
                 [aux removeObjectAtIndex:index];
                 self->_originalData = [[NSMutableArray alloc] initWithArray:aux];
@@ -426,6 +449,93 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
     self->_sessionContainer = ( newValue ? [[SessionContainer alloc] initWithDisplayName:[[NSHost currentHost] name] serviceType:ServiceName delegate:self] : nil );
 }
 
+//------------------------------------------------------------------------------
+- (void) addLogItemToHistory:(LogItem*)logItem
+{
+    if ( [self->_historyData indexOfObject:logItem] == NSNotFound ) {
+        [self->_historyData addObject:logItem];
+    }
+}
+
+//------------------------------------------------------------------------------
+- (void) searchForRowIndexInFilteredDataWithItem:(LogItem*)logItem withCompletion:(void(^)( NSUInteger rowIndex))completion
+{
+    if ( !logItem || ![self.filteredData count] ) {
+        if ( completion ) {
+            completion( NSNotFound );
+        }
+        return;
+    }
+    
+    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        NSUInteger startIndex = logItem.originalRowId;
+        NSInteger  step       = 0;
+        NSUInteger count      = [self.filteredData count];
+        
+        if ( [self.filteredData count] <= startIndex ) {
+            startIndex = count - 1;
+            step       = -1;
+        }
+        else {
+            LogItem *startLogItem = [self.filteredData objectAtIndex:startIndex];
+            if ( startLogItem.originalRowId == logItem.originalRowId ) {
+                if ( completion ) {
+                    completion( startIndex );
+                }
+                return;
+            }
+            else {
+                step = ( ( startLogItem.originalRowId < logItem.originalRowId ) ? 1 : -1 );
+            }
+        }
+        
+        LogItem    *currentLogItem;
+        NSUInteger  result = NSNotFound;
+        
+        for ( NSUInteger i = startIndex; ( i > 0 && i < count ); i += step ) {
+            currentLogItem = [self.filteredData objectAtIndex:i];
+            if ( currentLogItem.originalRowId == logItem.originalRowId ) {
+                result = i;
+                break;
+            }
+        }
+        
+        if ( completion ) {
+            completion( result );
+        }
+    });
+}
+
+//------------------------------------------------------------------------------
+- (void) deleteHistoryRowsWithIndexes:(NSIndexSet*)indexSet completion:(void(^)())completion
+{
+    NSUInteger       currentIndex = [indexSet firstIndex];
+    
+    while ( currentIndex != NSNotFound) {
+        if ( currentIndex < [self.historyData count] ) {
+            ((LogItem*)[self.historyData objectAtIndex:currentIndex]).markedForDelete = YES;
+        }
+        currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
+    }
+    
+    NSUInteger       i     = 0;
+    LogItem         *logItem;
+    
+    while ( i < [self.historyData count] ) {
+        logItem = [self.historyData objectAtIndex:i];
+        if ( logItem.markedForDelete ) {
+            [self.historyData removeObjectAtIndex:i];
+        }
+        else {
+            i++;
+        }
+    }
+    
+    if ( completion ) {
+        completion();
+    }
+}
 
 #pragma mark -
 #pragma mark Data
@@ -963,7 +1073,10 @@ NSString *const ReloadLogNeededNotification       = @"_reload_log_needed_notific
         }
         
         [self->_remoteLogItems removeAllObjects];
-        [[NSNotificationCenter defaultCenter] postNotificationName:ReloadLogNeededNotification object:nil];
+        
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:ReloadLogNeededNotification object:nil];
+        [center postNotificationName:RemoteLogItemsReceivedNotification object:nil];
     });
 }
 

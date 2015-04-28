@@ -14,6 +14,7 @@ NSString *const LogItemPasteboardType = @"cz.nefa.logitem";
 NSString *const kOriginalRowId        = @"originalRowId";
 NSString *const kText                 = @"text";
 NSString *const kMatchFilter          = @"matchFilter";
+NSString *const kMarkedForDelete      = @"markedForDelete";
 
 
 @implementation LogItem
@@ -42,6 +43,7 @@ NSString *const kMatchFilter          = @"matchFilter";
     if ( ( self = [super init] ) ) {
         self->_originalRowId = row;
         self.text            = [LogItem trim:text];
+        self.markedForDelete = NO;
     }
     return self;
 }
@@ -54,6 +56,7 @@ NSString *const kMatchFilter          = @"matchFilter";
     newItem->_originalRowId = self.originalRowId;
     newItem.text            = self.text;
     newItem.matchFilter     = self.matchFilter;
+    newItem.markedForDelete = self.markedForDelete;
     
     return newItem;
 }
@@ -67,6 +70,7 @@ NSString *const kMatchFilter          = @"matchFilter";
         self->_originalRowId = ((NSNumber*)[decoder decodeObjectForKey:kOriginalRowId]).integerValue;
         self.matchFilter     = ((NSNumber*)[decoder decodeObjectForKey:kMatchFilter]).boolValue;
         self.text            = [decoder decodeObjectForKey:kText];
+        self.markedForDelete = ((NSNumber*)[decoder decodeObjectForKey:kMarkedForDelete]).boolValue;
     }
     return self;
 }
@@ -77,6 +81,7 @@ NSString *const kMatchFilter          = @"matchFilter";
     [coder encodeObject:[NSNumber numberWithUnsignedInteger:self.originalRowId] forKey:kOriginalRowId];
     [coder encodeObject:self.text forKey:kText];
     [coder encodeObject:[NSNumber numberWithBool:self.matchFilter] forKey:kMatchFilter];
+    [coder encodeObject:[NSNumber numberWithBool:self.markedForDelete] forKey:kMarkedForDelete];
 }
 
 #pragma mark -
