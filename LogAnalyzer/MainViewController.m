@@ -200,6 +200,10 @@ static CGFloat const FullColor        = 255.0f;
     [searchCell setMaximumRecents:20];
     [searchCell setSearchMenuTemplate:searchMenu];
     
+    
+    [[searchCell cancelButtonCell] setAction:@selector(searchCellClearedAction:)];
+    [[searchCell cancelButtonCell] setTarget:self];
+    
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(handleNotifications:) name:ReloadLogNeededNotification object:nil];
     [center addObserver:self selector:@selector(handleNotifications:) name:NSViewBoundsDidChangeNotification object:[self.logTableScrollView contentView]];
@@ -1012,6 +1016,9 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         if ( !error ) {
             [self reloadLog];
             [self setSaveEnabled:YES];
+            if ( [[self.searchField stringValue] length] ) {
+                [self fireSearchProcess];
+            }
         }
     }];
 }
@@ -1019,15 +1026,14 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) appendLogFromText:(NSString*)logText
 {
-    dispatch_async( dispatch_get_main_queue(), ^{
-        //[self.view.window setTitle:[fileName lastPathComponent]];
-    });
-    
     [self startActivityIndicatorWithMessage:@"Pasting text ..."];
     [self.dataProvider appendLogFromText:logText completion:^(NSError *error) {
         if ( !error ) {
             [self reloadLog];
             [self setSaveEnabled:YES];
+            if ( [[self.searchField stringValue] length] ) {
+                [self fireSearchProcess];
+            }
         }
     }];
 }
@@ -1274,6 +1280,12 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     [self.dataProvider removeAllMatchedItemsWithCompletion:^{
         [self reloadLog];
         [self stopActivityIndicator];
+        if ( self.dataProvider.filterType == FILTER_FILTER ) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                self.toggleFilterModeButton.state = NSOnState;
+                [self toggleFilterMode:self.toggleFilterModeButton];
+            });
+        }
     }];
 }
 
@@ -1385,6 +1397,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         });
     }
     
+    self->_currentFilterText      = [self.searchField stringValue];
     self.dataProvider.filter.text = [self.searchField stringValue];
     [self startActivityIndicatorWithMessage:@"Searching ..."];
     
@@ -1418,7 +1431,9 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 - (void) controlTextDidEndEditing:(NSNotification *)notification
 {
     if ( ( notification.object == self.searchField ) && !self.dataProvider.isSearching ) {
-        [self fireSearchProcess];
+        if ( ![self->_currentFilterText isEqualToString:[self.searchField stringValue]] ) {
+            [self fireSearchProcess];
+        }
     }
 }
 
@@ -1431,6 +1446,19 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             [self->_delayedSearchTimer invalidate];
         }
         self->_delayedSearchTimer = [NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(firePartialSearch) userInfo:nil repeats:NO];
+    }
+}
+
+//------------------------------------------------------------------------------
+- (void) searchCellClearedAction:(LogSearchField*)sender
+{
+    [self startActivityIndicatorWithMessage:@"Resetting filter ..."];
+    self->_currentFilterText = nil;
+    [self.searchField setStringValue:@""];
+    [self fireSearchProcess];
+    if ( self.dataProvider.filterType == FILTER_FILTER ) {
+        self.toggleFilterModeButton.state = NSOnState;
+        [self toggleFilterMode:self.toggleFilterModeButton];
     }
 }
 

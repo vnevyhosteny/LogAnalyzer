@@ -137,6 +137,8 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         
         // Wait for previous search interruption
         NSRunLoop            *runLoop      = [NSRunLoop currentRunLoop];
+        [runLoop addPort:[NSMachPort port] forMode:NSRunLoopCommonModes];
+        
         static CGFloat const  WaitInterval = 0.1f;
         
         while ( self.isSearching ) {
@@ -424,9 +426,14 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
             
             self->_filteredData = nil;
             
-            for ( __weak LogItem *logItem in self->_originalData ) {
+            dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+                __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
                 logItem.matchFilter = YES;
-            }
+            });
+            
+//            for ( __weak LogItem *logItem in self->_originalData ) {
+//                logItem.matchFilter = YES;
+//            }
             
             [self filteredDataWithOriginalData];
             
@@ -743,14 +750,26 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 {
     dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^{
         @synchronized( self ) {
-            self->_rowFrom      = NSNotFound;
-            self->_rowTo        = NSNotFound;
-            NSMutableArray *aux = [NSMutableArray new];
-            for ( __weak LogItem *logItem in self->_originalData ) {
+            self->_rowFrom                  = NSNotFound;
+            self->_rowTo                    = NSNotFound;
+            NSMutableArray       *aux       = [NSMutableArray new];
+            dispatch_semaphore_t  semaphore = dispatch_semaphore_create(1);
+            
+            dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^(size_t i) {
+                dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
+                __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
                 if ( !logItem.matchFilter ) {
                     [aux addObject:logItem];
                 }
-            }
+                dispatch_semaphore_signal( semaphore );
+            });
+            
+//            for ( __weak LogItem *logItem in self->_originalData ) {
+//                if ( !logItem.matchFilter ) {
+//                    [aux addObject:logItem];
+//                }
+//            }
+            
             self->_originalData = [[NSMutableArray alloc] initWithArray:aux];
             self->_filteredData = nil;
             [self filteredDataWithOriginalData];
@@ -829,7 +848,8 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (void) removeFromToMarksWithCompletion:(void (^)(void))completion
 {
-    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_queue_t queue = dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async( queue, ^{
         
         @synchronized( self ) {
             self.rowFrom = NSNotFound;
@@ -837,9 +857,10 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
             
             [self resetMatchCountersAndIndexes];
             
-            for ( __weak LogItem *logItem in self.filteredData ) {
+            dispatch_apply( [self->_filteredData count], queue, ^(size_t i) {
+                __weak LogItem *logItem = [self->_filteredData objectAtIndex:i];
                 logItem.matchFilter = NO;
-            }
+            });
         }
         if ( completion ) {
             completion();
@@ -953,9 +974,18 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         @synchronized( self ) {
             
             if ( [self->_originalData count] ) {
-                for ( __weak LogItem *logItem in self->_originalData ) {
+                
+                dispatch_semaphore_t semaphore = dispatch_semaphore_create(1);
+                dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+                    __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
+                    dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
                     [aux addObject:[NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId]];
-                }
+                    dispatch_semaphore_signal( semaphore );
+                });
+                
+//                for ( __weak LogItem *logItem in self->_originalData ) {
+//                    [aux addObject:[NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId]];
+//                }
                 
                 dict = [NSDictionary dictionaryWithObjects:self->_originalData forKeys:aux];
                 [aux removeAllObjects];
