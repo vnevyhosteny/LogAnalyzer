@@ -41,6 +41,7 @@ extern NSString *const kLogItem;
 - (void) saveLogFileAs;
 
 - (void) find;
+- (void) analyze;
 - (void) toggleShowInfoOnOff;
 
 @end

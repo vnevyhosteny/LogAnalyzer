@@ -132,6 +132,13 @@
                                                 <action selector="findAction:" target="Voe-Tx-rLC" id="8F6-C0-QiS"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="PNR-5N-zBz"/>
+                                        <menuItem title="Sort by text" keyEquivalent="s" id="H7h-CK-ds9">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="analyzeAction:" target="Voe-Tx-rLC" id="a9c-Tf-S1w"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>

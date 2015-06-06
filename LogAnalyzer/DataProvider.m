@@ -959,6 +959,12 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion
 {
+    [self pasteLogItems:logItems sorted:YES withCompletion:completion];
+}
+
+//------------------------------------------------------------------------------
+- (void) pasteLogItems:(NSArray*)logItems sorted:(BOOL)sorted withCompletion:(void(^)(void))completion
+{
     if ( ![logItems count] ) {
         if ( completion ) {
             completion();
@@ -1002,19 +1008,21 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
                 self->_originalData = [[NSMutableArray alloc] initWithArray:logItems copyItems:NO];
             }
             
-            self->_originalData = [[NSMutableArray alloc] initWithArray:[self->_originalData sortedArrayUsingComparator:^NSComparisonResult( id item1, id item2 ) {
-                return ( ( ((LogItem*)item1).originalRowId == ((LogItem*)item2).originalRowId )
-                        ?
-                        NSOrderedSame
-                        :
-                        ( ( ((LogItem*)item1).originalRowId > ((LogItem*)item2).originalRowId )
-                          ?
-                          NSOrderedDescending
-                          :
-                          NSOrderedAscending
-                         )
-                        );
-            }]];
+            if ( sorted ) {
+                self->_originalData = [[NSMutableArray alloc] initWithArray:[self->_originalData sortedArrayUsingComparator:^NSComparisonResult( id item1, id item2 ) {
+                    return ( ( ((LogItem*)item1).originalRowId == ((LogItem*)item2).originalRowId )
+                            ?
+                            NSOrderedSame
+                            :
+                            ( ( ((LogItem*)item1).originalRowId > ((LogItem*)item2).originalRowId )
+                             ?
+                             NSOrderedDescending
+                             :
+                             NSOrderedAscending
+                             )
+                            );
+                }]];
+            }
             
             self->_filteredData = nil;
             [self filteredDataWithOriginalData];
@@ -1025,6 +1033,44 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         }
     });
     
+}
+
+#pragma mark -
+#pragma mark Data Analysis
+//------------------------------------------------------------------------------
+- (void) analyzeLogItemsWithCompletion:(void(^)(NSArray*))completion
+{
+    if ( !completion ) {
+        return;
+    }
+    
+    static NSCharacterSet  *nonDateSet    = nil;
+    static dispatch_once_t  onceToken     = 0;
+    
+    dispatch_once( &onceToken, ^{
+        nonDateSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789-.:"] invertedSet];
+    });
+    
+    if ( ![self->_originalData count] ) {
+        completion( nil );
+        return;
+    }
+    
+    NSMutableArray *sortedLogItems = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
+    [sortedLogItems sortUsingComparator:^NSComparisonResult(LogItem *li1, LogItem *li2) {
+        
+        NSUInteger p1 = [li1.text rangeOfCharacterFromSet:nonDateSet].location;
+        NSUInteger p2 = [li2.text rangeOfCharacterFromSet:nonDateSet].location;
+        
+        if ( ( p1 == NSNotFound ) || ( p2 == NSNotFound ) ) {
+            return NSOrderedSame;
+        }
+        else {
+            return [[li1.text substringFromIndex:p1] compare:[li2.text substringFromIndex:p2]];
+        }
+    }];
+    
+    completion( [[NSArray alloc] initWithArray:sortedLogItems copyItems:NO] );
 }
 
 #pragma mark -

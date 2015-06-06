@@ -55,6 +55,7 @@ extern NSString *const RemoteLogItemsReceivedNotification ;
 
 - (void) writeMatchedLogItems:(BOOL)matched toPasteboard:(NSPasteboard *)pboard;
 - (void) pasteLogItems:(NSArray*)logItems withCompletion:(void(^)(void))completion;
+- (void) pasteLogItems:(NSArray*)logItems sorted:(BOOL)sorted withCompletion:(void(^)(void))completion;
 - (void) deleteRow:(NSUInteger)row;
 
 - (NSUInteger) nextMatchedRowIndex;
@@ -70,4 +71,5 @@ extern NSString *const RemoteLogItemsReceivedNotification ;
 - (void) searchForRowIndexInFilteredDataWithItem:(LogItem*)logItem withCompletion:(void(^)( NSUInteger rowIndex))completion;
 - (void) deleteHistoryRowsWithIndexes:(NSIndexSet*)indexSet completion:(void(^)())completion;
 
+- (void) analyzeLogItemsWithCompletion:(void(^)(NSArray*))completion;
 @end

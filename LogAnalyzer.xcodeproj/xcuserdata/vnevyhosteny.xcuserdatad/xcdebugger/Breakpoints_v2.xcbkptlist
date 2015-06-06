@@ -68,11 +68,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LogAnalyzer/MainViewController.m"
-            timestampString = "453791717.895107"
+            timestampString = "455299401.42887"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1329"
-            endingLineNumber = "1329"
+            startingLineNumber = "1352"
+            endingLineNumber = "1352"
             landmarkName = "-fireSearchProcess"
             landmarkType = "5">
          </BreakpointContent>
@@ -84,28 +84,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LogAnalyzer/MainViewController.m"
-            timestampString = "453791507.016848"
+            timestampString = "455299401.42887"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1279"
-            endingLineNumber = "1279"
+            startingLineNumber = "1302"
+            endingLineNumber = "1302"
             landmarkName = "-removeMatchedRows"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "LogAnalyzer/MainViewController.m"
-            timestampString = "453791621.969739"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "464"
-            endingLineNumber = "464"
-            landmarkName = "-toggleFilterMode:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

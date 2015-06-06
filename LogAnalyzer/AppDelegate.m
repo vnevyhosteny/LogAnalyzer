@@ -178,6 +178,11 @@
     }
 }
 
+//------------------------------------------------------------------------------
+- (IBAction) analyzeAction:(NSMenuItem *)sender
+{
+    [ActiveViewController() analyze];
+}
 
 //------------------------------------------------------------------------------
 - (void) applicationDidChangeScreenParameters:(NSNotification *)notification
@@ -202,7 +207,7 @@
 }
 
 //------------------------------------------------------------------------------
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
 {
     if ( self.helpWindowController ) {
         self.helpWindowController.closeCompletion();

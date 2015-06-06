@@ -456,6 +456,29 @@ static CGFloat const FullColor        = 255.0f;
     [self.view.window makeFirstResponder:self.searchField];
 }
 
+//------------------------------------------------------------------------------
+- (void) analyze
+{
+    [self startActivityIndicatorWithMessage:@"Sorting data ..."];
+    
+    dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.dataProvider analyzeLogItemsWithCompletion:^(NSArray *sortedLogItems) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                LogAnalyzerWindowController *windowController = [[WindowManager sharedInstance] createNewWindowWithLogItems:nil title:@"Sorted Log"];
+                [windowController.window makeKeyAndOrderFront:self];
+                dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [windowController.mainViewController.dataProvider pasteLogItems:sortedLogItems sorted:NO withCompletion:^{
+                        dispatch_async( dispatch_get_main_queue(), ^{
+                            [windowController.mainViewController reloadLog];
+                            [self stopActivityIndicator];
+                        });
+                    }];
+                });
+            });
+        }];
+    });
+}
+
 #pragma mark -
 #pragma mark Actions
 //------------------------------------------------------------------------------
