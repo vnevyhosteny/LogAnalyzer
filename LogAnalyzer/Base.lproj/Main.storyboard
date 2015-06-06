@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14D130a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="6751"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="7706"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -114,12 +114,14 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="GsQ-N9-hNK"/>
-                                        <menuItem title="Copy" enabled="NO" keyEquivalent="c" id="YmG-RJ-fGl">
+                                        <menuItem title="Copy" enabled="NO" id="YmG-RJ-fGl">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="copyAction:" target="Voe-Tx-rLC" id="mY0-at-t39"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Paste" enabled="NO" keyEquivalent="v" id="18x-b3-fTh">
+                                        <menuItem title="Paste" enabled="NO" id="18x-b3-fTh">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="pasteAction:" target="Voe-Tx-rLC" id="7Ak-Tr-w9D"/>
                                             </connections>
@@ -716,7 +718,7 @@
         <image name="ButtonFilterOff" width="20" height="20"/>
         <image name="ButtonFilterOn" width="20" height="20"/>
         <image name="ButtonInfoOff" width="0.60000002384185791" height="0.60000002384185791"/>
-        <image name="ButtonInfoOn" width="1.2000000476837158" height="1.2000000476837158"/>
+        <image name="ButtonInfoOn" width="0.60000002384185791" height="0.60000002384185791"/>
         <image name="ButtonMarkFrom" width="20" height="20"/>
         <image name="ButtonMarkTo" width="20" height="20"/>
         <image name="ButtonRadioOff" width="20" height="20"/>
