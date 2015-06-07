@@ -74,11 +74,6 @@
             }
             else {
                 return [li1.text compare:li2.text];
-//                NSUInteger  l1  = [li1.text rangeOfCharacterFromSet:self->_nonDateSet].location;
-//                NSUInteger  l2  = [li2.text rangeOfCharacterFromSet:self->_nonDateSet].location;
-//                NSString    *t1 = ( l1 != NSNotFound ? [li1.text substringFromIndex:l1] : li1.text );
-//                NSString    *t2 = ( l2 != NSNotFound ? [li2.text substringFromIndex:l2] : li2.text );
-//                return [t1 compare:t2];
             }
         }];
     }
