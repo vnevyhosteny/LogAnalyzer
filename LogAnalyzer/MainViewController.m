@@ -43,6 +43,7 @@ NSString *const kPreviousMatchedRow                 = @"Previous matched row";
 NSString *const kMenuItemSave                       = @"Save";
 NSString *const kMenuItemCopy                       = @"Copy";
 NSString *const kMenuItemPaste                      = @"Paste";
+NSString *const kAnalyze                            = @"Log analysis";
 
 //==============================================================================
 @interface MainViewController()
@@ -442,6 +443,11 @@ static CGFloat const FullColor        = 255.0f;
     [self setMenuItemByTitle:kMenuItemPaste inSubmenuByTitle:kMenuItemEdit enabled:enabled];
 }
 
+//------------------------------------------------------------------------------
+- (void) setAnalyzeEnabled:(BOOL)enabled
+{
+    [self setMenuItemByTitle:kAnalyze inSubmenuByTitle:kMenuItemEdit enabled:enabled];
+}
 
 
 //------------------------------------------------------------------------------
@@ -459,7 +465,12 @@ static CGFloat const FullColor        = 255.0f;
 //------------------------------------------------------------------------------
 - (void) analyze
 {
-    [self startActivityIndicatorWithMessage:@"Sorting data ..."];
+    if ( self.dataProvider.isDataAnalysisRunning ) {
+        return;
+    }
+    
+    [self startActivityIndicatorWithMessage:@"Analyzing data ..."];
+    [self setAnalyzeEnabled:NO];
     
     dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self.dataProvider analyzeLogItemsWithCompletion:^(NSArray *sortedLogItems) {
@@ -471,6 +482,7 @@ static CGFloat const FullColor        = 255.0f;
                         dispatch_async( dispatch_get_main_queue(), ^{
                             [windowController.mainViewController reloadLog];
                             [self stopActivityIndicator];
+                            [self setAnalyzeEnabled:YES];
                         });
                     }];
                 });
@@ -1351,7 +1363,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //        return;
 //    }
     
-    if ( self->_isSearchingInProgress ) {
+    if ( self->_isSearchingInProgress || self.dataProvider.isDataAnalysisRunning ) {
         return;
     }
     else {
@@ -1403,6 +1415,10 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) firePartialSearch
 {
+    if ( self.dataProvider.isDataAnalysisRunning ) {
+        return;
+    }
+    
     if ( [self->_delayedSearchTimer isValid] ) {
         [self->_delayedSearchTimer invalidate];
         self->_delayedSearchTimer = nil;

@@ -133,7 +133,7 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="PNR-5N-zBz"/>
-                                        <menuItem title="Sort by text" keyEquivalent="s" id="H7h-CK-ds9">
+                                        <menuItem title="Log analysis" keyEquivalent="s" id="H7h-CK-ds9">
                                             <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                             <connections>
                                                 <action selector="analyzeAction:" target="Voe-Tx-rLC" id="a9c-Tf-S1w"/>

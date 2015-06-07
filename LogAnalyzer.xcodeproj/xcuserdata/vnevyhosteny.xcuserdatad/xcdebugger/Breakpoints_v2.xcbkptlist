@@ -73,7 +73,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1352"
             endingLineNumber = "1352"
-            landmarkName = "-fireSearchProcess"
+            landmarkName = "-sessionContainerDidChangeState:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -89,7 +89,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1302"
             endingLineNumber = "1302"
-            landmarkName = "-removeMatchedRows"
+            landmarkName = "-moveToNextMatchedRow"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

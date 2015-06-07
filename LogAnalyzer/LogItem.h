@@ -6,15 +6,15 @@
 //  Copyright (c) 2014 Vladimír Nevyhoštěný. All rights reserved.
 //
 
-
+#import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-
 
 extern NSString *const LogItemPasteboardType;
 
 extern NSString *const kOriginalRowId;
 extern NSString *const kText;
 extern NSString *const kMatchFilter;
+extern NSString *const kMatchRatio;
 
 //==============================================================================
 @interface LogItem : NSObject <NSPasteboardWriting, NSCoding>
@@ -22,6 +22,7 @@ extern NSString *const kMatchFilter;
 @property (nonatomic, copy)      NSString  *text;
 @property (nonatomic, readwrite) BOOL       matchFilter;
 @property (nonatomic, readwrite) BOOL       markedForDelete;
+@property (nonatomic, readwrite) NSUInteger matchRatio;
 
 + (NSString*) trim:(NSString*)text;
 

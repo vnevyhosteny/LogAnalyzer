@@ -15,7 +15,7 @@ NSString *const kOriginalRowId        = @"originalRowId";
 NSString *const kText                 = @"text";
 NSString *const kMatchFilter          = @"matchFilter";
 NSString *const kMarkedForDelete      = @"markedForDelete";
-
+NSString *const kMatchRatio           = @"matchRatio";
 
 @implementation LogItem
 
@@ -44,6 +44,7 @@ NSString *const kMarkedForDelete      = @"markedForDelete";
         self->_originalRowId = row;
         self.text            = [LogItem trim:text];
         self.markedForDelete = NO;
+        self->_matchRatio    = NSNotFound;
     }
     return self;
 }
@@ -57,6 +58,7 @@ NSString *const kMarkedForDelete      = @"markedForDelete";
     newItem.text            = self.text;
     newItem.matchFilter     = self.matchFilter;
     newItem.markedForDelete = self.markedForDelete;
+    newItem->_matchRatio    = self.matchRatio;
     
     return newItem;
 }
@@ -71,6 +73,7 @@ NSString *const kMarkedForDelete      = @"markedForDelete";
         self.matchFilter     = ((NSNumber*)[decoder decodeObjectForKey:kMatchFilter]).boolValue;
         self.text            = [decoder decodeObjectForKey:kText];
         self.markedForDelete = ((NSNumber*)[decoder decodeObjectForKey:kMarkedForDelete]).boolValue;
+        self->_matchRatio    = ((NSNumber*)[decoder decodeObjectForKey:kMatchRatio]).integerValue;
     }
     return self;
 }
@@ -82,6 +85,7 @@ NSString *const kMarkedForDelete      = @"markedForDelete";
     [coder encodeObject:self.text forKey:kText];
     [coder encodeObject:[NSNumber numberWithBool:self.matchFilter] forKey:kMatchFilter];
     [coder encodeObject:[NSNumber numberWithBool:self.markedForDelete] forKey:kMarkedForDelete];
+    [coder encodeObject:[NSNumber numberWithUnsignedInteger:self.matchRatio] forKey:kMatchRatio];
 }
 
 #pragma mark -

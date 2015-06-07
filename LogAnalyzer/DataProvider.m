@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "DataProvider.h"
+#import "LogItemsAnalyzer.h"
 
 NSString *const ServiceName                        = @"rlogger";
 NSString *const ReloadLogNeededNotification        = @"_reload_log_needed_notification_";
@@ -34,6 +35,7 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 @synthesize matchedRowsIndexSet   = _matchedRowsIndexSet;
 @synthesize unmatchedRowsIndexSet = _unmatchedRowsIndexSet;
 @synthesize matchedRowsIndexDict  = _matchedRowsIndexDict;
+@synthesize isDataAnalysisRunning = _isDataAnalysisRunning;
 
 //------------------------------------------------------------------------------
 - (instancetype) init
@@ -52,6 +54,7 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         self->_unmatchedRowsIndexSet = nil;
         self->_matchedRowsIndexDict  = nil;
         self->_sessionContainer      = nil;
+        self->_isDataAnalysisRunning = NO;
         
         [self resetMatchCountersAndIndexes];
     }
@@ -1040,37 +1043,15 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (void) analyzeLogItemsWithCompletion:(void(^)(NSArray*))completion
 {
-    if ( !completion ) {
-        return;
-    }
-    
-    static NSCharacterSet  *nonDateSet    = nil;
-    static dispatch_once_t  onceToken     = 0;
-    
-    dispatch_once( &onceToken, ^{
-        nonDateSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789-.:"] invertedSet];
-    });
-    
-    if ( ![self->_originalData count] ) {
-        completion( nil );
-        return;
-    }
-    
-    NSMutableArray *sortedLogItems = [[NSMutableArray alloc] initWithArray:self->_originalData copyItems:YES];
-    [sortedLogItems sortUsingComparator:^NSComparisonResult(LogItem *li1, LogItem *li2) {
-        
-        NSUInteger p1 = [li1.text rangeOfCharacterFromSet:nonDateSet].location;
-        NSUInteger p2 = [li2.text rangeOfCharacterFromSet:nonDateSet].location;
-        
-        if ( ( p1 == NSNotFound ) || ( p2 == NSNotFound ) ) {
-            return NSOrderedSame;
+    self->_isDataAnalysisRunning = YES;
+    void(^analysisCompletion)(NSArray*) = ^(NSArray *logItems) {
+        self->_isDataAnalysisRunning = NO;
+        if ( completion ) {
+            completion( logItems );
         }
-        else {
-            return [[li1.text substringFromIndex:p1] compare:[li2.text substringFromIndex:p2]];
-        }
-    }];
-    
-    completion( [[NSArray alloc] initWithArray:sortedLogItems copyItems:NO] );
+    };
+    LogItemsAnalyzer *analyzer = [[LogItemsAnalyzer alloc] initWithLogItems:self->_originalData];
+    [analyzer analyzeLogItemsWithCompletion:analysisCompletion];
 }
 
 #pragma mark -
