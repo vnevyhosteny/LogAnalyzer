@@ -434,10 +434,6 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
                 logItem.matchFilter = YES;
             });
             
-//            for ( __weak LogItem *logItem in self->_originalData ) {
-//                logItem.matchFilter = YES;
-//            }
-            
             [self filteredDataWithOriginalData];
             
             if ( completion ) {
@@ -756,22 +752,22 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
             self->_rowFrom                  = NSNotFound;
             self->_rowTo                    = NSNotFound;
             NSMutableArray       *aux       = [NSMutableArray new];
-            dispatch_semaphore_t  semaphore = dispatch_semaphore_create(1);
-            
-            dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^(size_t i) {
-                dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
-                __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
-                if ( !logItem.matchFilter ) {
-                    [aux addObject:logItem];
-                }
-                dispatch_semaphore_signal( semaphore );
-            });
-            
-//            for ( __weak LogItem *logItem in self->_originalData ) {
+//            dispatch_semaphore_t  semaphore = dispatch_semaphore_create(1);
+//            
+//            dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ), ^(size_t i) {
+//                dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
+//                __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
 //                if ( !logItem.matchFilter ) {
 //                    [aux addObject:logItem];
 //                }
-//            }
+//                dispatch_semaphore_signal( semaphore );
+//            });
+            
+            for ( __weak LogItem *logItem in self->_originalData ) {
+                if ( !logItem.matchFilter ) {
+                    [aux addObject:logItem];
+                }
+            }
             
             self->_originalData = [[NSMutableArray alloc] initWithArray:aux];
             self->_filteredData = nil;
@@ -984,17 +980,17 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
             
             if ( [self->_originalData count] ) {
                 
-                dispatch_semaphore_t semaphore = dispatch_semaphore_create(1);
-                dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
-                    __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
-                    dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
-                    [aux addObject:[NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId]];
-                    dispatch_semaphore_signal( semaphore );
-                });
-                
-//                for ( __weak LogItem *logItem in self->_originalData ) {
+//                dispatch_semaphore_t semaphore = dispatch_semaphore_create(1);
+//                dispatch_apply( [self->_originalData count], dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+//                    __weak LogItem *logItem = [self->_originalData objectAtIndex:i];
+//                    dispatch_semaphore_wait( semaphore, DISPATCH_TIME_FOREVER );
 //                    [aux addObject:[NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId]];
-//                }
+//                    dispatch_semaphore_signal( semaphore );
+//                });
+                
+                for ( __weak LogItem *logItem in self->_originalData ) {
+                    [aux addObject:[NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId]];
+                }
                 
                 dict = [NSDictionary dictionaryWithObjects:self->_originalData forKeys:aux];
                 [aux removeAllObjects];
