@@ -55,10 +55,8 @@
     }
     
     dispatch_apply( count, self->_queue, ^(size_t index) {
-        LogItem *logItem = [self->_logItems objectAtIndex:index];
-        if ( logItem.matchRatio == NSNotFound ) {
-            logItem.matchRatio = [self countMatchRatioForLogItem:logItem];
-        }
+        LogItem *logItem   = [self->_logItems objectAtIndex:index];
+        logItem.matchRatio = [self countMatchRatioForLogItem:logItem];
     });
     
     NSMutableArray *sortedLogItems = [[NSMutableArray alloc] initWithArray:self->_logItems copyItems:YES];
@@ -105,10 +103,8 @@
                 p1                = [textToMatch UTF8String];
                 p2                = [matchedText UTF8String];
                 
-                while ( ( *p1 == *p2 ) && !( *p1 == '\0' || *p2 == '\0' ) ) {
+                while ( ( *p1 == *p2 ) && *(++p1) && *(++p2) ) {
                     result++;
-                    p1++;
-                    p2++;
                 }
             }
         }
