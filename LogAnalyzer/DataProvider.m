@@ -944,15 +944,15 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (BOOL) startsWithDate:(NSString*)line
 {
-    static int const        DateStrLength = 9; // Such as "2014-09-25" or "01.06.2015", for example ...
-    static NSCharacterSet  *nonDateSet    = nil;
-    static dispatch_once_t  onceToken     = 0;
+    static int const        MinDateStrLength = 8; // Such as "08.15.34" "2014-09-25" or "01.06.2015", for example ...
+    static NSCharacterSet  *nonDateSet       = nil;
+    static dispatch_once_t  onceToken        = 0;
     
     dispatch_once( &onceToken, ^{
         nonDateSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789-.:"] invertedSet];
     });
     
-    return ( ( [line length] > DateStrLength ) && ( [[line substringToIndex:DateStrLength] rangeOfCharacterFromSet:nonDateSet].location == NSNotFound ) );
+    return ( ( [line length] > MinDateStrLength ) && ( [[line substringToIndex:MinDateStrLength] rangeOfCharacterFromSet:nonDateSet].location == NSNotFound ) );
 }
 
 //------------------------------------------------------------------------------
