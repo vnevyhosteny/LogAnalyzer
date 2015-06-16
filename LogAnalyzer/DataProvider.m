@@ -952,7 +952,7 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         nonDateSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789-.:"] invertedSet];
     });
     
-    return ( ( [line length] > MinDateStrLength ) && ( [[line substringToIndex:MinDateStrLength] rangeOfCharacterFromSet:nonDateSet].location == NSNotFound ) );
+    return ( ( [line length] >= MinDateStrLength ) && ( [[line substringToIndex:MinDateStrLength - 1] rangeOfCharacterFromSet:nonDateSet].location == NSNotFound ) );
 }
 
 //------------------------------------------------------------------------------
