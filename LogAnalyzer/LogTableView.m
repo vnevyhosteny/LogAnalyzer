@@ -12,15 +12,18 @@
 #import "LogAnalyzerWindow.h"
 #import "WindowManager.h"
 #import "MainViewController.h"
+#import "LogAnalyzerConsts.h"
 
 @import Carbon;
 
+//==============================================================================
 @interface LogTableView()
 {
     NSDate *_lastMouseDown;
 }
 @end
 
+//==============================================================================
 @implementation LogTableView
 
 static NSString *const kPrivateDragUTI         = @"cz.nefa.DragAndDrop";
@@ -228,6 +231,12 @@ NSString *const kClickedRow                    = @"ClickedRow";
 {
     NSArray        *draggedItems   = session.draggingPasteboard.pasteboardItems;
     NSUInteger      count          = [draggedItems count];
+    
+    if ( count > MAX_ITEMS_COUNT_TO_DRAG ) {
+        [self.mainViewDelegate stopActivityIndicator];
+        return;
+    }
+    
     NSMutableArray *aux            = nil;
     
     if ( count > 0 ) {

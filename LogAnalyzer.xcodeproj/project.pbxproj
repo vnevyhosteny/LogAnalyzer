@@ -89,6 +89,7 @@
 		19EB4BBA1A3B2E1800183F56 /* LogAnalyzerWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindowController.m; sourceTree = "<group>"; };
 		19EB4BBC1A3B3A2F00183F56 /* LogAnalyzerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogAnalyzerWindow.h; sourceTree = "<group>"; };
 		19EB4BBD1A3B3A2F00183F56 /* LogAnalyzerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogAnalyzerWindow.m; sourceTree = "<group>"; };
+		19EC85431B3169990021AE76 /* LogAnalyzerConsts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogAnalyzerConsts.h; sourceTree = "<group>"; };
 		19F3B3321A6D9AD300CDFCE6 /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
 		19F3B3341A6D9B3100CDFCE6 /* SessionContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SessionContainer.h; sourceTree = "<group>"; };
 		19F3B3351A6D9B3100CDFCE6 /* SessionContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SessionContainer.m; sourceTree = "<group>"; };
@@ -222,6 +223,7 @@
 				191AEA811A440DA100736A1A /* Extensions */,
 				19B532911ACC422D00421789 /* Frameworks */,
 				19C4EBE11A33A3CE00F88F53 /* Images.xcassets */,
+				19EC85431B3169990021AE76 /* LogAnalyzerConsts.h */,
 				19C4EBFD1A344C3E00F88F53 /* Protocols.h */,
 				19617D1E1AC72263002724EE /* Resources */,
 				19C4EBD71A33A3CE00F88F53 /* Supporting Files */,

@@ -10,6 +10,7 @@
 #import "HistoryTableView.h"
 #import "MainViewController.h"
 #import "WindowManager.h"
+#import "LogAnalyzerConsts.h"
 
 //==============================================================================
 @interface HistoryTableView()
@@ -99,6 +100,12 @@
 {
     NSArray        *draggedItems   = session.draggingPasteboard.pasteboardItems;
     NSUInteger      count          = [draggedItems count];
+    
+    if ( count > MAX_ITEMS_COUNT_TO_DRAG ) {
+        [self.mainViewDelegate stopActivityIndicator];
+        return;
+    }
+    
     NSMutableArray *aux            = nil;
     
     if ( count > 0 ) {
