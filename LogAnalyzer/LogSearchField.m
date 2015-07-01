@@ -37,7 +37,7 @@ NSString *const SearchFieldBecomeFirstResponderNotification = @"_search_field_fo
             
         case kVK_ANSI_V:
             if ( event.modifierFlags & NSCommandKeyMask ) {
-                NSString *foo = [[NSPasteboard generalPasteboard] stringForType:NSStringPboardType];
+                NSString *foo = [[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString];
                 if ( [foo length] ) {
                     [self setStringValue:foo];
                 }

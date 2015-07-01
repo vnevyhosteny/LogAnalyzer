@@ -845,7 +845,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     }
     
     [self startActivityIndicator];
-//    [self setCopyEnabled:YES];
+    [self setCopyEnabled:NO];
     
     LogItemViewController *controller = (LogItemViewController*)[[NSStoryboard storyboardWithName:kMainStoryboard bundle:nil] instantiateControllerWithIdentifier:kLogItemViewController];
     controller.logItem                = logItem;
@@ -1078,6 +1078,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
 //------------------------------------------------------------------------------
 - (void) textDidSelected:(LogItemViewController*)controller
 {
+    [self setCopyEnabled:YES];
     if ( controller ) {
         NSRange range = controller.textView.selectedRange;
         if ( ( range.location != NSNotFound ) && ( range.length > 0 ) ) {
@@ -1354,6 +1355,18 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
     });
 }
 
+//------------------------------------------------------------------------------
+- (void) turnOffFilterMode
+{
+    if ( self.dataProvider.filterType == FILTER_FILTER ) {
+        self.dataProvider.filterType = FILTER_SEARCH;
+        dispatch_async( dispatch_get_main_queue(), ^{
+            self.toggleFilterModeButton.state = NSOnState;
+            [self.toggleFilterModeButton setImage:[NSImage imageNamed:@"ButtonFilterOn"]];
+        });
+    }
+}
+
 #pragma mark -
 #pragma mark Searching Methods
 //------------------------------------------------------------------------------
@@ -1379,6 +1392,8 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         self->_isSearchingInProgress = NO;
 //        return;
     }
+    
+    [self turnOffFilterMode];
     
     self.dataProvider.filter.text   = ( [self->_currentFilterText length] ? self->_currentFilterText : nil );
     
@@ -1428,13 +1443,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         self.dataProvider.isSearching = NO;
     }
     
-    if ( self.dataProvider.filterType == FILTER_FILTER ) {
-        self.dataProvider.filterType = FILTER_SEARCH;
-        dispatch_async( dispatch_get_main_queue(), ^{
-            self.toggleFilterModeButton.state = NSOnState;
-            [self.toggleFilterModeButton setImage:[NSImage imageNamed:@"ButtonFilterOn"]];
-        });
-    }
+    [self turnOffFilterMode];
     
     self->_currentFilterText      = [self.searchField stringValue];
     self.dataProvider.filter.text = [self.searchField stringValue];

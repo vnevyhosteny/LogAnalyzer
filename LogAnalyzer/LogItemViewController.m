@@ -24,7 +24,9 @@
 //------------------------------------------------------------------------------
 - (void) awakeFromNib
 {
-    self.textView.closeCompletion = ^{ [self.mainViewDelegate textDidSelected:self]; };
+    self.textView.closeCompletion = ^{
+        [self.mainViewDelegate textDidSelected:self];
+    };
 }
 
 //------------------------------------------------------------------------------

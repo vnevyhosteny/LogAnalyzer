@@ -458,8 +458,21 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (void) addLogItemToHistory:(LogItem*)logItem
 {
-    if ( [self->_historyData indexOfObject:logItem] == NSNotFound ) {
-        [self->_historyData addObject:logItem];
+    @synchronized( self ) {
+        if ( [self->_historyData indexOfObject:logItem] == NSNotFound ) {
+            [self->_historyData addObject:logItem];
+            [self->_historyData sortUsingComparator:^NSComparisonResult( LogItem *li1, LogItem *li2 ) {
+                if ( li1.originalRowId < li2.originalRowId ) {
+                    return NSOrderedAscending;
+                }
+                else if ( li1.originalRowId > li2.originalRowId ) {
+                    return NSOrderedDescending;
+                }
+                else {
+                    return NSOrderedSame;
+                }
+            }];
+        }
     }
 }
 

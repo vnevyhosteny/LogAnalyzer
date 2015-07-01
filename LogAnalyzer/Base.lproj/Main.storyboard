@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
         <plugIn identifier="com.apple.WebKitIBPlugin" version="7706"/>
@@ -114,14 +114,12 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="GsQ-N9-hNK"/>
-                                        <menuItem title="Copy" enabled="NO" id="YmG-RJ-fGl">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Copy" enabled="NO" keyEquivalent="c" id="YmG-RJ-fGl">
                                             <connections>
                                                 <action selector="copyAction:" target="Voe-Tx-rLC" id="mY0-at-t39"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Paste" enabled="NO" id="18x-b3-fTh">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Paste" enabled="NO" keyEquivalent="v" id="18x-b3-fTh">
                                             <connections>
                                                 <action selector="pasteAction:" target="Voe-Tx-rLC" id="7Ak-Tr-w9D"/>
                                             </connections>
