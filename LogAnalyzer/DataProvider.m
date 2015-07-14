@@ -36,6 +36,7 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 @synthesize unmatchedRowsIndexSet = _unmatchedRowsIndexSet;
 @synthesize matchedRowsIndexDict  = _matchedRowsIndexDict;
 @synthesize isDataAnalysisRunning = _isDataAnalysisRunning;
+@synthesize isFilteringData       = _isFilteringData;
 
 //------------------------------------------------------------------------------
 - (instancetype) init
@@ -55,6 +56,7 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
         self->_matchedRowsIndexDict  = nil;
         self->_sessionContainer      = nil;
         self->_isDataAnalysisRunning = NO;
+        self->_isFilteringData       = NO;
         
         [self resetMatchCountersAndIndexes];
     }
@@ -90,6 +92,23 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
     });
 }
 
+//------------------------------------------------------------------------------
+- (BOOL) isFilteringData
+{
+    __block BOOL result;
+    dispatch_sync( self->_sync_queue, ^{
+        result = self->_isFilteringData;
+    });
+    return result;
+}
+
+//------------------------------------------------------------------------------
+- (void) setIsFilteringData:(BOOL)newValue
+{
+    dispatch_sync( self->_sync_queue, ^{
+        self->_isFilteringData = newValue;
+    });
+}
 
 //------------------------------------------------------------------------------
 - (void) resetMatchCountersAndIndexes
@@ -203,6 +222,8 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
 //------------------------------------------------------------------------------
 - (NSArray*) filteredData
 {
+    [self setIsFilteringData:YES];
+    
     @synchronized( self ) {
         if ( ![self->_filteredData count] && [self->_originalData count] ) {
             
@@ -252,6 +273,8 @@ NSString *const RemoteLogItemsReceivedNotification = @"_remote_log_items_receive
                 }
             }
         }
+        
+        [self setIsFilteringData:NO];
         
         return self->_filteredData;
     }

@@ -46,6 +46,7 @@ extern NSString *const RemoteLogItemsReceivedNotification ;
 @property (nonatomic, readonly) SessionContainer         *sessionContainer;
 @property (nonatomic, readwrite) id<DataProviderDelegate> dataProviderDelegate;
 @property (nonatomic, readonly) BOOL                      isDataAnalysisRunning;
+@property (nonatomic, readonly) BOOL                      isFilteringData;
 
 - (void) appendLogFromFile:(NSString*)fileName completion:(void (^)(NSError*))completion;
 - (void) appendLogFromText:(NSString*)logText completion:(void (^)(NSError*))completion;

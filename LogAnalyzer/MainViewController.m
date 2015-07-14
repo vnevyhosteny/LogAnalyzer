@@ -496,6 +496,10 @@ static CGFloat const FullColor        = 255.0f;
 //------------------------------------------------------------------------------
 - (IBAction) toggleFilterMode:(NSButton *)sender
 {
+    if ( self.dataProvider.isFilteringData ) {
+        return;
+    }
+    
     switch ( sender.state ) {
         case NSOnState:
             self.dataProvider.filterType = FILTER_SEARCH;

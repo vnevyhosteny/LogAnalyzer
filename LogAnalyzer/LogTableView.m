@@ -301,6 +301,10 @@ NSString *const kClickedRow                    = @"ClickedRow";
             }
             break;
             
+        case kVK_ANSI_I:
+            [self.mainViewDelegate insertItemToHistoryAtRow:row];
+            break;
+            
         case kVK_Delete:
             if ( event.modifierFlags & NSCommandKeyMask ) {
                 [self.mainViewDelegate removeMatchedRows];
