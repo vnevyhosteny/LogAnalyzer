@@ -41,17 +41,11 @@
 }
 
 //------------------------------------------------------------------------------
-- (void) viewWillAppear
-{
-//    CGSize size     = self.view.bounds.size;
-//    CGRect frame    = self.view.superview.frame;
-//    self.view.frame = CGRectMake( ( frame.size.width - size.width )/2.0f, ( frame.size.height - size.height )/2.0f, size.width, size.height  );
-}
-
-//------------------------------------------------------------------------------
 - (void) viewDidAppear
 {
     self->_isInitializing = YES;
+    
+    self.view.window.styleMask = NSClosableWindowMask | NSTitledWindowMask;
     
     [self.textView setFont:[NSFont logTableRegularFont]];
     if ( [[[self logItem] text] length] ) {

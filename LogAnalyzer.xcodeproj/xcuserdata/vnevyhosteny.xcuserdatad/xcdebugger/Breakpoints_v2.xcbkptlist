@@ -35,22 +35,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "LogAnalyzer/MainViewController.m"
-            timestampString = "455299401.42887"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1352"
-            endingLineNumber = "1352"
-            landmarkName = "-sessionContainerDidChangeState:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "LogAnalyzer/LogSearchField.m"
             timestampString = "457381627.504778"
             startingColumnNumber = "9223372036854775807"
@@ -67,13 +51,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "LogAnalyzer/LogTextView.m"
-            timestampString = "458545768.789559"
+            filePath = "LogAnalyzer/AppDelegate.m"
+            timestampString = "459244238.676373"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "-keyDown:"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
+            landmarkName = "-copyAction:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

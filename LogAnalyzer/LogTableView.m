@@ -302,6 +302,7 @@ NSString *const kClickedRow                    = @"ClickedRow";
             break;
             
         case kVK_ANSI_I:
+        case kVK_Space:
             [self.mainViewDelegate insertItemToHistoryAtRow:row];
             break;
             

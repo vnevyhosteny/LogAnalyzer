@@ -671,7 +671,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         
         if ( [tableColumn.identifier isEqualToString:kRowId] ) {
             NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
-            cell           = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
+            cell           = (LogTableCell*)[tableView viewAtColumn:0 row:row makeIfNecessary:NO];
             if ( cell ) {
                 [cell setStringValue:text];
             }
@@ -690,7 +690,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         }
         
         else if ( [tableColumn.identifier isEqualToString:kLogItem] ) {
-            cell           = [tableView viewAtColumn:1 row:row makeIfNecessary:NO];
+            cell           = (LogTableCell*)[tableView viewAtColumn:1 row:row makeIfNecessary:NO];
             if ( cell ) {
                 [cell setStringValue:logItem.text];
             }
@@ -729,7 +729,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         
         if ( [tableColumn.identifier isEqualToString:kRowId] ) {
             NSString *text = [NSString stringWithFormat:@"%lu", (unsigned long)logItem.originalRowId + 1];
-            cell           = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
+            cell           = (HistoryTableCell*)[tableView viewAtColumn:0 row:row makeIfNecessary:NO];
             if ( cell ) {
                 [cell setStringValue:text];
             }
@@ -744,7 +744,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
         }
         
         else if ( [tableColumn.identifier isEqualToString:kLogItem] ) {
-            cell           = [tableView viewAtColumn:1 row:row makeIfNecessary:NO];
+            cell           = (HistoryTableCell*)[tableView viewAtColumn:1 row:row makeIfNecessary:NO];
             if ( cell ) {
                 [cell setStringValue:logItem.text];
             }
