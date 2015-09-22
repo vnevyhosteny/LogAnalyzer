@@ -598,7 +598,7 @@ static CGFloat const FullColor        = 255.0f;
                             else {
                                 [self.historyTableView.enclosingScrollView setBorderType:NSLineBorder];
                                 [self scrollViewContentBoundsDidChange:nil];
-                                [self tableViewSelectionDidChange:nil];
+                                [self tableViewSelectionDidChange:[NSNotification notificationWithName:NSTableViewSelectionDidChangeNotification object:nil]];
                                 [self.view.window makeFirstResponder:self.historyTableView];
                             }
                         }];

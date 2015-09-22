@@ -8,6 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface HelpViewController : NSViewController
+@interface HelpViewController : NSViewController <WebPolicyDelegate>
 
 @end
