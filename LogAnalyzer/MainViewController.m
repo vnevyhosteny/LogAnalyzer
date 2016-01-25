@@ -1408,7 +1408,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             BOOL found = ( self.dataProvider.firstMatchedRowIndex != NSNotFound );
             
             if ( found ) {
-                [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex];
+                [self.logTableView scrollRowToVisible:[self lastVisibleRowAfterSearch]];
                 [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:self.dataProvider.firstMatchedRowIndex] byExtendingSelection:NO];
             }
             
@@ -1429,6 +1429,17 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
             [self.view.window makeFirstResponder:self.logTableView];
         });
     }];
+}
+
+//------------------------------------------------------------------------------
+- (NSUInteger) lastVisibleRowAfterSearch
+{
+    NSUInteger delta   = 10;
+    NSUInteger lastRow = self.dataProvider.firstMatchedRowIndex;
+    if ( lastRow + delta < self.dataProvider.filteredData.count ) {
+        lastRow += delta;
+    }
+    return lastRow;
 }
 
 //------------------------------------------------------------------------------
@@ -1460,7 +1471,7 @@ dataCellForTableColumn:(NSTableColumn *)tableColumn
                 [self reloadLog];
                 [self stopActivityIndicator];
                 if ( found ) {
-                    [self.logTableView scrollRowToVisible:self.dataProvider.firstMatchedRowIndex];
+                    [self.logTableView scrollRowToVisible:[self lastVisibleRowAfterSearch]];
                     [self.logTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:self.dataProvider.firstMatchedRowIndex] byExtendingSelection:NO];
                 }
             });
